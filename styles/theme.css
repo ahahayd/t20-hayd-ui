@@ -1508,7 +1508,7 @@
 /* ── Header: overlay semi-transparente da cor de destaque sobre a imagem ── */
 .t20a-chat-msg .message-header {
     border-radius: 4px 4px 0 0 !important;
-    background: color-mix(in srgb, var(--t20a-chat-cor) 90%, transparent) !important;
+    background: color-mix(in srgb, var(--t20a-chat-cor) 95%, transparent) !important;
     border: none !important;
     border-bottom: 1px solid #c4a882 !important;
     padding: 6px 8px !important;
@@ -1736,6 +1736,9 @@
     border: 1px solid var(--t20a-border) !important;
     border-radius: var(--t20a-radius) !important;
     box-shadow: 0 0 0 1px rgba(0,0,0,0.6), 0 20px 60px rgba(0,0,0,0.55) !important;
+    max-height: 90vh !important;
+    display: flex !important;
+    flex-direction: column !important;
 }
 
 /* ── Cabeçalho da janela ────────────────────────────────────────────────── */
@@ -1777,7 +1780,9 @@
     backdrop-filter: blur(10px) !important;
     -webkit-backdrop-filter: blur(10px) !important;
     padding: 12px !important;
-    overflow: hidden !important;
+    overflow-y: auto !important;
+    flex: 1 !important;
+    min-height: 0 !important;
 }
 
 /* Garante texto claro em todo conteúdo interno (sobrepõe theme-light) */
@@ -1983,9 +1988,14 @@
 .tormenta20.window-app.dialog .dialog-buttons {
     border-top: 1px solid var(--t20a-border) !important;
     padding-top: 8px !important;
-    background: transparent !important;
+    background: rgba(15, 16, 26, 0.98) !important;
     display: flex !important;
     gap: 6px !important;
+    position: sticky !important;
+    bottom: -12px !important;
+    margin: 0 -12px -12px !important;
+    padding: 8px 12px 12px !important;
+    z-index: 1 !important;
 }
 
 .tormenta20.window-app.dialog .dialog-buttons button {
