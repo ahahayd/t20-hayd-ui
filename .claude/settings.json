@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/Haydgi/AppData/Local/FoundryVTT/Data/systems/**)",
+      "Read(//c/Users/Haydgi/AppData/Local/FoundryVTT/Data/systems/tormenta20/**)",
+      "PowerShell(Get-ChildItem -LiteralPath \"C:\\\\Users\\\\Haydgi\\\\AppData\\\\Local\\\\FoundryVTT\\\\Data\\\\systems\\\\tormenta20\" -Force | ForEach-Object { $_.FullName })",
+      "PowerShell(Select-String -LiteralPath \"C:\\\\Users\\\\Haydgi\\\\AppData\\\\Local\\\\FoundryVTT\\\\Data\\\\systems\\\\tormenta20\\\\tormenta20.css\" -Pattern \"skills-list|currency-item\" | Select-Object -First 30 | ForEach-Object { \"$\\($_.LineNumber\\): $\\($_.Line\\)\" })"
+    ]
+  }
+}

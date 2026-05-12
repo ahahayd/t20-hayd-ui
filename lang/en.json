@@ -1,0 +1,23 @@
+{
+    "T20A": {
+        "Settings": {
+            "EnabledName": "Enable visual theme",
+            "EnabledHint": "Applies the dark modern visual theme to character, NPC and item sheets of the Tormenta20 system. Reloads the page when changed.",
+            "CorPadraoName": "Default accent color",
+            "CorPadraoHint": "Color (hex, e.g. #960505) used when the sheet is in 'default' mode or has no player owner.",
+            "MostrarLogoName": "Show Tormenta 20 logo",
+            "MostrarLogoHint": "Displays the floating Tormenta 20 logo above the character portrait."
+        },
+        "HeaderButton": "Sheet Color",
+        "Dialog": {
+            "Title": "Sheet accent color",
+            "Intro": "Choose how the accent color of this sheet is determined:",
+            "ModeAuto": "Player Color (automatic)",
+            "ModeAutoHint": "Use the color set by the first player owner of the sheet (GM is ignored).",
+            "ModePadrao": "Default color",
+            "ModePadraoHint": "Always use the module's default color:"
+        },
+        "Confirm": "Apply",
+        "Cancel": "Cancel"
+    }
+}

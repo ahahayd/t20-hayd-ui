@@ -1,0 +1,23 @@
+{
+    "T20A": {
+        "Settings": {
+            "EnabledName": "Ativar tema visual",
+            "EnabledHint": "Aplica o tema visual escuro e moderno nas fichas de personagem, NPC e itens do sistema Tormenta20. Recarrega a página ao alterar.",
+            "CorPadraoName": "Cor de destaque padrão",
+            "CorPadraoHint": "Cor (hex, ex.: #960505) usada quando a ficha está em modo 'padrão' ou não tem nenhum jogador como dono.",
+            "MostrarLogoName": "Mostrar logo do Tormenta 20",
+            "MostrarLogoHint": "Exibe o logo flutuante do Tormenta 20 sobre a foto do personagem."
+        },
+        "HeaderButton": "Cor da Ficha",
+        "Dialog": {
+            "Title": "Cor de destaque da ficha",
+            "Intro": "Escolha como a cor de destaque desta ficha será definida:",
+            "ModeAuto": "Cor do Jogador (automática)",
+            "ModeAutoHint": "Usar a cor configurada pelo primeiro jogador dono da ficha (ignora o Mestre).",
+            "ModePadrao": "Cor padrão",
+            "ModePadraoHint": "Sempre usar a cor padrão do módulo:"
+        },
+        "Confirm": "Aplicar",
+        "Cancel": "Cancelar"
+    }
+}

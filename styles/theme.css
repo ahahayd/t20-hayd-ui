@@ -1,0 +1,1477 @@
+/* ==========================================================================
+   Tormenta20 – Arcano • Tema (camada 'modules', vence 'system' no v13)
+   Todos os seletores são prefixados com .t20a para isolar do resto do app.
+   Estilo: dark moderno, glassmórfico, cor de destaque MUITO presente.
+   ========================================================================== */
+
+/* ===== Janela / Wrapper ================================================== */
+
+.t20a.window-app {
+    color: var(--t20a-text-primary);
+    font-family: var(--t20a-font-texto);
+    border: 1px solid var(--t20a-border);
+    border-radius: var(--t20a-radius);
+    box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.6),
+        0 20px 60px rgba(0, 0, 0, 0.55);
+    overflow: visible;
+}
+
+/* Header nativa do Foundry (a barra de cima com título e botões) */
+.t20a .window-header {
+    background:
+        linear-gradient(180deg,
+            color-mix(in srgb, var(--t20a-cor-destaque) 70%, black) 0%,
+            color-mix(in srgb, var(--t20a-cor-destaque) 55%, black) 100%);
+    color: var(--t20a-on-destaque);
+    border-bottom: 1px solid var(--t20a-destaque-borda);
+    box-shadow: 0 2px 0 0 var(--t20a-cor-destaque);
+}
+
+.t20a .window-header .window-title {
+    font-family: var(--t20a-font-titulo);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--t20a-on-destaque);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.t20a .window-header a,
+.t20a .window-header .header-button,
+.t20a .window-header a.header-control {
+    color: var(--t20a-on-destaque);
+    transition: color 120ms ease, text-shadow 120ms ease;
+}
+
+.t20a .window-header a:hover,
+.t20a .window-header .header-button:hover {
+    color: white;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+.t20a .window-header .t20a-config i {
+    color: var(--t20a-on-destaque);
+}
+
+/* Conteúdo da janela: glassmórfico escuro */
+.t20a .window-content {
+    background:
+        radial-gradient(ellipse at top right,
+            var(--t20a-destaque-tenue) 0%, transparent 55%),
+        radial-gradient(ellipse at bottom left,
+            var(--t20a-destaque-tenue) 0%, transparent 50%),
+        linear-gradient(180deg,
+            var(--t20a-bg-primary) 0%,
+            var(--t20a-bg-surface) 100%);
+    color: var(--t20a-text-primary);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 0;
+    overflow: hidden;
+}
+
+/* ===== Logo do Tormenta 20 (filho direto do .window-app) ================ */
+
+/* Posicionado absolutamente via JS, alinhado com o .sheet-tabs.            */
+/* Fica 10px acima da barra de abas (efeito 3D de "badge elevado").         */
+/* Não participa do fluxo flex → não afeta o tamanho da janela.            */
+
+.t20a.window-app > .t20a-brand-logo {
+    position: absolute;
+    top: 25px !important;
+    left: -15px;
+    height: 55px !important;          /* fallback; JS sobrescreve com (tabs_height + lift) × 1.2 */
+    width: auto;
+    z-index: 100;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    filter: drop-shadow(0 0 12px var(--t20a-destaque-glow));
+}
+
+/* ===== Sheet Header (imagem + nome + sumário) ============================ */
+
+.t20a .sheet-header {
+    background: transparent;
+    border-bottom: 1px solid var(--t20a-border);
+    padding: 12px 14px 8px;
+    margin: 0 0 12px;
+    position: relative;
+    overflow: visible;
+}
+
+.t20a .sheet-header::after {
+    content: "";
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: -1px;
+    height: 2px;
+    background: linear-gradient(90deg,
+        var(--t20a-cor-destaque) 0%,
+        var(--t20a-destaque-borda) 50%,
+        transparent 100%);
+}
+
+.t20a .sheet-header h1 {
+    border: none;
+    margin: 0;
+}
+
+.t20a .sheet-header h1 input,
+.t20a .sheet-header input[name="name"] {
+    font-family: var(--t20a-font-display);
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--t20a-text-primary);
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed transparent;
+    letter-spacing: 0.02em;
+    height: auto;
+    padding: 2px 4px;
+    box-shadow: none;
+    transition: border-color 140ms ease;
+}
+
+.t20a .sheet-header h1 input:hover,
+.t20a .sheet-header h1 input:focus {
+    border-bottom-color: var(--t20a-destaque-borda);
+}
+
+.t20a .sheet-header img.profile,
+.t20a .sheet-header .profile,
+.t20a .sheet-header .profile-img {
+    border: 2px solid var(--t20a-cor-destaque);
+    border-radius: var(--t20a-radius-sm);
+    box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.6),
+        0 0 18px var(--t20a-destaque-glow),
+        0 4px 12px rgba(0, 0, 0, 0.55);
+    background: var(--t20a-bg-deep);
+}
+
+.t20a .sheet-header .summary {
+    background: transparent;
+    border: none;
+    margin-top: 6px;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    list-style: none;
+}
+
+.t20a .sheet-header .summary li {
+    background: var(--t20a-destaque-bg);
+    color: var(--t20a-on-destaque);
+    border: 1px solid var(--t20a-destaque-borda);
+    border-radius: 0;
+    padding: 2px 12px;
+    font-family: var(--t20a-font-titulo);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.6;
+    margin: 0;
+    float: none;
+}
+
+.t20a .sheet-header .summary li:last-child {
+    border-right: 1px solid var(--t20a-destaque-borda);
+}
+
+/* input direto no li (Origem, Divindade): transparente para herdar o chip  */
+.t20a .sheet-header .summary li > input {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: var(--t20a-on-destaque) !important;
+    font-family: var(--t20a-font-titulo) !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    padding: 0 !important;
+    height: auto !important;
+    width: 100%;
+    line-height: 1.6;
+}
+
+/* ===== Abas / Tabs ======================================================= */
+
+.t20a .sheet-tabs {
+    display: flex;
+    align-items: stretch;
+    gap: 2px;
+    background: var(--t20a-bg-deep);
+    border-top: none;
+    border-bottom: 1px solid var(--t20a-border);
+    padding: 0 8px;
+    margin: 0;
+    overflow: visible;
+}
+
+.t20a .sheet-tabs label,
+.t20a .sheet-tabs > * {
+    background: transparent;
+}
+
+.t20a .sheet-tabs a.item,
+.t20a .tabs > a.item {
+    position: relative;
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--t20a-text-secondary);
+    font-family: var(--t20a-font-titulo);
+    text-transform: uppercase;
+    letter-spacing: 0.10em;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 13px 14px;
+    line-height: 1;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 140ms ease, background 140ms ease, border-color 140ms ease;
+}
+
+.t20a .sheet-tabs a.item:hover,
+.t20a .tabs > a.item:hover {
+    color: var(--t20a-text-primary);
+    background: var(--t20a-destaque-tenue);
+}
+
+.t20a .sheet-tabs a.item.active,
+.t20a .tabs > a.item.active {
+    color: var(--t20a-destaque-claro);
+    background: var(--t20a-destaque-bg);
+    border-bottom-color: var(--t20a-cor-destaque);
+    text-shadow: 0 0 10px var(--t20a-destaque-glow);
+}
+
+.t20a .sheet-tabs label i,
+.t20a .sheet-tabs i.fas {
+    color: inherit;
+    margin-right: 4px;
+}
+
+/* ===== Sheet body ======================================================== */
+
+.t20a .sheet-body {
+    padding: 12px 0 12px 14px;
+}
+
+/* ===== Tipografia geral ================================================== */
+
+.t20a h1, .t20a h2, .t20a h3, .t20a h4 {
+    font-family: var(--t20a-font-titulo);
+    color: var(--t20a-text-primary);
+    letter-spacing: 0.04em;
+    margin: 0;
+}
+
+.t20a a {
+    color: var(--t20a-destaque-claro);
+}
+
+.t20a a:hover {
+    color: white;
+    text-shadow: 0 0 8px var(--t20a-destaque-glow);
+}
+
+/* ===== Inputs ============================================================ */
+
+.t20a input[type="text"],
+.t20a input[type="number"],
+.t20a input[type="password"],
+.t20a input[type="search"],
+.t20a textarea,
+.t20a select {
+    background: var(--t20a-bg-input);
+    color: var(--t20a-text-primary);
+    border: 1px solid var(--t20a-border);
+    border-radius: var(--t20a-radius-sm);
+    font-family: var(--t20a-font-texto);
+    transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
+    box-shadow: none;
+}
+
+.t20a option {
+    background: #1e2133;
+    color: #eceaf2;
+}
+
+.t20a option:hover,
+.t20a option:checked {
+    background: #3a1a1a;
+    color: #ffffff;
+}
+
+.t20a input::placeholder,
+.t20a textarea::placeholder {
+    color: var(--t20a-text-muted);
+}
+
+.t20a input:hover,
+.t20a textarea:hover,
+.t20a select:hover {
+    border-color: var(--t20a-destaque-borda);
+    background: var(--t20a-bg-input-hover);
+}
+
+.t20a input:focus,
+.t20a textarea:focus,
+.t20a select:focus {
+    border-color: var(--t20a-cor-destaque);
+    background: var(--t20a-bg-input-hover);
+    box-shadow:
+        0 0 0 1px var(--t20a-cor-destaque),
+        0 0 10px var(--t20a-destaque-glow);
+    outline: none;
+}
+
+.t20a input[disabled],
+.t20a textarea[disabled],
+.t20a select[disabled] {
+    color: var(--t20a-text-muted);
+    background: rgba(0, 0, 0, 0.18);
+    border-color: var(--t20a-border-soft);
+}
+
+/* Botões */
+.t20a button,
+.t20a .dialog-button {
+    background: var(--t20a-bg-elevated);
+    color: var(--t20a-text-primary);
+    border: 1px solid var(--t20a-destaque-borda);
+    border-radius: var(--t20a-radius-sm);
+    font-family: var(--t20a-font-titulo);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    transition: background 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+    text-shadow: none;
+}
+
+.t20a button:hover {
+    background: var(--t20a-destaque-bg);
+    border-color: var(--t20a-cor-destaque);
+    box-shadow: 0 0 12px var(--t20a-destaque-glow);
+}
+
+/* ===== Títulos de seção (.box-title, .attribute-name) =================== */
+
+.t20a .box-title,
+.t20a .attribute-name,
+.t20a .poderes-title {
+    font-family: var(--t20a-font-titulo);
+    text-transform: uppercase;
+    letter-spacing: 0.10em;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--t20a-destaque-claro);
+    border-bottom: 1px solid var(--t20a-cor-destaque);
+    padding: 4px 6px;
+    margin: 0 0 2px !important;
+    text-align: center;
+    background: linear-gradient(180deg,
+        var(--t20a-destaque-bg) 0%,
+        transparent 100%);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* ===== Atributos (FOR/DES/CON/INT/SAB/CAR) ============================== */
+
+.t20a .attributes-body {
+    padding: 0;
+}
+
+.t20a .ability-scores {
+    border: 1px solid var(--t20a-border);
+    background: var(--t20a-bg-deep);
+    border-radius: var(--t20a-radius);
+    box-shadow: var(--t20a-shadow-block);
+    overflow: hidden;
+    margin: 0 0 10px;
+}
+
+.t20a .ability-scores .ability {
+    border-right: 1px solid var(--t20a-border-soft) !important;
+    padding: 0 0 6px;
+    transition: background 150ms ease;
+    position: relative;
+}
+
+.t20a .ability-scores .ability:hover {
+    background: var(--t20a-destaque-tenue);
+}
+
+.t20a .ability-scores .ability:last-child {
+    border-right: none !important;
+}
+
+.t20a .ability-scores .ability .ability-name {
+    background: linear-gradient(180deg,
+        var(--t20a-destaque-bg-forte) 0%,
+        var(--t20a-destaque-bg) 100%);
+    color: var(--t20a-destaque-claro);
+    border-bottom: 1px solid var(--t20a-cor-destaque) !important;
+    margin: 0 0 2px !important;
+    padding: 4px 0;
+    text-align: center;
+    font-family: var(--t20a-font-titulo);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.t20a .ability-scores .ability h1 {
+    color: var(--t20a-text-primary);
+    font-family: var(--t20a-font-display);
+    font-size: 28px;
+    font-weight: 600;
+    margin: 8px 0 4px;
+    border: 0 !important;
+    text-align: center;
+    line-height: 1;
+    text-shadow: 0 0 12px var(--t20a-destaque-glow);
+}
+
+.t20a .ability-scores .ability:hover h1 {
+    color: var(--t20a-destaque-claro);
+    text-shadow: 0 0 18px var(--t20a-destaque-glow);
+}
+
+.t20a .atributo-rollable {
+    cursor: pointer;
+}
+
+.t20a .ability footer input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px dotted var(--t20a-border-strong);
+    color: var(--t20a-text-secondary);
+    text-align: center;
+    font-family: var(--t20a-font-mono);
+    font-size: 12px;
+    padding: 1px 2px;
+}
+
+.t20a .ability footer input:hover,
+.t20a .ability footer input:focus {
+    border-bottom-color: var(--t20a-cor-destaque);
+    color: var(--t20a-text-primary);
+}
+
+/* ===== Recursos (PV / PM) =============================================== */
+
+.t20a .recursos {
+    margin: 10px 0;
+}
+
+.t20a .attributes.flexrow {
+    gap: 10px;
+}
+
+.t20a .attribute.health,
+.t20a .attribute.mana {
+    border: 1px solid var(--t20a-border);
+    background:
+        linear-gradient(180deg,
+            var(--t20a-destaque-tenue) 0%,
+            var(--t20a-bg-deep) 100%);
+    border-radius: var(--t20a-radius);
+    padding: 0 6px 8px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--t20a-shadow-block);
+}
+
+.t20a .attribute.health::before,
+.t20a .attribute.mana::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: var(--t20a-cor-destaque);
+    box-shadow: 0 0 12px var(--t20a-destaque-glow);
+}
+
+.t20a .attribute.health .attribute-name,
+.t20a .attribute.mana   .attribute-name,
+.t20a .attribute.defense .attribute-name {
+    background: transparent;
+    border: none !important;
+    color: var(--t20a-destaque-claro);
+    text-align: center;
+    padding: 6px 0 0;
+    margin-bottom: 2px !important;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.10em;
+    font-weight: 700;
+}
+
+.t20a .attribute-value {
+    text-align: center;
+}
+
+.t20a .attribute-value input {
+    font-family: var(--t20a-font-display);
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--t20a-destaque-borda);
+    color: var(--t20a-text-primary);
+    width: 45%;
+    box-shadow: none;
+    text-shadow: 0 0 12px var(--t20a-destaque-glow);
+    padding: 2px 0;
+}
+
+.t20a .attribute-value input:focus {
+    border-bottom-color: var(--t20a-cor-destaque);
+}
+
+.t20a .attribute-value .sep {
+    color: var(--t20a-text-muted);
+    margin: 0 6px;
+    font-family: var(--t20a-font-display);
+    font-size: 18px;
+}
+
+.t20a .attribute-footer {
+    margin-top: 2px;
+}
+
+.t20a .attribute-footer input,
+.t20a .attribute-footer input.temphealth {
+    background: var(--t20a-bg-input);
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    text-align: center;
+    color: var(--t20a-text-secondary);
+    font-size: 11px;
+    border-radius: var(--t20a-radius-sm);
+}
+
+/* ===== Defesa / Conditions ============================================== */
+
+.t20a .defesa,
+.t20a .conditions {
+    background: var(--t20a-bg-deep);
+    border: 1px solid var(--t20a-border);
+    border-left: 3px solid var(--t20a-cor-destaque);
+    border-radius: var(--t20a-radius);
+    padding: 8px 10px;
+    margin: 10px 0;
+    box-shadow: var(--t20a-shadow-block);
+}
+
+/* ===== Listas de itens (ataques, magias, equipamento, talentos) ========= */
+
+.t20a .item-list,
+.t20a ol.item-list,
+.t20a ul.item-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--t20a-border);
+    border-radius: var(--t20a-radius);
+    overflow: visible;
+    background: var(--t20a-bg-deep);
+}
+
+.t20a .ataques,
+.t20a .conditions,
+.t20a .defesa {
+    margin: 10px 0;
+}
+
+.t20a .item-header,
+.t20a .item-list .item-header {
+    background: linear-gradient(180deg,
+        var(--t20a-destaque-bg-forte) 0%,
+        var(--t20a-destaque-bg) 100%);
+    color: var(--t20a-destaque-claro);
+    font-family: var(--t20a-font-titulo);
+    text-transform: uppercase;
+    letter-spacing: 0.10em;
+    font-size: 11px;
+    font-weight: 700;
+    border: none;
+    border-bottom: 1px solid var(--t20a-cor-destaque);
+    padding: 6px 10px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+}
+
+.t20a .item-list .item {
+    border-bottom: 1px solid var(--t20a-border-soft);
+    padding: 6px 10px;
+    transition: background 120ms ease, border-color 120ms ease;
+    color: var(--t20a-text-primary);
+}
+
+.t20a .item-list .item:last-child {
+    border-bottom: none;
+}
+
+.t20a .item-list .item:hover {
+    background: var(--t20a-destaque-hover);
+    border-bottom-color: var(--t20a-destaque-borda);
+}
+
+.t20a .item-list .item h4 {
+    margin: 0;
+    font-size: 13px;
+    color: var(--t20a-text-primary);
+    border: none;
+    text-transform: none;
+    letter-spacing: 0;
+    font-family: var(--t20a-font-texto);
+    font-weight: 600;
+}
+
+.t20a .item-list .item:hover h4 {
+    color: white;
+}
+
+.t20a .item-image {
+    border: 1px solid var(--t20a-destaque-borda);
+    border-radius: var(--t20a-radius-sm);
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+.t20a .item-list .item .item-qty,
+.t20a .item-list .item .item-weight {
+    border-left: 1px solid var(--t20a-border-soft);
+    border-right: 1px solid var(--t20a-border-soft);
+}
+
+/* ===== Controles de item ================================================ */
+
+.t20a .item-controls,
+.t20a .item-control {
+    color: var(--t20a-text-muted);
+    transition: color 120ms ease, text-shadow 120ms ease;
+}
+
+.t20a .item-control:hover,
+.t20a .item-controls a:hover {
+    color: var(--t20a-destaque-claro);
+    text-shadow: 0 0 10px var(--t20a-destaque-glow);
+}
+
+.t20a .item-create {
+    color: var(--t20a-destaque-claro);
+    font-family: var(--t20a-font-titulo);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.10em;
+}
+
+.t20a .item-create:hover {
+    color: white;
+    text-shadow: 0 0 10px var(--t20a-destaque-glow);
+}
+
+/* ===== Item summary (descrição expansível) ============================== */
+
+.t20a .item-summary {
+    color: var(--t20a-text-primary) !important;
+}
+
+.t20a .item-summary p,
+.t20a .item-summary span {
+    color: var(--t20a-text-primary) !important;
+    background-color: transparent !important;
+}
+
+.t20a .item-summary .content-link {
+    background: var(--t20a-bg-elevated) !important;
+    color: var(--t20a-destaque-claro) !important;
+    border: 1px solid var(--t20a-border) !important;
+    border-radius: 2px;
+    padding: 0 3px;
+}
+
+.t20a .item-summary .content-link:hover {
+    background: var(--t20a-destaque-bg) !important;
+    border-color: var(--t20a-destaque-borda) !important;
+}
+
+/* ===== Currency (TO/TP/TC) ============================================== */
+
+.t20a .currency {
+    background: var(--t20a-bg-deep);
+    border: 1px solid var(--t20a-border);
+    border-radius: var(--t20a-radius);
+    padding: 6px 10px;
+    box-shadow: var(--t20a-shadow-block);
+}
+
+.t20a .currency-header {
+    font-family: var(--t20a-font-titulo);
+    color: var(--t20a-destaque-claro);
+    text-transform: uppercase;
+    letter-spacing: 0.10em;
+    font-size: 11px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--t20a-cor-destaque);
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+}
+
+.t20a .currency-item {
+    background: var(--t20a-bg-deep) !important;
+    border: 1px solid var(--t20a-border) !important;
+    border-radius: 0 !important;
+    color: var(--t20a-text-primary);
+}
+
+.t20a .currency-item .denomination {
+    font-family: var(--t20a-font-titulo);
+    color: var(--t20a-text-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.t20a .currency-item input {
+    background: var(--t20a-bg-input);
+    border: 1px solid var(--t20a-border);
+    text-align: center;
+    color: var(--t20a-text-primary);
+}
+
+/* ===== Carga / Encumbrance ============================================== */
+
+.t20a .encumbrance {
+    background: var(--t20a-bg-deep);
+    border: 1px solid var(--t20a-border);
+    border-radius: var(--t20a-radius-sm);
+    overflow: hidden;
+    position: relative;
+    height: 14px;
+    margin: 6px 0;
+}
+
+.t20a .encumbrance-bar {
+    background: linear-gradient(90deg,
+        var(--t20a-cor-destaque),
+        var(--t20a-destaque-claro));
+    height: 100%;
+    box-shadow: 0 0 10px var(--t20a-destaque-glow);
+}
+
+.t20a .encumbrance-label {
+    position: relative;
+    z-index: 2;
+    color: var(--t20a-text-primary);
+    font-family: var(--t20a-font-titulo);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.t20a .encumbrance-breakpoint {
+    border-color: var(--t20a-border-strong);
+}
+
+/* ===== Editor de descrição (ProseMirror / TinyMCE) ====================== */
+
+.t20a .editor,
+.t20a .editor-content {
+    background: var(--t20a-bg-input);
+    border: 1px solid var(--t20a-border);
+    border-radius: var(--t20a-radius-sm);
+    color: var(--t20a-text-primary);
+    font-family: var(--t20a-font-texto);
+    padding: 6px 10px;
+    min-height: 80px;
+}
+
+.t20a .editor.prosemirror .editor-menu {
+    background: var(--t20a-bg-elevated);
+    border-bottom: 1px solid var(--t20a-border);
+    color: var(--t20a-text-primary);
+}
+
+.t20a .editor-edit {
+    color: var(--t20a-destaque-claro);
+}
+
+.t20a .editor-content p,
+.t20a .editor-content span,
+.t20a .editor-content li {
+    color: var(--t20a-text-primary);
+}
+
+/* ===== Itens (ItemSheet) ================================================ */
+
+.t20a.sheet.item .sheet-header,
+.t20a .sheet.item .sheet-header {
+    border-bottom: 1px solid var(--t20a-border);
+    padding: 10px 14px;
+}
+
+.t20a.sheet.item .sheet-body,
+.t20a .sheet.item .sheet-body {
+    padding: 12px 14px;
+}
+
+.t20a .item-detail {
+    background: var(--t20a-bg-deep);
+    border: 1px solid var(--t20a-border);
+    border-radius: var(--t20a-radius-sm);
+    padding: 6px 10px;
+    margin: 6px 0;
+}
+
+.t20a .item-detail label,
+.t20a .form-group > label,
+.t20a label {
+    font-family: var(--t20a-font-titulo);
+    color: var(--t20a-text-secondary);
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+}
+
+/* ===== NPC Sheet específicos ============================================ */
+
+.t20a .npc-tasks,
+.t20a .npc-stats {
+    background: var(--t20a-bg-deep);
+    border: 1px solid var(--t20a-border);
+    border-left: 3px solid var(--t20a-cor-destaque);
+    border-radius: var(--t20a-radius);
+    padding: 8px 10px;
+    margin: 8px 0;
+}
+
+/* ===== Dialog de configuração de cor (custom) =========================== */
+
+.t20a-color-config-dialog .window-content {
+    background:
+        linear-gradient(180deg,
+            rgba(15, 16, 26, 0.96) 0%,
+            rgba(24, 26, 38, 0.96) 100%);
+    color: #eceaf2;
+    backdrop-filter: blur(10px);
+}
+
+.t20a-color-config-dialog .window-header {
+    background: linear-gradient(180deg, #14151f, #1c1e2c);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #eceaf2;
+}
+
+.t20a-color-dialog {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 4px 2px;
+}
+
+.t20a-color-dialog .t20a-dialog-intro {
+    font-size: 12px;
+    color: #b4b1c4;
+    margin: 0 0 6px;
+    font-style: italic;
+    line-height: 1.5;
+}
+
+.t20a-color-dialog .t20a-dialog-mode {
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 6px;
+    padding: 10px 12px;
+    background: rgba(0, 0, 0, 0.25);
+    transition: border-color 140ms ease, background 140ms ease;
+}
+
+.t20a-color-dialog .t20a-dialog-mode.is-active {
+    border-color: #4c4ab7;
+    background: rgba(76, 74, 183, 0.18);
+    box-shadow: 0 0 14px rgba(76, 74, 183, 0.35);
+}
+
+.t20a-color-dialog .t20a-radio-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #eceaf2;
+}
+
+.t20a-color-dialog .t20a-radio-row input[type="radio"] {
+    margin-top: 3px;
+    accent-color: #4c4ab7;
+}
+
+.t20a-color-dialog .t20a-radio-label {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.t20a-color-dialog .t20a-radio-label strong {
+    font-family: "Signika", "Inter", system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: none;
+    letter-spacing: 0;
+    color: #eceaf2;
+}
+
+.t20a-color-dialog .t20a-radio-label em {
+    font-style: normal;
+    font-size: 11px;
+    color: #b4b1c4;
+}
+
+.t20a-color-dialog .t20a-dialog-select {
+    width: 100%;
+    margin-top: 8px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.45);
+    color: #eceaf2;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    font-size: 13px;
+}
+
+.t20a-color-dialog .t20a-color-picker-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.t20a-color-dialog .t20a-color-picker-row input[type="color"] {
+    width: 44px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+}
+
+.t20a-color-dialog .t20a-color-picker-row input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.t20a-color-dialog .t20a-color-picker-row input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 3px;
+}
+
+.t20a-color-dialog .t20a-color-picker-row input[type="text"] {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.45);
+    color: #eceaf2;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-family: "JetBrains Mono", Consolas, monospace;
+    font-size: 13px;
+}
+
+/* ===== Scrollbars ======================================================== */
+
+.t20a ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.t20a ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 4px;
+}
+
+.t20a ::-webkit-scrollbar-thumb {
+    background: var(--t20a-cor-destaque);
+    border-radius: 4px;
+}
+
+.t20a ::-webkit-scrollbar-thumb:hover {
+    background: var(--t20a-destaque-claro);
+    box-shadow: 0 0 6px var(--t20a-destaque-glow);
+}
+
+/* Firefox */
+.t20a {
+    scrollbar-width: thin;
+    scrollbar-color: var(--t20a-cor-destaque) rgba(0, 0, 0, 0.35);
+}
+
+/* ===== Foco de acessibilidade =========================================== */
+
+.t20a *:focus-visible {
+    outline: 2px solid var(--t20a-cor-destaque);
+    outline-offset: 1px;
+    box-shadow: 0 0 10px var(--t20a-destaque-glow);
+}
+
+/* ==========================================================================
+   AJUSTES PONTUAIS APÓS FEEDBACK (v1.1)
+   ========================================================================== */
+
+/* --- Quadrar tudo (zerar border-radius residuais) ------------------------ */
+/* Os blocos que usam --t20a-radius / --t20a-radius-sm já viram 0           */
+/* automaticamente. Aqui forçamos as exceções: inputs do sistema, botões    */
+/* customizados e elementos de fichas com cantos arredondados nativos.     */
+
+.t20a input,
+.t20a select,
+.t20a textarea,
+.t20a button,
+.t20a .form-fields > *,
+.t20a .form-group input,
+.t20a .form-group select,
+.t20a .form-group textarea,
+.t20a .summary li,
+.t20a .item-image,
+.t20a .profile,
+.t20a .profile-img,
+.t20a img.profile,
+.t20a .ability-scores,
+.t20a .item-list,
+.t20a .item,
+.t20a .resource,
+.t20a .attribute.health,
+.t20a .attribute.mana,
+.t20a .defesa,
+.t20a .conditions,
+.t20a .currency,
+.t20a .encumbrance,
+.t20a .editor,
+.t20a .editor-content,
+.t20a .item-detail,
+.t20a .npc-tasks,
+.t20a .npc-stats {
+    border-radius: 0 !important;
+}
+
+/* --- Listas (perícias etc.) — linhas alternadas mais sutis -------------- */
+/* Mata a alternância forte do sistema e aplica uma diferença minúscula    */
+/* só para dar legibilidade.                                              */
+
+.t20a .item-list .item:nth-child(odd),
+.t20a .item-list .item:nth-child(even),
+.t20a ol.pericias > li:nth-child(odd),
+.t20a ol.pericias > li:nth-child(even),
+.t20a ul.pericias > li:nth-child(odd),
+.t20a ul.pericias > li:nth-child(even),
+.t20a [class*="pericia"] > li:nth-child(odd),
+.t20a [class*="pericia"] > li:nth-child(even),
+.t20a table.pericias tr:nth-child(odd) td,
+.t20a table.pericias tr:nth-child(even) td {
+    background: transparent;
+}
+
+.t20a .item-list .item:nth-child(even),
+.t20a ol.pericias > li:nth-child(even),
+.t20a ul.pericias > li:nth-child(even),
+.t20a [class*="pericia"] > li:nth-child(even),
+.t20a table.pericias tr:nth-child(even) td {
+    background: rgba(255, 255, 255, 0.022);
+}
+
+/* Mantém o hover ainda destacado por cima da alternância */
+.t20a .item-list .item:hover,
+.t20a ol.pericias > li:hover,
+.t20a ul.pericias > li:hover,
+.t20a [class*="pericia"] > li:hover,
+.t20a table.pericias tr:hover td {
+    background: var(--t20a-destaque-hover) !important;
+}
+
+/* --- Defesa (bloco com borda branca no sistema) ------------------------- */
+/* Selectores generosos para pegar variações de nome usadas pelo sistema.  */
+
+.t20a .defesa,
+.t20a .defesas,
+.t20a .defense,
+.t20a .defenses,
+.t20a [class*="defesa"]:not([class*="rolavel"]):not(.ability),
+.t20a [class*="defense"] {
+    background: var(--t20a-bg-deep) !important;
+    border: 1px solid var(--t20a-border) !important;
+    border-left: 3px solid var(--t20a-cor-destaque) !important;
+    color: var(--t20a-text-primary);
+}
+
+/* --- Nível / XP / Experiência ------------------------------------------- */
+
+.t20a .nivel,
+.t20a .level,
+.t20a .character-level,
+.t20a .xp,
+.t20a .exp,
+.t20a .experience,
+.t20a .experiencia,
+.t20a [class*="nivel"]:not(.ability),
+.t20a [class*="experienc"]:not(.ability),
+.t20a [class*="-xp"]:not(.ability) {
+    background: var(--t20a-bg-deep) !important;
+    border: 1px solid var(--t20a-border) !important;
+    color: var(--t20a-text-primary);
+}
+
+/* Texto interno do bloco de nível */
+.t20a .nivel input,
+.t20a .level input,
+.t20a [class*="nivel"] input,
+.t20a [class*="experienc"] input {
+    color: var(--t20a-text-primary);
+    background: transparent;
+    border: none;
+    text-align: center;
+    font-family: var(--t20a-font-display);
+    font-weight: 600;
+}
+
+/* --- Barra de progresso do XP — sempre VERDE no preenchimento --------- */
+
+.t20a .xp-bar,
+.t20a .xpbar,
+.t20a .exp-bar,
+.t20a .experiencia-bar,
+.t20a .progress,
+.t20a [class*="xp-bar"],
+.t20a [class*="experience-bar"],
+.t20a progress,
+.t20a meter {
+    background: var(--t20a-bg-deep) !important;
+    border: 1px solid var(--t20a-border) !important;
+    border-radius: 0 !important;
+    overflow: hidden;
+    height: 10px;
+}
+
+.t20a .xp-bar > *,
+.t20a .xpbar > *,
+.t20a .exp-bar > *,
+.t20a .experiencia-bar > *,
+.t20a [class*="xp-bar"] > div,
+.t20a [class*="xp-bar"] > span,
+.t20a [class*="xp"] .bar,
+.t20a [class*="xp"] .fill,
+.t20a [class*="xp"] .progress-fill,
+.t20a [class*="experience"] .bar,
+.t20a [class*="experience"] .fill {
+    background: linear-gradient(180deg, #6ee087 0%, #16a34a 100%) !important;
+    box-shadow: 0 0 10px rgba(110, 224, 135, 0.55);
+    border-radius: 0 !important;
+}
+
+.t20a progress::-webkit-progress-bar {
+    background: var(--t20a-bg-deep);
+}
+.t20a progress::-webkit-progress-value,
+.t20a meter::-webkit-meter-optimum-value {
+    background: linear-gradient(180deg, #6ee087, #16a34a) !important;
+}
+.t20a progress::-moz-progress-bar,
+.t20a meter::-moz-meter-bar {
+    background: linear-gradient(180deg, #6ee087, #16a34a) !important;
+}
+
+/* --- Headers de seção do Diário (e gerais no sheet-body) -------------- */
+/* No sistema, "Pessoas Importantes", "Biografia", "Missões" etc. são    */
+/* títulos de seção que perdem cor sem nosso tema explicitar.            */
+
+.t20a .sheet-body h2,
+.t20a .sheet-body h3,
+.t20a .sheet-body h4,
+.t20a .sheet-body .section-title,
+.t20a .sheet-body .section-header,
+.t20a .sheet-body fieldset > legend,
+.t20a [class*="diario"] h2,
+.t20a [class*="diario"] h3,
+.t20a [class*="diario"] h4,
+.t20a [class*="diari"] .label,
+.t20a .biografia h2,
+.t20a .biografia h3,
+.t20a .pessoas h2,
+.t20a .pessoas h3,
+.t20a .locais h2,
+.t20a .locais h3,
+.t20a .missoes h2,
+.t20a .missoes h3,
+.t20a [class*="entrada"] h3,
+.t20a [class*="bio"] h2,
+.t20a [class*="bio"] h3 {
+    color: var(--t20a-destaque-claro) !important;
+    font-family: var(--t20a-font-titulo);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.10em;
+    font-size: 12px;
+    border-bottom: 1px solid var(--t20a-cor-destaque) !important;
+    padding-bottom: 4px;
+    margin: 8px 0 6px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+    background: transparent;
+}
+
+/* Separadores horizontais soltos também pegam a cor */
+.t20a hr,
+.t20a .separator {
+    border: none !important;
+    border-top: 1px solid var(--t20a-cor-destaque) !important;
+    background: transparent !important;
+    height: 0;
+    margin: 8px 0;
+    opacity: 0.85;
+}
+
+/* (padding-top do sheet-header agora vive no bloco v1.3 abaixo) */
+
+/* ==========================================================================
+   AJUSTES PONTUAIS APÓS FEEDBACK (v1.3)
+   ========================================================================== */
+
+/* --- Lista de perícias: borda e fundo no tema --------------------------- */
+
+.t20a .skills-list {
+    border: 1px solid var(--t20a-border) !important;
+    border-radius: 0 !important;
+    box-shadow: var(--t20a-shadow-block);
+}
+
+.t20a .skills-list .skill {
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+.t20a .skills-list .skill:not(.item-header):not(.create-skill):nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+.t20a .skills-list .skill:not(.item-header):not(.create-skill):hover {
+    background-color: var(--t20a-destaque-hover) !important;
+}
+
+/* --- Efeitos: cores e bordas no tema ------------------------------------ */
+
+.t20a .effects-list {
+    color: var(--t20a-text-primary) !important;
+    background-color: transparent !important;
+}
+
+.t20a .effects-list .items-header {
+    border: none !important;
+    border-bottom: 1px solid var(--t20a-border) !important;
+    background: var(--t20a-bg-elevated) !important;
+    color: var(--t20a-text-primary) !important;
+}
+
+.t20a .effects-list .items-header h3,
+.t20a .effects-list .items-header h4 {
+    color: var(--t20a-destaque-claro) !important;
+}
+
+.t20a .effects-list .item {
+    border-bottom: 1px solid var(--t20a-border) !important;
+    color: var(--t20a-text-primary) !important;
+}
+
+.t20a .effects-list .item .item-name,
+.t20a .effects-list .item .item-name h3,
+.t20a .effects-list .item .item-name h4,
+.t20a .effects-list .item .effect-source,
+.t20a .effects-list .item .effect-duration {
+    color: var(--t20a-text-primary) !important;
+}
+
+.t20a .effects-list .item-controls a {
+    color: var(--t20a-text-secondary) !important;
+}
+
+.t20a .effects-list .item-controls a:hover {
+    color: var(--t20a-destaque-claro) !important;
+}
+
+/* --- Margem entre containers (raça/origem/classe vs PV/PM/defesa) ------- */
+/* Sem mexer no HTML do sistema, garantimos espaço entre seções da ficha. */
+
+.t20a .sheet-body > * + *,
+.t20a form.sheet > * + * {
+    margin-top: 10px;
+}
+
+.t20a .sheet-header .flexrow + .flexrow,
+.t20a .sheet-header .flex-row + .flex-row,
+.t20a .sheet-header .form-fields + .form-fields,
+.t20a .sheet-header > div + div {
+    margin-top: 8px;
+}
+
+/* Espaço entre as linhas do header (Raça/Origem/Classe) e o corpo abaixo */
+.t20a .sheet-header + *,
+.t20a .sheet-header + section,
+.t20a .sheet-header + div {
+    margin-top: 12px !important;
+}
+
+/* --- Lista de perícias: ALTERNÂNCIA FORÇADA bem suave ------------------ */
+/* O sistema usa nth-child(odd) com cor clara. Força-se override máximo. */
+
+.t20a li.pericia,
+.t20a li.pericias-row,
+.t20a li[class*="pericia"],
+.t20a ol[class*="pericia"] > li,
+.t20a ul[class*="pericia"] > li,
+.t20a ol.pericias > li,
+.t20a ul.pericias > li,
+.t20a .pericias > li,
+.t20a .lista-pericias > li,
+.t20a .item-list .item,
+.t20a .item-list li,
+.t20a table.pericias > tbody > tr {
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+.t20a li.pericia:nth-child(even),
+.t20a li.pericias-row:nth-child(even),
+.t20a li[class*="pericia"]:nth-child(even),
+.t20a ol[class*="pericia"] > li:nth-child(even),
+.t20a ul[class*="pericia"] > li:nth-child(even),
+.t20a ol.pericias > li:nth-child(even),
+.t20a ul.pericias > li:nth-child(even),
+.t20a .pericias > li:nth-child(even),
+.t20a .lista-pericias > li:nth-child(even),
+.t20a .item-list .item:nth-child(even),
+.t20a .item-list li:nth-child(even),
+.t20a table.pericias > tbody > tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.022) !important;
+}
+
+.t20a li.pericia:hover,
+.t20a li[class*="pericia"]:hover,
+.t20a ol[class*="pericia"] > li:hover,
+.t20a ul[class*="pericia"] > li:hover,
+.t20a ol.pericias > li:hover,
+.t20a ul.pericias > li:hover,
+.t20a .pericias > li:hover,
+.t20a .item-list .item:hover,
+.t20a table.pericias > tbody > tr:hover {
+    background-color: var(--t20a-destaque-hover) !important;
+}
+
+/* --- Dialog (chip e código no modo padrão) ----------------------------- */
+
+.t20a-color-config-dialog .t20a-padrao-chip {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 1px solid rgba(255,255,255,0.25);
+    vertical-align: middle;
+    margin: 0 4px 0 6px;
+}
+
+.t20a-color-config-dialog .t20a-dialog-mode em code {
+    background: rgba(0,0,0,0.45);
+    border: 1px solid rgba(255,255,255,0.10);
+    padding: 1px 5px;
+    font-family: "JetBrains Mono", Consolas, monospace;
+    font-size: 11px;
+    color: #eceaf2;
+    vertical-align: middle;
+}
+
+/* ===== Menu de contexto (botão direito) ==================================== */
+
+.t20a #context-menu,
+#context-menu {
+    position: absolute;
+    z-index: 9999 !important;
+    background: var(--t20a-bg-elevated, rgba(34, 37, 54, 0.97)) !important;
+    border: 1px solid var(--t20a-border-strong, rgba(255,255,255,0.22)) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6) !important;
+    padding: 4px 0 !important;
+    min-width: 140px;
+}
+
+.t20a #context-menu .context-items,
+#context-menu .context-items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.t20a #context-menu .context-item,
+#context-menu .context-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    color: var(--t20a-text-primary, #eceaf2) !important;
+    background: transparent !important;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 100ms ease, color 100ms ease;
+    border: none !important;
+}
+
+.t20a #context-menu .context-item:hover,
+#context-menu .context-item:hover {
+    background: var(--t20a-destaque-hover, rgba(150,5,5,0.28)) !important;
+    color: white !important;
+}
+
+.t20a #context-menu .context-item i,
+#context-menu .context-item i {
+    color: var(--t20a-text-muted, #7b7889);
+    width: 16px;
+    text-align: center;
+}
+
+.t20a #context-menu .context-item:hover i,
+#context-menu .context-item:hover i {
+    color: var(--t20a-destaque-claro, #cc4444);
+}
+
+.t20a #context-menu .context-group,
+#context-menu .context-group {
+    border-top: 1px solid var(--t20a-border, rgba(255,255,255,0.12));
+    margin-top: 2px;
+    padding-top: 2px;
+}
+
+.t20a #context-menu .context-group ol,
+#context-menu .context-group ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background: transparent !important;
+}
+
+.t20a .section-titles {
+    
+    border-bottom: 1px solid var(--t20a-cor-destaque) !important;
+    border-bottom-color: var(--t20a-cor-destaque) !important;
+    
+}

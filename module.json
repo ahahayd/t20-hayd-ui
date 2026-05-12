@@ -1,0 +1,41 @@
+{
+    "id": "t20-hayd-ui",
+    "title": "T20 Hayd UI",
+    "description": "Tema visual moderno e sombrio para as fichas de personagem, NPC e itens do sistema Tormenta20. A cor de destaque é herdada automaticamente da cor do jogador dono da ficha, e cada jogador pode personalizar a cor da sua ficha nas configurações do cabeçalho.",
+    "version": "1.3.0",
+    "compatibility": {
+        "minimum": "13",
+        "verified": "13"
+    },
+    "authors": [
+        {
+            "name": "Você",
+            "discord": ""
+        }
+    ],
+    "esmodules": [
+        "scripts/main.mjs"
+    ],
+    "styles": [
+        { "src": "styles/variables.css", "layer": "variables" },
+        "styles/theme.css"
+    ],
+    "languages": [
+        { "lang": "pt-BR", "name": "Português (Brasil)", "path": "lang/pt-BR.json" },
+        { "lang": "en",    "name": "English",            "path": "lang/en.json" }
+    ],
+    "relationships": {
+        "systems": [
+            {
+                "id": "tormenta20",
+                "type": "system",
+                "compatibility": { "verified": "1.4.213" }
+            }
+        ]
+    },
+    "url": "https://github.com/seu-usuario/tormenta20-arcano",
+    "manifest": "https://raw.githubusercontent.com/seu-usuario/tormenta20-arcano/main/module.json",
+    "download": "https://github.com/seu-usuario/tormenta20-arcano/archive/refs/heads/main.zip",
+    "license": "LICENSE",
+    "readme": "README.md"
+}

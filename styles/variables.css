@@ -1,0 +1,70 @@
+/* ==========================================================================
+   Tormenta20 – Arcano • Variáveis (camada 'variables')
+   --t20a-cor-destaque é sobrescrita por inline style via JS no .window-app
+   da ficha. Tudo o mais é puro CSS.
+   ========================================================================== */
+
+@layer variables {
+
+    .t20a {
+        /* ----- Backgrounds (escuro semi-transparente, glassmórfico) ------- */
+        --t20a-bg-primary:    rgba(15, 16, 26, 0.88);
+        --t20a-bg-surface:    rgba(24, 26, 38, 0.86);
+        --t20a-bg-elevated:   rgba(34, 37, 54, 0.92);
+        --t20a-bg-deep:       rgba(8, 8, 14, 0.65);
+        --t20a-bg-input:      rgba(0, 0, 0, 0.32);
+        --t20a-bg-input-hover:rgba(0, 0, 0, 0.46);
+        --t20a-bg-overlay:    rgba(0, 0, 0, 0.40);
+
+        /* ----- Bordas ------------------------------------------------------ */
+        --t20a-border-soft:   rgba(255, 255, 255, 0.06);
+        --t20a-border:        rgba(255, 255, 255, 0.12);
+        --t20a-border-strong: rgba(255, 255, 255, 0.22);
+
+        /* ----- Texto ------------------------------------------------------- */
+        --t20a-text-primary:   #eceaf2;
+        --t20a-text-secondary: #b4b1c4;
+        --t20a-text-muted:     #7b7889;
+        --t20a-text-faint:     #4f4d5c;
+
+        /* ----- Cor de destaque (sobrescrita por inline style via JS) ------ */
+        --t20a-cor-destaque:   #960505;
+
+        /* Variações automáticas (color-mix funciona em Chromium recente) ---- */
+        --t20a-destaque-claro:  color-mix(in srgb, var(--t20a-cor-destaque) 55%, white);
+        --t20a-destaque-escuro: color-mix(in srgb, var(--t20a-cor-destaque) 65%, black);
+        --t20a-destaque-bg:     color-mix(in srgb, var(--t20a-cor-destaque) 22%, transparent);
+        --t20a-destaque-bg-forte:color-mix(in srgb, var(--t20a-cor-destaque) 45%, transparent);
+        --t20a-destaque-borda:  color-mix(in srgb, var(--t20a-cor-destaque) 75%, transparent);
+        --t20a-destaque-tenue:  color-mix(in srgb, var(--t20a-cor-destaque) 12%, transparent);
+        --t20a-destaque-hover:  color-mix(in srgb, var(--t20a-cor-destaque) 28%, transparent);
+        --t20a-destaque-glow:   color-mix(in srgb, var(--t20a-cor-destaque) 55%, transparent);
+        --t20a-on-destaque:     color-mix(in srgb, var(--t20a-cor-destaque) 12%, white);
+
+        /* ----- Tipografia -------------------------------------------------- */
+        --t20a-font-display:
+            "Cinzel", "Trajan Pro", "IM FELL English",
+            "Palatino Linotype", "Book Antiqua", Palatino, serif;
+        --t20a-font-titulo:
+            "Signika", "Inter", system-ui, -apple-system,
+            "Segoe UI", Roboto, sans-serif;
+        --t20a-font-texto:
+            "Signika", "Inter", system-ui, -apple-system,
+            "Segoe UI", Roboto, sans-serif;
+        --t20a-font-mono:
+            "JetBrains Mono", "Cascadia Code", Consolas, "Courier New", monospace;
+
+        /* ----- Efeitos ----------------------------------------------------- */
+        --t20a-glow:
+            0 0 0 1px var(--t20a-destaque-borda),
+            0 0 14px var(--t20a-destaque-glow);
+        --t20a-shadow-block:
+            0 1px 0 rgba(255, 255, 255, 0.04) inset,
+            0 6px 18px rgba(0, 0, 0, 0.35);
+
+        /* ----- Layout ------------------------------------------------------ */
+        --t20a-brand-height: 0px;     /* não usado mais (logo agora é flutuante) */
+        --t20a-radius:    0;          /* tudo quadrado */
+        --t20a-radius-sm: 0;
+    }
+}
