@@ -52,8 +52,47 @@ Hooks.once("init", () => {
 /*  Render hooks                                                               */
 /* -------------------------------------------------------------------------- */
 
-Hooks.on("renderActorSheet", (app, html) => aplicarTema(app, html));
-Hooks.on("renderItemSheet",  (app, html) => aplicarTema(app, html));
+Hooks.on("renderActorSheet",  (app, html) => aplicarTema(app, html));
+Hooks.on("renderItemSheet",   (app, html) => aplicarTema(app, html));
+Hooks.on("renderChatMessage", (message, html) => aplicarTemaChatMsg(message, html));
+Hooks.on("renderApplication", (app, html) => aplicarTemaDialog(app, html));
+
+function aplicarTemaDialog(_app, html) {
+    if (game.system.id !== SYSTEM_ID) return;
+    if (!game.settings.get(MODULE_ID, "enabled")) return;
+
+    const root = html instanceof jQuery ? html[0] : html;
+    if (!root) return;
+
+    const windowEl = root.closest?.(".window-app") ?? root;
+    if (!windowEl.classList?.contains("tormenta20")) return;
+    if (!windowEl.classList?.contains("dialog")) return;
+
+    // Cor do usuário atual (sem depender de um ator específico)
+    const cor = corCSSDoUsuario(game.user) ?? corPadraoConfigurada();
+    windowEl.style.setProperty("--t20a-cor-destaque", cor);
+
+    // Força texto claro via inline style — sobrepõe theme-light sem depender de CSS
+    const COR = "#eceaf2";
+    const SELETORES = [
+        ".item-list .items-header h3",
+        ".item-list .items-header h4",
+        ".item-list .item h3",
+        ".item-list .item h4",
+        ".item-list .item .item-name",
+        ".item-list .item small",
+        ".item-list .item label",
+        ".item-list .item span",
+        ".item-list .item input[type='number']",
+        ".item-list .item input.numInp",
+        ".item-list .item .numCtrl",
+    ];
+    for (const sel of SELETORES) {
+        windowEl.querySelectorAll(sel).forEach(el => {
+            el.style.setProperty("color", COR, "important");
+        });
+    }
+}
 
 function aplicarTema(app, html) {
     if (game.system.id !== SYSTEM_ID) return;
@@ -82,6 +121,65 @@ function aplicarTema(app, html) {
     // Logo: apenas para fichas de personagem jogador, se habilitado
     if (doc?.documentName === "Actor" && doc.type === "character" && game.settings.get(MODULE_ID, "mostrarLogo")) {
         injetarLogo(windowApp, root);
+    }
+}
+
+function aplicarTemaChatMsg(message, html) {
+    if (game.system.id !== SYSTEM_ID) return;
+    if (!game.settings.get(MODULE_ID, "enabled")) return;
+
+    const root = html instanceof jQuery ? html[0] : html;
+    if (!root) return;
+
+    // Actor do speaker
+    const speakerId = message.speaker?.actor;
+    const actor = speakerId ? (game.actors?.get(speakerId) ?? null) : null;
+
+    // Usuário que enviou (v13: message.author; v12: message.user)
+    const autorId = message.author?.id ?? message.user?.id;
+    const autor   = autorId ? (game.users?.get(autorId) ?? null) : null;
+
+    // Resolve cor de destaque do header
+    let cor = null;
+    if (actor) {
+        const modo = actor.getFlag?.(MODULE_ID, FLAG_COR) ?? "auto";
+        if (modo === "padrao") {
+            cor = corPadraoConfigurada();
+        } else {
+            for (const dono of listarDonosJogadores(actor)) {
+                const c = corCSSDoUsuario(dono);
+                if (c) { cor = c; break; }
+            }
+        }
+    }
+    // Sem dono jogador → usa cor do remetente
+    if (!cor && autor) cor = corCSSDoUsuario(autor);
+    if (!cor) cor = corPadraoConfigurada();
+
+    const ehPersonagem = actor?.type === "character";
+
+    root.classList.add("t20a-chat-msg");
+    root.classList.toggle("t20a-chat-player", ehPersonagem);
+    root.classList.toggle("t20a-chat-npc", !ehPersonagem);
+    root.style.setProperty("--t20a-chat-cor", cor);
+
+    // Injeta avatar apenas quando há um ator associado à mensagem
+    const header = root.querySelector(".message-header");
+    if (header && !header.querySelector(".t20a-chat-avatar") && actor?.img) {
+        const avatarEl = document.createElement("img");
+        avatarEl.className = "t20a-chat-avatar";
+        avatarEl.alt = actor.name ?? "";
+        avatarEl.src = actor.img;
+        header.insertBefore(avatarEl, header.firstChild);
+    }
+
+    // Injeta nome do jogador abaixo do nome do personagem no .message-sender
+    const sender = root.querySelector(".message-sender");
+    if (sender && !sender.querySelector(".t20a-chat-jogador") && autor?.name) {
+        const span = document.createElement("span");
+        span.className = "t20a-chat-jogador";
+        span.textContent = autor.name;
+        sender.appendChild(span);
     }
 }
 
@@ -230,7 +328,7 @@ async function abrirDialogoCor(doc) {
             ok: {
                 label: game.i18n.localize("T20A.Confirm"),
                 icon: "fa-solid fa-check",
-                callback: (event, button) => {
+                callback: (_event, button) => {
                     const form = button.form;
                     const mode = form?.elements?.mode?.value;
                     return mode === "padrao" ? "padrao" : "auto";
@@ -252,7 +350,7 @@ async function abrirDialogoCor(doc) {
 /*  Reatividade                                                                */
 /* -------------------------------------------------------------------------- */
 
-Hooks.on("updateUser", (user, changes) => {
+Hooks.on("updateUser", (_user, changes) => {
     if (!("color" in changes)) return;
     reRenderTormentaSheets();
 });
@@ -397,13 +495,3 @@ function normalizarHex(str) {
     return null;
 }
 
-function escapeHTML(str) {
-    if (typeof str !== "string") return "";
-    return str.replace(/[&<>"']/g, ch => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;"
-    }[ch]));
-}

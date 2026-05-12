@@ -1470,8 +1470,541 @@
 }
 
 .t20a .section-titles {
-    
     border-bottom: 1px solid var(--t20a-cor-destaque) !important;
     border-bottom-color: var(--t20a-cor-destaque) !important;
-    
+}
+
+/* ==========================================================================
+   CHAT – mensagens estilizadas
+   ========================================================================== */
+
+.t20a-chat-msg {
+    --t20a-chat-cor: #960505;
+}
+
+/* ── Card base ──────────────────────────────────────────────────────────── */
+.t20a-chat-msg {
+    border: 1px solid #c4a882 !important;
+    border-radius: 5px !important;
+    margin: 0 0 8px !important;
+    padding: 0 !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.45) !important;
+}
+
+/* Background image preenche toda a mensagem (header + conteúdo) */
+.t20a-chat-player {
+    background-image: url("../assets/background-light.webp") !important;
+    background-size: cover !important;
+    background-position: center !important;
+}
+
+.t20a-chat-npc {
+    background-color: #0f0f0f !important;
+    background-image: url("../assets/background-dark4.webp") !important;
+    background-size: cover !important;
+    background-position: center !important;
+}
+
+/* ── Header: overlay semi-transparente da cor de destaque sobre a imagem ── */
+.t20a-chat-msg .message-header {
+    border-radius: 4px 4px 0 0 !important;
+    background: color-mix(in srgb, var(--t20a-chat-cor) 90%, transparent) !important;
+    border: none !important;
+    border-bottom: 1px solid #c4a882 !important;
+    padding: 6px 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    min-height: 0 !important;
+}
+
+/* ── Avatar injetado via JS (quadrado forçado) ──────────────────────────── */
+.t20a-chat-avatar {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    aspect-ratio: 1 / 1 !important;
+    object-fit: cover !important;
+    border-radius: 0 !important;
+    border: 2px solid rgba(255,255,255,0.3) !important;
+    flex-shrink: 0;
+    display: block;
+}
+
+/* ── Sender: nome do personagem ─────────────────────────────────────────── */
+.t20a-chat-msg .message-sender {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+    gap: 1px;
+    min-width: 0;
+    color: #ffffff !important;
+    font-weight: 700;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
+
+/* Nome do jogador injetado via JS */
+.t20a-chat-msg .t20a-chat-jogador {
+    font-size: 10px !important;
+    font-weight: 400 !important;
+    color: rgba(255,255,255,0.7) !important;
+    text-shadow: none !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+}
+
+/* ── Timestamp / delete ─────────────────────────────────────────────────── */
+.t20a-chat-msg .message-metadata {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    flex-shrink: 0;
+}
+
+.t20a-chat-msg .message-metadata time,
+.t20a-chat-msg .message-metadata .message-timestamp {
+    color: rgba(255,255,255,0.65) !important;
+    font-size: 10px !important;
+}
+
+.t20a-chat-msg .message-delete,
+.t20a-chat-msg a.message-delete {
+    color: rgba(255,255,255,0.55) !important;
+    transition: color 120ms ease;
+}
+
+.t20a-chat-msg .message-delete:hover {
+    color: #ffffff !important;
+}
+
+/* ── Conteúdo: transparente – imagem do root aparece por baixo ─────────── */
+.t20a-chat-msg .message-content {
+    background: transparent !important;
+    padding: 8px 10px !important;
+    min-height: 2em;
+}
+
+.t20a-chat-player .message-content {
+    color: #18192b !important;
+}
+
+.t20a-chat-npc .message-content {
+    color: #eceaf2 !important;
+}
+
+/* item-name em NPC: claro para contrastar com fundo escuro */
+.t20a-chat-npc .item-name,
+.t20a-chat-npc .item-name a {
+    color: #eceaf2 !important;
+}
+
+/* ── Remove divisor do topo do chat-card / item-card ───────────────────── */
+.t20a-chat-msg .chat-card,
+.t20a-chat-msg .item-card {
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    box-shadow: none !important;
+}
+
+.t20a-chat-msg .chat-card::before,
+.t20a-chat-msg .item-card::before {
+    display: none !important;
+}
+
+.t20a-chat-msg .chat-card hr,
+.t20a-chat-msg .item-card hr {
+    display: none !important;
+}
+
+/* ── Card header (imagem do item + título da ação) ──────────────────────── */
+.t20a-chat-msg .card-header,
+.t20a-chat-msg .chat-card header,
+.t20a-chat-msg .action-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.t20a-chat-msg .card-header img,
+.t20a-chat-msg .chat-card header img,
+.t20a-chat-msg .action-header img {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    aspect-ratio: 1 / 1 !important;
+    object-fit: cover !important;
+    flex-shrink: 0;
+    border: 1px solid rgba(0,0,0,0.25) !important;
+    border-radius: 0 !important;
+}
+
+/* ── Botões de ação (Aplicar Dano, Gastar Mana…) ───────────────────────── */
+.t20a-chat-msg .message-content button,
+.t20a-chat-msg .card-buttons button,
+.t20a-chat-msg footer button {
+    background: var(--t20a-chat-cor) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 0 !important;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 120ms ease;
+    box-shadow: none !important;
+}
+
+.t20a-chat-msg .message-content button:hover,
+.t20a-chat-msg .card-buttons button:hover,
+.t20a-chat-msg footer button:hover {
+    background: color-mix(in srgb, var(--t20a-chat-cor) 70%, white) !important;
+}
+
+/* ── Botões de aplicar efeito (chat-apply-ae e similares): avulsos com margem */
+.t20a-chat-msg button[class*="chat-apply"],
+.t20a-chat-msg button[class*="chat-spend"],
+.t20a-chat-msg button.chat-apply-ae {
+    margin: 0 8px 8px !important;
+    border-radius: 4px !important;
+}
+
+/* Container da linha de apply: imagem vai para a direita do botão */
+.t20a-chat-msg [class*="chat-apply"],
+.t20a-chat-msg .card-buttons .flexrow:has([class*="chat-apply"]) {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    flex-wrap: wrap;
+}
+
+.t20a-chat-msg [class*="chat-apply"] > img,
+.t20a-chat-msg .card-buttons .flexrow:has([class*="chat-apply"]) > img {
+    order: 2 !important;
+    margin-left: 13px !important;
+    width: 28px !important;
+    height: 28px !important;
+    object-fit: cover !important;
+    flex-shrink: 0;
+}
+
+.t20a-chat-msg [class*="chat-apply"] > button,
+.t20a-chat-msg .card-buttons .flexrow:has([class*="chat-apply"]) > button {
+    order: 1 !important;
+    flex: 1;
+}
+
+/* ── Dice-btn: gap e bordas arredondadas ─────────────────────────────────── */
+.t20a-chat-msg .dice-btn {
+    border-radius: 4px !important;
+}
+
+.t20a-chat-msg .dice-btns,
+.t20a-chat-msg .dice-results,
+.t20a-chat-msg .flexrow:has(.dice-btn) {
+    gap: 4px !important;
+}
+
+/* ── Tooltip de dados (breakdown) ───────────────────────────────────────── */
+.t20a-chat-msg .dice-tooltip {
+    background: rgba(8, 8, 16, 0.95) !important;
+    border: 1px solid var(--t20a-chat-cor) !important;
+    color: #eceaf2 !important;
+}
+
+/* Jogador: tooltip claro */
+.t20a-chat-player .dice-tooltip {
+    background: rgba(238, 232, 218, 0.97) !important;
+    color: #18192b !important;
+    border-color: var(--t20a-chat-cor) !important;
+}
+
+/* ==========================================================================
+   DIALOGS do sistema Tormenta20 (ability-use, item-use, etc.)
+   Escopo: .tormenta20.dialog – sem cor de destaque, só o visual dark da ficha.
+   ========================================================================== */
+
+.tormenta20.window-app.dialog {
+    color: var(--t20a-text-primary) !important;
+    font-family: var(--t20a-font-texto) !important;
+    border: 1px solid var(--t20a-border) !important;
+    border-radius: var(--t20a-radius) !important;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.6), 0 20px 60px rgba(0,0,0,0.55) !important;
+}
+
+/* ── Cabeçalho da janela ────────────────────────────────────────────────── */
+.tormenta20.window-app.dialog .window-header {
+    background: linear-gradient(180deg,
+        var(--t20a-bg-deep) 0%,
+        var(--t20a-bg-primary) 100%) !important;
+    border-bottom: 1px solid var(--t20a-border) !important;
+    color: var(--t20a-text-primary) !important;
+}
+
+.tormenta20.window-app.dialog .window-header .window-title {
+    font-family: var(--t20a-font-titulo) !important;
+    font-weight: 600 !important;
+    color: var(--t20a-text-primary) !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6) !important;
+}
+
+.tormenta20.window-app.dialog .window-header a,
+.tormenta20.window-app.dialog .window-header .header-button {
+    color: var(--t20a-text-secondary) !important;
+}
+
+.tormenta20.window-app.dialog .window-header a:hover {
+    color: var(--t20a-text-primary) !important;
+}
+
+/* ── Conteúdo da janela ─────────────────────────────────────────────────── */
+.tormenta20.window-app.dialog .window-content {
+    background:
+        radial-gradient(ellipse at top right,
+            rgba(30,33,51,0.55) 0%, transparent 55%),
+        radial-gradient(ellipse at bottom left,
+            rgba(30,33,51,0.55) 0%, transparent 50%),
+        linear-gradient(180deg,
+            var(--t20a-bg-primary) 0%,
+            var(--t20a-bg-surface) 100%) !important;
+    color: var(--t20a-text-primary) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    padding: 12px !important;
+    overflow: hidden !important;
+}
+
+/* Garante texto claro em todo conteúdo interno (sobrepõe theme-light) */
+.tormenta20.window-app.dialog .window-content,
+.tormenta20.window-app.dialog .dialog-content,
+.tormenta20.window-app.dialog form,
+.tormenta20.window-app.dialog p,
+.tormenta20.window-app.dialog h1,
+.tormenta20.window-app.dialog h2,
+.tormenta20.window-app.dialog h3,
+.tormenta20.window-app.dialog h4,
+.tormenta20.window-app.dialog h5,
+.tormenta20.window-app.dialog span:not([class*="fa"]),
+.tormenta20.window-app.dialog div {
+    color: var(--t20a-text-primary) !important;
+}
+
+/* ── Form groups ────────────────────────────────────────────────────────── */
+.tormenta20.window-app.dialog .form-group {
+    border-bottom: 1px solid var(--t20a-border-soft) !important;
+    padding: 6px 0 !important;
+    color: var(--t20a-text-primary) !important;
+}
+
+.tormenta20.window-app.dialog .form-group:last-child {
+    border-bottom: none !important;
+}
+
+.tormenta20.window-app.dialog label {
+    color: var(--t20a-text-secondary) !important;
+}
+
+/* ── Inputs ─────────────────────────────────────────────────────────────── */
+.tormenta20.window-app.dialog input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]) {
+    background: var(--t20a-bg-input) !important;
+    border: 1px solid var(--t20a-cor-destaque) !important;
+    color: var(--t20a-text-primary) !important;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--t20a-cor-destaque) 30%, transparent) !important;
+}
+
+.tormenta20.window-app.dialog input:disabled {
+    opacity: 0.55 !important;
+}
+
+.tormenta20.window-app.dialog input[type="checkbox"] {
+    accent-color: var(--t20a-text-muted) !important;
+}
+
+/* ── Selects ────────────────────────────────────────────────────────────── */
+.tormenta20.window-app.dialog select {
+    background: #1e2133 !important;
+    color: var(--t20a-text-primary) !important;
+    border: 1px solid var(--t20a-border) !important;
+}
+
+.tormenta20.window-app.dialog option {
+    background: #1e2133 !important;
+    color: var(--t20a-text-primary) !important;
+}
+
+/* ── Lista de itens (aprimoramentos, efeitos, etc.) ─────────────────────── */
+.tormenta20.window-app.dialog .item-list {
+    border: 1px solid var(--t20a-cor-destaque) !important;
+    border-radius: 2px !important;
+    overflow: hidden !important;
+    margin-bottom: 4px !important;
+}
+
+/* items-header: limpa todas as bordas do sistema antes de aplicar a nossa */
+.tormenta20.window-app.dialog .items-header {
+    background: var(--t20a-bg-deep) !important;
+    border: none !important;
+    border-bottom: 1px solid var(--t20a-cor-destaque) !important;
+}
+
+.tormenta20.window-app.dialog .items-header h3,
+.tormenta20.window-app.dialog .items-header h4 {
+    color: var(--t20a-text-secondary) !important;
+    font-family: var(--t20a-font-titulo) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
+    font-size: 11px !important;
+    border: none !important;
+    margin: 0 !important;
+}
+
+.tormenta20.window-app.dialog .item-list .item {
+    background: var(--t20a-bg-elevated) !important;
+    border-bottom: 1px solid var(--t20a-border-soft) !important;
+    color: var(--t20a-text-primary) !important;
+    padding: 5px 8px !important;
+}
+
+.tormenta20.window-app.dialog .item-list .item:last-child {
+    border-bottom: none !important;
+}
+
+/* Texto dos itens da lista: padrão igual ao effects-list da ficha */
+.tormenta20.window-app.dialog .item-list .item,
+.tormenta20.window-app.dialog .item-list .item h3,
+.tormenta20.window-app.dialog .item-list .item h4,
+.tormenta20.window-app.dialog .item-list .item label,
+.tormenta20.window-app.dialog .item-list .item span,
+.tormenta20.window-app.dialog .item-list .item div,
+.tormenta20.window-app.dialog .item-list .item .item-name,
+.tormenta20.window-app.dialog .item-list h4.item-name {
+    color: var(--t20a-text-primary) !important;
+}
+
+.tormenta20.window-app.dialog .item-cost label {
+    color: var(--t20a-text-muted) !important;
+    font-size: 11px !important;
+}
+
+/* ── Checkboxes ─────────────────────────────────────────────────────────── */
+.tormenta20.window-app.dialog input[type="checkbox"] {
+    accent-color: var(--t20a-cor-destaque) !important;
+}
+
+/* ── Total de custo ─────────────────────────────────────────────────────── */
+/* Sobrepõe o border-bottom do .form-group para não duplicar */
+.tormenta20.window-app.dialog .form-group.total-cost {
+    border-bottom: none !important;
+}
+
+.tormenta20.window-app.dialog .total-cost {
+    border: 1px solid var(--t20a-cor-destaque) !important;
+    border-radius: 2px !important;
+    padding: 4px 8px !important;
+    background: color-mix(in srgb, var(--t20a-cor-destaque) 12%, transparent) !important;
+}
+
+.tormenta20.window-app.dialog .total-cost label {
+    color: var(--t20a-text-secondary) !important;
+    font-weight: 600 !important;
+}
+
+.tormenta20.window-app.dialog .total-cost input {
+    font-weight: 700 !important;
+    text-align: center !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    color: var(--t20a-text-primary) !important;
+}
+
+/* ── Botões primários da dialog ─────────────────────────────────────────── */
+.tormenta20.window-app.dialog .dialog-buttons button.use,
+.tormenta20.window-app.dialog .dialog-buttons button.default,
+.tormenta20.window-app.dialog .dialog-buttons button.bright {
+    background: var(--t20a-cor-destaque) !important;
+    border-color: var(--t20a-cor-destaque) !important;
+    color: #ffffff !important;
+}
+
+.tormenta20.window-app.dialog .dialog-buttons button.use:hover,
+.tormenta20.window-app.dialog .dialog-buttons button.default:hover,
+.tormenta20.window-app.dialog .dialog-buttons button.bright:hover {
+    background: color-mix(in srgb, var(--t20a-cor-destaque) 70%, white) !important;
+    border-color: color-mix(in srgb, var(--t20a-cor-destaque) 70%, white) !important;
+}
+
+/* ── Botões numCtrl e input numInp ──────────────────────────────────────── */
+.tormenta20.window-app.dialog .numCtrl {
+    background: var(--t20a-bg-elevated) !important;
+    border: 1px solid var(--t20a-border) !important;
+    color: var(--t20a-text-primary) !important;
+    font-size: 0.85em !important;
+    padding: 1px 4px !important;
+    line-height: 1.2 !important;
+    min-width: 0 !important;
+    height: auto !important;
+    border-radius: 2px !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
+    transition: background 100ms ease, border-color 100ms ease !important;
+}
+
+.tormenta20.window-app.dialog .numCtrl:hover {
+    background: var(--t20a-bg-deep) !important;
+    border-color: var(--t20a-cor-destaque) !important;
+}
+
+.tormenta20.window-app.dialog input.numInp {
+    background: var(--t20a-bg-input) !important;
+    border: 1px solid var(--t20a-border) !important;
+    color: var(--t20a-text-primary) !important;
+    text-align: center !important;
+    border-radius: 2px !important;
+    box-shadow: none !important;
+    padding: 1px 2px !important;
+}
+
+/* Checkboxes: usa a cor de destaque do jogador */
+.tormenta20.window-app.dialog input[type="checkbox"] {
+    accent-color: var(--t20a-cor-destaque) !important;
+    width: 14px !important;
+    height: 14px !important;
+    cursor: pointer !important;
+}
+
+/* ── Botões da dialog ───────────────────────────────────────────────────── */
+.tormenta20.window-app.dialog .dialog-buttons {
+    border-top: 1px solid var(--t20a-border) !important;
+    padding-top: 8px !important;
+    background: transparent !important;
+    display: flex !important;
+    gap: 6px !important;
+}
+
+.tormenta20.window-app.dialog .dialog-buttons button {
+    background: var(--t20a-bg-elevated) !important;
+    border: 1px solid var(--t20a-border) !important;
+    color: var(--t20a-text-primary) !important;
+    font-family: var(--t20a-font-titulo) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.06em !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    padding: 6px 14px !important;
+    border-radius: 0 !important;
+    cursor: pointer !important;
+    transition: background 120ms ease, border-color 120ms ease !important;
+    box-shadow: none !important;
+}
+
+.tormenta20.window-app.dialog .dialog-buttons button:hover {
+    background: var(--t20a-bg-deep) !important;
+    border-color: var(--t20a-border-strong) !important;
 }
