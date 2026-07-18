@@ -49,6 +49,33 @@ Hooks.once("init", () => {
 });
 
 /* -------------------------------------------------------------------------- */
+/*  Context menu: posição fixa (popover) nas fichas com tema                   */
+/*  O core injeta o #context-menu dentro da linha do item, e o overflow da    */
+/*  ficha corta o menu quando ele desce além do limite da janela. O modo      */
+/*  "fixed" do core (popover no document.body) nunca é cortado e já decide    */
+/*  sozinho se abre para cima ou para baixo conforme o espaço na tela.        */
+/* -------------------------------------------------------------------------- */
+
+Hooks.once("setup", () => {
+    const CM = foundry.applications?.ux?.ContextMenu?.implementation
+        ?? foundry.applications?.ux?.ContextMenu
+        ?? globalThis.ContextMenu;
+    if (!CM?.prototype?._setPosition || !CM.prototype._setFixedPosition) return;
+
+    const original = CM.prototype._setPosition;
+    CM.prototype._setPosition = function(menu, target, options = {}) {
+        try {
+            if (game.settings.get(MODULE_ID, "enabled") && target?.closest?.(".t20a")) {
+                return this._setFixedPosition(menu, target, options);
+            }
+        } catch (err) {
+            console.warn(`${MODULE_ID} | context menu fixo falhou, usando posição padrão:`, err);
+        }
+        return original.call(this, menu, target, options);
+    };
+});
+
+/* -------------------------------------------------------------------------- */
 /*  Render hooks                                                               */
 /* -------------------------------------------------------------------------- */
 

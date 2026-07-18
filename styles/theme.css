@@ -809,6 +809,40 @@
     background: var(--t20a-bg-elevated);
     border-bottom: 1px solid var(--t20a-border);
     color: var(--t20a-text-primary);
+    flex: 0 0 auto;
+}
+
+/* --- Modo de edição (ProseMirror ativo) --------------------------------- */
+/* O core monta o .editor como coluna flex e posiciona o .editor-content    */
+/* com inset:0 dentro do .editor-container (flex:1). Sem altura garantida   */
+/* no .editor, a área de digitação colapsa para ~2 linhas.                  */
+
+.t20a .editor.prosemirror {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    min-height: 18em !important;
+    padding: 0 !important;
+}
+
+.t20a .editor.prosemirror .editor-container {
+    flex: 1 1 auto !important;
+    position: relative !important;
+    min-height: 12em !important;
+    overflow: hidden !important;
+    border: none;
+    background: transparent;
+}
+
+.t20a .editor.prosemirror .editor-content {
+    position: absolute !important;
+    inset: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: hidden auto !important;
+    padding: 6px 10px;
+    border: none;          /* a borda já está no .editor */
+    background: transparent;
 }
 
 .t20a .editor-edit {
@@ -1467,6 +1501,19 @@
     margin: 0;
     padding: 0;
     background: transparent !important;
+}
+
+/* Modo popover (fixado ao viewport via JS do módulo): o menu vive no       */
+/* document.body, fora da ficha — nunca é cortado pelo overflow da janela.  */
+#context-menu[popover] {
+    position: fixed;
+    inset: unset;
+    width: max-content;
+    min-width: 160px;
+    max-width: 320px;
+    max-height: calc(100vh - 16px);
+    overflow-y: auto;
+    margin: 0;
 }
 
 .t20a .section-titles {
