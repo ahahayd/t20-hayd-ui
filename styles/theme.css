@@ -1488,6 +1488,20 @@
     color: var(--t20a-destaque-claro, #cc4444);
 }
 
+/* Ícone de item (ex.: opções de equipar do T20) — o menu vive no body em     */
+/* modo popover, então a regra do sistema não o alcança e a imagem estica.    */
+/* Recompomos o tamanho compacto original.                                    */
+.t20a #context-menu .context-item img,
+#context-menu .context-item img {
+    flex: 0 0 auto !important;
+    width: 20px !important;
+    height: 20px !important;
+    object-fit: contain;
+    margin-right: 3px;
+    border: none !important;
+    background: none !important;
+}
+
 .t20a #context-menu .context-group,
 #context-menu .context-group {
     border-top: 1px solid var(--t20a-border, rgba(255,255,255,0.12));
