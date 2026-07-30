@@ -62,7 +62,7 @@ Em *Game Settings → Configure Settings → T20 Hayd UI*:
 **Via manifest URL** — em *Add-on Modules → Install Module*, cole:
 
 ```
-https://raw.githubusercontent.com/Haydgi/t20-hayd-ui/main/module.json
+https://raw.githubusercontent.com/ahahayd/t20-hayd-ui/main/module.json
 ```
 
 **Manual** — baixe o repositório e extraia a pasta em `{userData}/Data/modules/`.

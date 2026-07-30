@@ -46,10 +46,10 @@
       }
     ]
   },
-  "url": "https://github.com/Haydgi/t20-hayd-ui",
-  "manifest": "https://raw.githubusercontent.com/Haydgi/t20-hayd-ui/main/module.json",
-  "download": "https://github.com/Haydgi/t20-hayd-ui/archive/refs/heads/main.zip",
+  "url": "https://github.com/ahahayd/t20-hayd-ui",
+  "manifest": "https://raw.githubusercontent.com/ahahayd/t20-hayd-ui/main/module.json",
+  "download": "https://github.com/ahahayd/t20-hayd-ui/archive/refs/heads/main.zip",
   "license": "MIT",
-  "readme": "https://github.com/Haydgi/t20-hayd-ui/blob/main/README.md",
-  "bugs": "https://github.com/Haydgi/t20-hayd-ui/issues"
+  "readme": "https://github.com/ahahayd/t20-hayd-ui/blob/main/README.md",
+  "bugs": "https://github.com/ahahayd/t20-hayd-ui/issues"
 }
