@@ -1602,16 +1602,17 @@
     flex: 1 !important;
     gap: 1px;
     min-width: 0;
-    color: #ffffff !important;
+    /* Preto ou branco conforme a luminância do fundo (definido via JS) */
+    color: var(--t20a-chat-texto, #ffffff) !important;
     font-weight: 700;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    text-shadow: var(--t20a-chat-sombra, 0 1px 3px rgba(0,0,0,0.8));
 }
 
 /* Nome do jogador injetado via JS */
 .t20a-chat-msg .t20a-chat-jogador {
     font-size: 10px !important;
     font-weight: 400 !important;
-    color: rgba(255,255,255,0.7) !important;
+    color: var(--t20a-chat-texto-suave, rgba(255,255,255,0.7)) !important;
     text-shadow: none !important;
     letter-spacing: 0 !important;
     text-transform: none !important;
@@ -1627,13 +1628,13 @@
 
 .t20a-chat-msg .message-metadata time,
 .t20a-chat-msg .message-metadata .message-timestamp {
-    color: rgba(255,255,255,0.65) !important;
+    color: var(--t20a-chat-texto-suave, rgba(255,255,255,0.65)) !important;
     font-size: 10px !important;
 }
 
 .t20a-chat-msg .message-delete,
 .t20a-chat-msg a.message-delete {
-    color: rgba(255,255,255,0.55) !important;
+    color: var(--t20a-chat-texto-suave, rgba(255,255,255,0.55)) !important;
     transition: color 120ms ease;
 }
 
@@ -1713,7 +1714,7 @@
 .t20a-chat-msg .card-buttons button,
 .t20a-chat-msg footer button {
     background: var(--t20a-chat-cor) !important;
-    color: #ffffff !important;
+    color: var(--t20a-chat-texto, #ffffff) !important;
     border: none !important;
     border-radius: 0 !important;
     font-weight: 700;
@@ -2078,4 +2079,24 @@
 .tormenta20.window-app.dialog .dialog-buttons button:hover {
     background: var(--t20a-bg-deep) !important;
     border-color: var(--t20a-border-strong) !important;
+}
+
+/* ── Modo "Cor personalizada" do diálogo de cor da ficha ────────────────── */
+.t20a-custom-picker {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+}
+.t20a-custom-picker input[type="color"] {
+    width: 44px;
+    height: 28px;
+    padding: 2px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.t20a-custom-picker input[type="text"] {
+    width: 90px;
+    font-family: monospace;
+    text-align: center;
 }

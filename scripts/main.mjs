@@ -169,9 +169,11 @@ function aplicarTemaChatMsg(message, html) {
     // Resolve cor de destaque do header
     let cor = null;
     if (actor) {
-        const modo = actor.getFlag?.(MODULE_ID, FLAG_COR) ?? "auto";
+        const modo = lerModoCor(actor);
         if (modo === "padrao") {
             cor = corPadraoConfigurada();
+        } else if (modo === "custom") {
+            cor = lerCorPersonalizada(actor);
         } else {
             for (const dono of listarDonosJogadores(actor)) {
                 const c = corCSSDoUsuario(dono);
@@ -189,6 +191,14 @@ function aplicarTemaChatMsg(message, html) {
     root.classList.toggle("t20a-chat-player", ehPersonagem);
     root.classList.toggle("t20a-chat-npc", !ehPersonagem);
     root.style.setProperty("--t20a-chat-cor", cor);
+
+    /* Texto do header sempre legível: preto ou branco conforme a
+     * luminância da cor de fundo (whispers com cores claras ficavam
+     * ilegíveis com o branco fixo). */
+    const contraste = textoContrastante(cor);
+    root.style.setProperty("--t20a-chat-texto", contraste.texto);
+    root.style.setProperty("--t20a-chat-texto-suave", contraste.suave);
+    root.style.setProperty("--t20a-chat-sombra", contraste.sombra);
 
     // Injeta avatar apenas quando há um ator associado à mensagem
     const header = root.querySelector(".message-header");
@@ -244,18 +254,21 @@ const LOGO_LIFT = 5; // px que o logo sobe acima da barra de abas
 function injetarLogo(windowApp, root) {
     if (!windowApp || !root) return;
 
-    // Remove logo anterior (re-render recria o form mas não o window-app)
-    windowApp.querySelector(":scope > .t20a-brand-logo")?.remove();
-
     const tabs = root.querySelector?.(".sheet-tabs");
     if (!tabs) return;
 
-    const img = document.createElement("img");
-    img.classList.add("t20a-brand-logo");
-    img.src = LOGO_PATH;
-    img.alt = "Tormenta 20";
-    img.setAttribute("draggable", "false");
-    windowApp.appendChild(img);
+    /* Reusa o <img> existente: a ficha (AppV1) re-renderiza a CADA update
+     * do ator; recriar o elemento custava DOM churn + decode + reflow
+     * duplo por render. O nav é recriado, então só reposicionamos. */
+    let img = windowApp.querySelector(":scope > .t20a-brand-logo");
+    if (!img) {
+        img = document.createElement("img");
+        img.classList.add("t20a-brand-logo");
+        img.src = LOGO_PATH;
+        img.alt = "Tormenta 20";
+        img.setAttribute("draggable", "false");
+        windowApp.appendChild(img);
+    }
 
     const posicionar = () => {
         const appRect  = windowApp.getBoundingClientRect();
@@ -275,8 +288,11 @@ function injetarLogo(windowApp, root) {
         }
     };
 
-    img.addEventListener("load", posicionar, { once: true });
-    requestAnimationFrame(posicionar); // imagem já em cache
+    /* Exatamente UMA execução por render: imagem em cache posiciona no
+     * próximo frame; sem cache, espera o load (antes os dois caminhos
+     * corriam juntos = dois reflows forçados). */
+    if (img.complete) requestAnimationFrame(posicionar);
+    else img.addEventListener("load", posicionar, { once: true });
 }
 
 /* -------------------------------------------------------------------------- */
@@ -311,6 +327,7 @@ Hooks.on("getApplicationHeaderButtons", (app, buttons) => {
 async function abrirDialogoCor(doc) {
     const modo = lerModoCor(doc);
     const corPadraoAtual = corPadraoConfigurada();
+    const corCustomAtual = lerCorPersonalizada(doc) ?? corPadraoAtual;
     const checked = (m) => modo === m ? "checked" : "";
     const ativa = (m) => modo === m ? "is-active" : "";
 
@@ -324,6 +341,21 @@ async function abrirDialogoCor(doc) {
                     <span class="t20a-radio-label">
                         <strong>${game.i18n.localize("T20A.Dialog.ModeAuto")}</strong>
                         <em>${game.i18n.localize("T20A.Dialog.ModeAutoHint")}</em>
+                    </span>
+                </label>
+            </div>
+
+            <div class="t20a-dialog-mode ${ativa("custom")}">
+                <label class="t20a-radio-row">
+                    <input type="radio" name="mode" value="custom" ${checked("custom")} />
+                    <span class="t20a-radio-label">
+                        <strong>${game.i18n.localize("T20A.Dialog.ModeCustom")}</strong>
+                        <em>${game.i18n.localize("T20A.Dialog.ModeCustomHint")}</em>
+                        <span class="t20a-custom-picker">
+                            <input type="color" name="corCustom" value="${corCustomAtual}" />
+                            <input type="text" name="corCustomHex" value="${corCustomAtual}"
+                                   maxlength="7" pattern="#?[0-9a-fA-F]{6}" spellcheck="false" />
+                        </span>
                     </span>
                 </label>
             </div>
@@ -352,21 +384,42 @@ async function abrirDialogoCor(doc) {
             position: { width: 460 },
             classes: ["t20a-color-config-dialog"],
             content,
+            render: (_event, dialog) => {
+                const el = dialog.element;
+                const picker = el.querySelector('[name="corCustom"]');
+                const hexInput = el.querySelector('[name="corCustomHex"]');
+                const radioCustom = el.querySelector('input[name="mode"][value="custom"]');
+                // Picker e campo hex andam juntos; mexer neles seleciona o modo
+                picker?.addEventListener("input", () => {
+                    hexInput.value = picker.value;
+                    if (radioCustom) radioCustom.checked = true;
+                });
+                hexInput?.addEventListener("change", () => {
+                    const bruto = hexInput.value.trim();
+                    const hex = normalizarHex(bruto.startsWith("#") ? bruto : `#${bruto}`);
+                    if (hex) { picker.value = hex; hexInput.value = hex; }
+                    else hexInput.value = picker.value;
+                    if (radioCustom) radioCustom.checked = true;
+                });
+            },
             ok: {
                 label: game.i18n.localize("T20A.Confirm"),
                 icon: "fa-solid fa-check",
                 callback: (_event, button) => {
                     const form = button.form;
                     const mode = form?.elements?.mode?.value;
-                    return mode === "padrao" ? "padrao" : "auto";
+                    if (mode === "custom") {
+                        return { mode: "custom", cor: form?.elements?.corCustom?.value };
+                    }
+                    return { mode: mode === "padrao" ? "padrao" : "auto" };
                 }
             },
             rejectClose: false,
             modal: true
         });
 
-        if (result === "auto" || result === "padrao") {
-            await salvarModoCor(doc, result);
+        if (result?.mode) {
+            await salvarModoCor(doc, result.mode, result.cor ?? null);
         }
     } catch (err) {
         console.warn(`${MODULE_ID} | dialog erro:`, err);
@@ -427,29 +480,17 @@ function resolverCorDeDestaque(app) {
     const alvo = (doc.documentName === "Item" && doc.parent) ? doc.parent : doc;
     const modo = lerModoCor(alvo);
 
-    if (modo === "padrao") {
-        const c = corPadraoConfigurada();
-        console.debug(`${MODULE_ID} | "${alvo.name}" → padrão (${c})`);
-        return c;
-    }
+    if (modo === "padrao") return corPadraoConfigurada();
+    if (modo === "custom") return lerCorPersonalizada(alvo) ?? corPadraoConfigurada();
 
     // Modo auto: tenta cor do primeiro dono jogador
     const donos = listarDonosJogadores(alvo);
     for (const dono of donos) {
         const c = corCSSDoUsuario(dono);
-        if (c) {
-            console.debug(
-                `${MODULE_ID} | "${alvo.name}" → cor de ${dono.name} (${c})`
-            );
-            return c;
-        }
+        if (c) return c;
     }
 
-    const fallback = corPadraoConfigurada();
-    console.debug(
-        `${MODULE_ID} | "${alvo.name}" → padrão (sem dono jogador com cor) (${fallback})`
-    );
-    return fallback;
+    return corPadraoConfigurada();
 }
 
 /**
@@ -460,24 +501,62 @@ function resolverCorDeDestaque(app) {
 function lerModoCor(doc) {
     const raw = doc.getFlag?.(MODULE_ID, FLAG_COR);
     if (raw === "padrao" || raw === "auto") return raw;
-    // Compat formato antigo: "custom" e "user" ambos viram "auto" exceto se
-    // o usuário tinha escolhido "custom" explicitamente → mapeia pra "padrao"
     if (raw && typeof raw === "object") {
-        return raw.mode === "custom" ? "padrao" : "auto";
+        // Formato novo: { mode: "custom", cor: "#rrggbb" }
+        if (raw.mode === "custom" && normalizarHex(raw.cor)) return "custom";
+        return "auto";
     }
     return "auto"; // default
 }
 
-async function salvarModoCor(doc, modo) {
+/** Cor personalizada salva na ficha (modo "custom"), normalizada. */
+function lerCorPersonalizada(doc) {
+    const raw = doc.getFlag?.(MODULE_ID, FLAG_COR);
+    if (raw && typeof raw === "object") return normalizarHex(raw.cor);
+    return null;
+}
+
+async function salvarModoCor(doc, modo, cor = null) {
+    if (modo === "custom") {
+        const hex = normalizarHex(cor) ?? corPadraoConfigurada();
+        await doc.setFlag(MODULE_ID, FLAG_COR, { mode: "custom", cor: hex });
+        return;
+    }
     const valido = (modo === "padrao") ? "padrao" : "auto";
     await doc.setFlag(MODULE_ID, FLAG_COR, valido);
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Contraste (WCAG): texto claro ou escuro conforme o fundo                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Escolhe preto ou branco para o texto sobre `hexFundo` pela luminância
+ * relativa (WCAG). O ponto de equilíbrio exato entre o contraste do texto
+ * branco e o do preto é L ≈ 0.179.
+ */
+function textoContrastante(hexFundo) {
+    const hex = normalizarHex(hexFundo);
+    if (!hex) return { texto: "#ffffff", suave: "rgba(255,255,255,0.7)", sombra: "0 1px 3px rgba(0,0,0,0.8)" };
+    const n = parseInt(hex.slice(1), 16);
+    const lin = (c) => {
+        c /= 255;
+        return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    };
+    const L = 0.2126 * lin(n >> 16) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
+    return L > 0.179
+        ? { texto: "#15151a", suave: "rgba(10,10,14,0.72)", sombra: "none" }
+        : { texto: "#ffffff", suave: "rgba(255,255,255,0.7)", sombra: "0 1px 3px rgba(0,0,0,0.8)" };
+}
+
+const COLLATOR_PTBR = new Intl.Collator("pt-BR");
+
 function listarDonosJogadores(doc) {
     if (!doc) return [];
-    return game.users
-        .filter(u => !u.isGM && doc.testUserPermission(u, "OWNER"))
-        .sort((a, b) => (a.name ?? "").localeCompare(b.name ?? "", "pt-BR"));
+    const donos = game.users.filter(u => !u.isGM && doc.testUserPermission(u, "OWNER"));
+    // Roda a cada mensagem de chat: só ordena quando há empate a decidir
+    if (donos.length > 1) donos.sort((a, b) => COLLATOR_PTBR.compare(a.name ?? "", b.name ?? ""));
+    return donos;
 }
 
 function corCSSDoUsuario(user) {
