@@ -14,6 +14,8 @@
             "Intro": "Escolha como a cor de destaque desta ficha será definida:",
             "ModeAuto": "Cor do Jogador (automática)",
             "ModeAutoHint": "Usar a cor configurada pelo primeiro jogador dono da ficha (ignora o Mestre).",
+            "ModeCustom": "Cor personalizada",
+            "ModeCustomHint": "Escolha qualquer cor para esta ficha, independente da cor do jogador:",
             "ModePadrao": "Cor padrão",
             "ModePadraoHint": "Sempre usar a cor padrão do módulo:"
         },
