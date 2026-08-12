@@ -1,85 +1,48 @@
 # T20 Hayd UI
 
-Tema visual dark moderno para fichas de personagem, NPC e itens do sistema **Tormenta20** no FoundryVTT v13. A cor de destaque é herdada automaticamente da cor do jogador dono da ficha.
+Tema visual moderno e sombrio para o sistema **Tormenta20** no FoundryVTT: fichas de personagem, NPC e itens, mensagens de chat e janelas de uso ganham um visual escuro glassmórfico, com a cor de destaque herdada automaticamente da cor do jogador dono da ficha.
 
-## O que o módulo faz
+## Requisitos
 
-### Fichas (personagem, NPC, item)
-
-- Visual escuro semi-transparente com efeito glassmórfico (backdrop blur) em toda a janela.
-- Cor de destaque dinâmica aplicada em: header da janela, abas ativas, headers de seção, atributos (FOR/DES/CON…), barras de PV/PM, listas de itens (ataques, magias, equipamento, talentos, perícias), bordas de defesa/condições, barra de XP e scrollbars.
-- Barra de XP sempre verde (independente da cor de destaque).
-- Logotipo do Tormenta 20 flutuante acima das abas em fichas de personagem (pode ser desativado).
-- Botão **"Cor da Ficha"** no cabeçalho da ficha (visível para donos e GM) para escolher entre cor automática do jogador ou cor padrão do mundo.
-- Itens dentro de um ator herdam a cor do ator pai.
-- Menu de contexto (botão direito) estilizado no tema escuro.
-- Scrollbars customizadas na cor de destaque.
-
-### Mensagens de chat
-
-- Cada mensagem recebe um card com borda bege (`#c4a882`), sombra e bordas levemente arredondadas.
-- Mensagens de personagens jogadores usam uma textura de fundo clara (`background-light.webp`); mensagens de NPCs usam fundo escuro (`background-dark4.webp`).
-- Header da mensagem exibe um overlay semi-transparente da cor de destaque do ator (90% opacidade).
-- Retrato do ator injetado no header como imagem quadrada 40×40 (só quando há ator associado).
-- Nome do jogador exibido abaixo do nome do personagem no header.
-- Botões de ação (Aplicar Dano, Gastar Mana, etc.) estilizados na cor de destaque, com margem e bordas arredondadas nos botões de efeito (`chat-apply-ae`).
-- Dice-btns com bordas arredondadas e gap entre eles.
-- Tooltip de dados: fundo escuro para NPCs, fundo claro para jogadores.
-
-### Janelas de uso de habilidade/item (dialogs do sistema)
-
-- Janelas `.tormenta20.dialog` recebem o mesmo fundo glassmórfico das fichas.
-- Lista de aprimoramentos/efeitos com texto claro e bordas na cor de destaque do jogador atual.
-- Checkboxes, inputs e botões numCtrl no tema escuro.
-- Botão primário ("Usar") na cor de destaque do jogador.
-- Seção de custo total com borda e fundo sutil na cor de destaque.
-
-## Configurações
-
-Em *Game Settings → Configure Settings → T20 Hayd UI*:
-
-| Configuração | Escopo | Descrição |
-|---|---|---|
-| Ativar tema visual | Por usuário | Liga/desliga o tema só para você. Recarrega a página. |
-| Cor de destaque padrão | Mundo | Cor hex usada em fichas sem dono jogador. |
-| Mostrar logo do Tormenta 20 | Por usuário | Exibe ou oculta o logo flutuante nas fichas de personagem. |
-
-## Como a cor de destaque é resolvida
-
-1. Se a ficha está no modo **Cor padrão**: usa a cor configurada no setting de mundo.
-2. Se está no modo **Automático** (padrão): usa a cor do primeiro dono jogador (não-GM) em ordem alfabética que tenha cor definida. Se não houver, cai para a cor padrão do mundo.
-3. Itens herdama a cor do ator pai.
-4. Mensagens de chat: priorizam a cor do ator speaker; se não houver ator, usam a cor do remetente.
-5. Dialogs de uso: usam sempre a cor do usuário atual logado.
-
-## Compatibilidade
-
-- **FoundryVTT:** v13
-- **Sistema:** [Tormenta20](https://gitlab.com/vizael/Tormenta20) — verificado em v1.4.213
+- FoundryVTT **v13**
+- Sistema **Tormenta20**
 
 ## Instalação
 
-**Via manifest URL** — em *Add-on Modules → Install Module*, cole:
+Em *Configurar → Módulos Complementares → Instalar Módulo*, cole a URL do manifesto:
 
 ```
-https://raw.githubusercontent.com/ahahayd/t20-hayd-ui/main/module.json
+https://github.com/ahahayd/t20-hayd-ui/releases/latest/download/module.json
 ```
 
-**Manual** — baixe o repositório e extraia a pasta em `{userData}/Data/modules/`.
+## Como usar
 
-## Detalhes técnicos
+### Tema das fichas
 
-- Não modifica o código do sistema Tormenta20. Usa CSS sobreposto via cascade layer `modules` (prioridade sobre `system` no v13) e hooks de renderização do Foundry.
-- Variável CSS principal `--t20a-cor-destaque` injetada como inline style no `.window-app` via JS a cada render.
-- Todos os seletores CSS são prefixados com `.t20a` para isolar do restante da interface.
-- Hooks usados: `renderActorSheet`, `renderItemSheet`, `renderChatMessage`, `renderApplication`, `getApplicationHeaderButtons`, `updateUser`, `updateActor`.
-- Textos de listas em dialogs que são sobrescritos pela classe `theme-light` do Foundry são forçados via `element.style.setProperty("color", ..., "important")`.
-- Dialog de configuração por ficha usa `foundry.applications.api.DialogV2` (API v13).
+Ative o módulo e pronto: fichas de personagem, NPC e itens passam para o visual escuro, com a cor de destaque aplicada em cabeçalhos, abas, atributos, barras de PV/PM, listas e scrollbars. Itens abertos a partir de um ator herdam a cor do ator. Cada usuário pode desligar o tema só para si nas configurações.
+
+### Cor da ficha
+
+Clique em **"Cor da Ficha"** no cabeçalho da ficha (donos e Mestre) e escolha entre a cor **automática** do jogador dono, a cor **padrão** do mundo ou uma **cor personalizada** pelo seletor de cores. O texto se ajusta sozinho para manter contraste legível sobre qualquer cor escolhida.
+
+### Chat
+
+As mensagens viram cards temáticos: fundo claro para personagens jogadores e escuro para NPCs, retrato do ator no cabeçalho, nome do jogador abaixo do personagem e botões de ação (Aplicar Dano, Gastar Mana…) na cor de destaque.
+
+### Nível obtido dos poderes
+
+Opção por usuário que exibe um pequeno selo antes do ícone de cada poder na ficha, indicando em que nível ele foi obtido (ou "B" para poderes ganhos como bônus). Clique no selo para aumentar o nível e clique com o botão direito para diminuir — a ordem da lista continua livre para você organizar como preferir.
+
+### Configurações
+
+Em *Configurar → Configurações → T20 Hayd UI*: ativar/desativar o tema (por usuário), cor de destaque padrão do mundo, mostrar o logo do Tormenta 20 nas fichas de personagem e o selo de nível dos poderes.
+
+## Detalhes adicionais
+
+- Não modifica o código do sistema — apenas CSS sobreposto e hooks de renderização do Foundry; pode ser desativado a qualquer momento sem afetar dados.
+- Módulos compatíveis: **t20-hayd-loja**, **t20-hayd-bases** e **t20-hayd-dominios** detectam o tema e adotam o mesmo visual automaticamente.
+- Como a cor é resolvida: modo padrão usa a cor do mundo; modo automático usa a cor do primeiro dono jogador; mensagens de chat priorizam a cor do ator que fala; janelas de uso usam a cor do usuário logado.
 
 ## Aviso
 
-Módulo não oficial, sem afiliação com a editora Jambô ou com os autores do Tormenta 20. O logotipo é propriedade dos detentores da marca e está incluído apenas para uso decorativo em ambiente de jogo.
-
-## Licença
-
-MIT — veja o arquivo `LICENSE`.
+Módulo não oficial, criado por fã, sem afiliação com a Jambô Editora ou com os autores de Tormenta20. O logotipo do Tormenta 20 é propriedade dos detentores da marca e está incluído apenas para uso decorativo em ambiente de jogo.
