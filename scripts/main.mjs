@@ -46,6 +46,16 @@ Hooks.once("init", () => {
         default: true,
         onChange: () => reRenderTormentaSheets()
     });
+
+    game.settings.register(MODULE_ID, "poderesPorNivel", {
+        name: "T20A.Settings.PoderesPorNivelName",
+        hint: "T20A.Settings.PoderesPorNivelHint",
+        scope: "client",
+        config: true,
+        type: Boolean,
+        default: false,
+        onChange: () => reRenderTormentaSheets()
+    });
 });
 
 /* -------------------------------------------------------------------------- */
@@ -148,6 +158,72 @@ function aplicarTema(app, html) {
     // Logo: apenas para fichas de personagem jogador, se habilitado
     if (doc?.documentName === "Actor" && doc.type === "character" && game.settings.get(MODULE_ID, "mostrarLogo")) {
         injetarLogo(windowApp, root);
+    }
+
+    // Selo de nível obtido nos poderes (opção por usuário)
+    if (doc?.documentName === "Actor" && doc.type === "character"
+        && game.settings.get(MODULE_ID, "poderesPorNivel")) {
+        try { marcarPoderesComNivel(doc, root); }
+        catch (err) { console.warn(`${MODULE_ID} | falha ao marcar nível dos poderes:`, err); }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Nível obtido dos poderes                                                   */
+/*  Um selo compacto ANTES do ícone de cada poder mostra em que nível ele foi  */
+/*  obtido ("1".."20" ou "B" de Bônus). A ordenação da lista continua livre —  */
+/*  o jogador organiza como quiser e ainda rastreia quando pegou cada poder.   */
+/*  Clique no selo: +1 nível · clique direito: −1 · passa por Bônus no ciclo.  */
+/*  A classificação fica em flags.t20-hayd-ui.nivelObtido no próprio poder.    */
+/* -------------------------------------------------------------------------- */
+
+const FLAG_NIVEL_PODER = "nivelObtido";
+
+function nivelDoPoder(item) {
+    const n = Number(item.getFlag(MODULE_ID, FLAG_NIVEL_PODER));
+    return (Number.isInteger(n) && n >= 1) ? n : "bonus";
+}
+
+async function ajustarNivelDoPoder(item, delta) {
+    const max = Number(item.parent?.system?.attributes?.nivel?.value) || 20;
+    const atual = nivelDoPoder(item);
+    let novo;
+    if (delta > 0) novo = (atual === "bonus") ? 1 : (atual >= max ? "bonus" : atual + 1);
+    else novo = (atual === "bonus") ? max : (atual <= 1 ? "bonus" : atual - 1);
+    await item.setFlag(MODULE_ID, FLAG_NIVEL_PODER, novo);
+}
+
+function marcarPoderesComNivel(actor, root) {
+    for (const li of root.querySelectorAll("li.item[data-item-id]")) {
+        if (li.classList.contains("item-header")) continue;
+        if (li.closest(".list-favorites, .favorites")) continue;
+        if (li.querySelector(".t20a-pn-badge")) continue;
+        const item = actor.items.get(li.dataset.itemId);
+        if (item?.type !== "poder") continue;
+
+        const nivel = nivelDoPoder(item);
+        const bonus = nivel === "bonus";
+        const badge = document.createElement("a");
+        badge.className = `t20a-pn-badge${bonus ? " t20a-pn-bonus" : ""}`;
+        badge.textContent = bonus ? "B" : String(nivel);
+        badge.dataset.tooltip = `${bonus ? "Obtido como Bônus (fora de nível)" : `Obtido no nível ${nivel}`} — clique: +1 · clique direito: −1`;
+
+        badge.addEventListener("click", ev => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            ajustarNivelDoPoder(item, +1);
+        });
+        badge.addEventListener("contextmenu", ev => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            ajustarNivelDoPoder(item, -1);
+        });
+
+        // Antes do ícone do poder; sem ícone, no início da linha
+        const nome = li.querySelector(".item-name") ?? li;
+        const img = nome.querySelector(".item-image");
+        if (img) img.before(badge);
+        else nome.prepend(badge);
     }
 }
 

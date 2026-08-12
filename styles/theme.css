@@ -2100,3 +2100,44 @@
     font-family: monospace;
     text-align: center;
 }
+
+/* ==========================================================================
+   Nível obtido dos poderes (opção "poderesPorNivel")
+   Selo compacto injetado via JS antes do ícone de cada poder.
+   Estilizado de forma autônoma para funcionar mesmo sem o tema .t20a.
+   ========================================================================== */
+a.t20a-pn-badge {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 15px;
+    height: 15px;
+    padding: 0 3px;
+    margin-right: 4px;
+    align-self: center;
+    border-radius: 4px;
+    border: 1px solid var(--t20a-cor-destaque, #960505);
+    background: color-mix(in srgb, var(--t20a-cor-destaque, #960505) 14%, transparent);
+    color: var(--t20a-cor-destaque, #960505);
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    user-select: none;
+    transition: background 100ms ease, color 100ms ease;
+}
+a.t20a-pn-badge:hover {
+    background: var(--t20a-cor-destaque, #960505);
+    color: #fff;
+    text-shadow: none;
+}
+a.t20a-pn-badge.t20a-pn-bonus {
+    border-color: #a8894a;
+    background: color-mix(in srgb, #a8894a 14%, transparent);
+    color: #a8894a;
+}
+a.t20a-pn-badge.t20a-pn-bonus:hover {
+    background: #a8894a;
+    color: #fff;
+}

@@ -6,7 +6,9 @@
             "CorPadraoName": "Cor de destaque padrão",
             "CorPadraoHint": "Cor (hex, ex.: #960505) usada quando a ficha está em modo 'padrão' ou não tem nenhum jogador como dono.",
             "MostrarLogoName": "Mostrar logo do Tormenta 20",
-            "MostrarLogoHint": "Exibe o logo flutuante do Tormenta 20 sobre a foto do personagem."
+            "MostrarLogoHint": "Exibe o logo flutuante do Tormenta 20 sobre a foto do personagem.",
+            "PoderesPorNivelName": "Mostrar nível obtido nos poderes",
+            "PoderesPorNivelHint": "Exibe um pequeno selo antes do ícone de cada poder indicando em que nível ele foi obtido (ou \"B\" para poderes ganhos como bônus). Clique no selo para aumentar o nível; clique com o botão direito para diminuir. A ordem da lista continua livre — organize os poderes como preferir."
         },
         "HeaderButton": "Cor da Ficha",
         "Dialog": {
