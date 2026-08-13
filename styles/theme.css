@@ -790,6 +790,11 @@
     position: relative;
     height: 14px;
     margin: 6px 0;
+    /* Na ficha de abas o inventário é flex com a lista em basis 100%; com
+       overflow:hidden o mínimo automático da barra vira 0 e ela era esmagada
+       até sumir. Sem encolher, fica sempre visível como rodapé da aba. */
+    flex: 0 0 auto;
+    min-height: 14px;
 }
 
 .t20a .encumbrance-bar {
