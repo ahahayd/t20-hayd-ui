@@ -8,7 +8,15 @@
             "MostrarLogoName": "Mostrar logo do Tormenta 20",
             "MostrarLogoHint": "Exibe o logo flutuante do Tormenta 20 sobre a foto do personagem.",
             "PoderesPorNivelName": "Mostrar nível obtido nos poderes",
-            "PoderesPorNivelHint": "Exibe um pequeno selo antes do ícone de cada poder indicando em que nível ele foi obtido (ou \"B\" para poderes ganhos como bônus). Clique no selo para aumentar o nível; clique com o botão direito para diminuir. A ordem da lista continua livre — organize os poderes como preferir."
+            "PoderesPorNivelHint": "Exibe um pequeno selo antes do ícone de cada poder indicando em que nível ele foi obtido (ou \"B\" para poderes ganhos como bônus). Clique no selo para aumentar o nível; clique com o botão direito para diminuir. A ordem da lista continua livre — organize os poderes como preferir.",
+            "ChatRetratoName": "Retrato nas mensagens de chat",
+            "ChatRetratoHint": "Qual arte usar como retrato no cabeçalho das mensagens: a arte do personagem (a da ficha) ou a arte do token que está falando.",
+            "ChatRetratoPersonagem": "Arte do personagem (ficha)",
+            "ChatRetratoToken": "Arte do token",
+            "ChatRetratoSemAtorName": "Retrato sem personagem",
+            "ChatRetratoSemAtorHint": "O que mostrar quando a mensagem não vem de um personagem: nenhum retrato, ou o avatar do jogador que enviou a mensagem.",
+            "ChatRetratoSemAtorNada": "Não mostrar retrato",
+            "ChatRetratoSemAtorAvatar": "Avatar do jogador"
         },
         "HeaderButton": "Cor da Ficha",
         "Dialog": {

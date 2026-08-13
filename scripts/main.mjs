@@ -56,6 +56,34 @@ Hooks.once("init", () => {
         default: false,
         onChange: () => reRenderTormentaSheets()
     });
+
+    game.settings.register(MODULE_ID, "chatRetrato", {
+        name: "T20A.Settings.ChatRetratoName",
+        hint: "T20A.Settings.ChatRetratoHint",
+        scope: "client",
+        config: true,
+        type: String,
+        choices: {
+            personagem: "T20A.Settings.ChatRetratoPersonagem",
+            token: "T20A.Settings.ChatRetratoToken"
+        },
+        default: "personagem",
+        onChange: () => ui.chat?.render(true)
+    });
+
+    game.settings.register(MODULE_ID, "chatRetratoSemAtor", {
+        name: "T20A.Settings.ChatRetratoSemAtorName",
+        hint: "T20A.Settings.ChatRetratoSemAtorHint",
+        scope: "client",
+        config: true,
+        type: String,
+        choices: {
+            nada: "T20A.Settings.ChatRetratoSemAtorNada",
+            avatar: "T20A.Settings.ChatRetratoSemAtorAvatar"
+        },
+        default: "nada",
+        onChange: () => ui.chat?.render(true)
+    });
 });
 
 /* -------------------------------------------------------------------------- */
@@ -227,6 +255,31 @@ function marcarPoderesComNivel(actor, root) {
     }
 }
 
+/**
+ * Resolve a imagem do retrato de uma mensagem de chat conforme as opções do
+ * usuário: arte do personagem (ficha) ou do token falante; sem ator, o avatar
+ * do jogador remetente ou nada.
+ */
+function resolverRetratoChat(message, actor, autor) {
+    if (actor) {
+        let src = actor.img;
+        if (game.settings.get(MODULE_ID, "chatRetrato") === "token") {
+            const { scene: cenaId, token: tokenId } = message.speaker ?? {};
+            const token = (cenaId && tokenId)
+                ? game.scenes?.get(cenaId)?.tokens?.get(tokenId)
+                : null;
+            const arteToken = token?.texture?.src ?? actor.prototypeToken?.texture?.src;
+            // Texturas curinga (caminhos com *) não são resolvíveis aqui
+            if (arteToken && !arteToken.includes("*")) src = arteToken;
+        }
+        return src ? { src, alt: actor.name ?? "" } : null;
+    }
+    if (game.settings.get(MODULE_ID, "chatRetratoSemAtor") === "avatar" && autor?.avatar) {
+        return { src: autor.avatar, alt: autor.name ?? "" };
+    }
+    return null;
+}
+
 function aplicarTemaChatMsg(message, html) {
     if (game.system.id !== SYSTEM_ID) return;
     if (!game.settings.get(MODULE_ID, "enabled")) return;
@@ -276,13 +329,15 @@ function aplicarTemaChatMsg(message, html) {
     root.style.setProperty("--t20a-chat-texto-suave", contraste.suave);
     root.style.setProperty("--t20a-chat-sombra", contraste.sombra);
 
-    // Injeta avatar apenas quando há um ator associado à mensagem
+    // Retrato no cabeçalho: arte do personagem ou do token (opção por usuário);
+    // sem ator, opcionalmente o avatar do jogador que enviou
+    const retrato = resolverRetratoChat(message, actor, autor);
     const header = root.querySelector(".message-header");
-    if (header && !header.querySelector(".t20a-chat-avatar") && actor?.img) {
+    if (header && !header.querySelector(".t20a-chat-avatar") && retrato?.src) {
         const avatarEl = document.createElement("img");
         avatarEl.className = "t20a-chat-avatar";
-        avatarEl.alt = actor.name ?? "";
-        avatarEl.src = actor.img;
+        avatarEl.alt = retrato.alt;
+        avatarEl.src = retrato.src;
         header.insertBefore(avatarEl, header.firstChild);
     }
 

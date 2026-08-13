@@ -267,6 +267,29 @@
     padding: 12px 0 12px 14px;
 }
 
+/* Ficha de abas: o sistema fixa .sheet-body em calc(100% - 195px), medida
+   calibrada para o visual padrão. Com o tema, cabeçalho e abas mudam de
+   altura e o corpo estourava por baixo (abas Poderes e Diário cortadas).
+   Layout em coluna flexível dispensa a constante mágica. */
+.t20a .window-content form.tabbed {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.t20a .window-content form.tabbed > header,
+.t20a .window-content form.tabbed > .sheet-header,
+.t20a .window-content form.tabbed > nav,
+.t20a .window-content form.tabbed > .sheet-tabs {
+    flex: 0 0 auto;
+}
+
+.t20a .window-content form.tabbed .sheet-body {
+    flex: 1 1 auto;
+    height: auto !important;
+    min-height: 0;
+}
+
 /* ===== Tipografia geral ================================================== */
 
 .t20a h1, .t20a h2, .t20a h3, .t20a h4 {
