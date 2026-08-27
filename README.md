@@ -35,7 +35,7 @@ Opção por usuário que exibe um pequeno selo antes do ícone de cada poder na 
 
 ### Configurações
 
-Em *Configurar → Configurações → T20 Hayd UI*: ativar/desativar o tema (por usuário), cor de destaque padrão do mundo, mostrar o logo do Tormenta 20 nas fichas de personagem e o selo de nível dos poderes.
+Em *Configurar → Configurações → T20 Hayd UI*: ativar/desativar o tema (por usuário), **estilizar fichas e janelas** (desligue para manter só as personalizações do chat), cor de destaque padrão do mundo, mostrar o logo do Tormenta 20 nas fichas de personagem e o selo de nível dos poderes.
 
 ## Detalhes adicionais
 

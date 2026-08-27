@@ -6,7 +6,12 @@
 
 @layer variables {
 
-    .t20a {
+    /* As variáveis do tema também precisam existir nas janelas de diálogo do
+       sistema (usar/conjurar etc.), que não recebem a classe .t20a. Sem isto,
+       var(--t20a-*) não resolvia e as regras de texto claro do tema falhavam
+       silenciosamente — deixando o texto preto sobre o fundo escuro. */
+    .t20a,
+    body.t20a-ui .tormenta20.window-app.dialog {
         /* ----- Backgrounds (escuro semi-transparente, glassmórfico) ------- */
         --t20a-bg-primary:    rgba(15, 16, 26, 0.88);
         --t20a-bg-surface:    rgba(24, 26, 38, 0.86);

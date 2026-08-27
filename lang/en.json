@@ -2,7 +2,9 @@
     "T20A": {
         "Settings": {
             "EnabledName": "Ativar tema visual",
-            "EnabledHint": "Aplica o tema visual escuro e moderno nas fichas de personagem, NPC e itens do sistema Tormenta20. Recarrega a página ao alterar.",
+            "EnabledHint": "Interruptor geral do módulo (fichas, janelas e mensagens de chat). Desative para não aplicar nada. Para desligar só o tema das fichas e janelas mantendo o chat, use a opção abaixo. Recarrega a página ao alterar.",
+            "EstiloInterfaceName": "Estilizar fichas e janelas",
+            "EstiloInterfaceHint": "Aplica o tema escuro às fichas de personagem/NPC/itens e às janelas de uso (usar/conjurar, aprimoramentos etc.). Desative para manter apenas as personalizações das mensagens de chat. Recarrega a página ao alterar.",
             "CorPadraoName": "Cor de destaque padrão",
             "CorPadraoHint": "Cor (hex, ex.: #960505) usada quando a ficha está em modo 'padrão' ou não tem nenhum jogador como dono.",
             "MostrarLogoName": "Mostrar logo do Tormenta 20",

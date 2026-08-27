@@ -27,6 +27,16 @@ Hooks.once("init", () => {
         onChange: () => location.reload()
     });
 
+    game.settings.register(MODULE_ID, "estiloInterface", {
+        name: "T20A.Settings.EstiloInterfaceName",
+        hint: "T20A.Settings.EstiloInterfaceHint",
+        scope: "client",
+        config: true,
+        type: Boolean,
+        default: true,
+        onChange: () => location.reload()
+    });
+
     game.settings.register(MODULE_ID, "corPadrao", {
         name: "T20A.Settings.CorPadraoName",
         hint: "T20A.Settings.CorPadraoHint",
@@ -94,7 +104,25 @@ Hooks.once("init", () => {
 /*  sozinho se abre para cima ou para baixo conforme o espaço na tela.        */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Estilização da interface (fichas + janelas de uso) ativa?
+ * Independente do chat: o tema do chat só depende de "enabled".
+ */
+function estiloInterfaceAtivo() {
+    if (game.system.id !== SYSTEM_ID) return false;
+    if (!game.settings.get(MODULE_ID, "enabled")) return false;
+    try { return game.settings.get(MODULE_ID, "estiloInterface"); }
+    catch (_) { return true; }
+}
+
+/** Liga/desliga o gate CSS do tema de interface (bloco de diálogos do sistema). */
+function aplicarClasseCorpo() {
+    document.body?.classList.toggle("t20a-ui", estiloInterfaceAtivo());
+}
+
 Hooks.once("setup", () => {
+    aplicarClasseCorpo();
+
     const CM = foundry.applications?.ux?.ContextMenu?.implementation
         ?? foundry.applications?.ux?.ContextMenu
         ?? globalThis.ContextMenu;
@@ -103,7 +131,7 @@ Hooks.once("setup", () => {
     const original = CM.prototype._setPosition;
     CM.prototype._setPosition = function(menu, target, options = {}) {
         try {
-            if (game.settings.get(MODULE_ID, "enabled") && target?.closest?.(".t20a")) {
+            if (estiloInterfaceAtivo() && target?.closest?.(".t20a")) {
                 return this._setFixedPosition(menu, target, options);
             }
         } catch (err) {
@@ -123,8 +151,7 @@ Hooks.on("renderChatMessage", (message, html) => aplicarTemaChatMsg(message, htm
 Hooks.on("renderApplication", (app, html) => aplicarTemaDialog(app, html));
 
 function aplicarTemaDialog(_app, html) {
-    if (game.system.id !== SYSTEM_ID) return;
-    if (!game.settings.get(MODULE_ID, "enabled")) return;
+    if (!estiloInterfaceAtivo()) return;
 
     const root = html instanceof jQuery ? html[0] : html;
     if (!root) return;
@@ -137,26 +164,17 @@ function aplicarTemaDialog(_app, html) {
     const cor = corCSSDoUsuario(game.user) ?? corPadraoConfigurada();
     windowEl.style.setProperty("--t20a-cor-destaque", cor);
 
-    // Força texto claro via inline style — sobrepõe theme-light sem depender de CSS
+    // Força texto claro via inline style — sobrepõe o theme-light que o Foundry
+    // aplica em janelas AppV1, sem depender da cascata de CSS do sistema.
+    // Varre todo o conteúdo e clareia qualquer elemento de texto (menos ícones).
     const COR = "#eceaf2";
-    const SELETORES = [
-        ".item-list .items-header h3",
-        ".item-list .items-header h4",
-        ".item-list .item h3",
-        ".item-list .item h4",
-        ".item-list .item .item-name",
-        ".item-list .item small",
-        ".item-list .item label",
-        ".item-list .item span",
-        ".item-list .item input[type='number']",
-        ".item-list .item input.numInp",
-        ".item-list .item .numCtrl",
-    ];
-    for (const sel of SELETORES) {
-        windowEl.querySelectorAll(sel).forEach(el => {
-            el.style.setProperty("color", COR, "important");
-        });
-    }
+    const conteudo = windowEl.querySelector(".window-content") ?? windowEl;
+    const IGNORAR = new Set(["I", "SVG", "PATH", "IMG", "HR", "BUTTON"]);
+    conteudo.querySelectorAll("*").forEach(el => {
+        if (IGNORAR.has(el.tagName)) return;
+        if (el.classList.contains("fa") || /\bfa-/.test(el.className)) return;
+        el.style.setProperty("color", COR, "important");
+    });
 }
 
 function aplicarTema(app, html) {
@@ -166,29 +184,33 @@ function aplicarTema(app, html) {
     const root = (html instanceof jQuery ? html[0] : html);
     if (!root) return;
 
-    const windowApp = root.closest?.(".window-app") ?? root;
-    windowApp.classList.add(SHEET_CLASS);
-
-    try {
-        const cor = resolverCorDeDestaque(app);
-        windowApp.style.setProperty("--t20a-cor-destaque", cor);
-    } catch (err) {
-        console.warn(`${MODULE_ID} | falha ao resolver cor:`, err);
-        windowApp.style.setProperty("--t20a-cor-destaque", corPadraoConfigurada());
-    }
-
-    // Forçar tamanho mínimo apenas no primeiro render de fichas de personagem jogador
     const doc = documentoDoApp(app);
-    if (doc?.documentName === "Actor" && doc.type === "character") {
-        forcarTamanhoMinimo(app);
+
+    // Tema visual das fichas: só quando a estilização de interface está ativa.
+    if (estiloInterfaceAtivo()) {
+        const windowApp = root.closest?.(".window-app") ?? root;
+        windowApp.classList.add(SHEET_CLASS);
+
+        try {
+            const cor = resolverCorDeDestaque(app);
+            windowApp.style.setProperty("--t20a-cor-destaque", cor);
+        } catch (err) {
+            console.warn(`${MODULE_ID} | falha ao resolver cor:`, err);
+            windowApp.style.setProperty("--t20a-cor-destaque", corPadraoConfigurada());
+        }
+
+        // Forçar tamanho mínimo apenas no primeiro render de fichas de personagem jogador
+        if (doc?.documentName === "Actor" && doc.type === "character") {
+            forcarTamanhoMinimo(app);
+        }
+
+        // Logo: apenas para fichas de personagem jogador, se habilitado
+        if (doc?.documentName === "Actor" && doc.type === "character" && game.settings.get(MODULE_ID, "mostrarLogo")) {
+            injetarLogo(windowApp, root);
+        }
     }
 
-    // Logo: apenas para fichas de personagem jogador, se habilitado
-    if (doc?.documentName === "Actor" && doc.type === "character" && game.settings.get(MODULE_ID, "mostrarLogo")) {
-        injetarLogo(windowApp, root);
-    }
-
-    // Selo de nível obtido nos poderes (opção por usuário)
+    // Selo de nível obtido nos poderes: opção independente, funciona mesmo sem o tema.
     if (doc?.documentName === "Actor" && doc.type === "character"
         && game.settings.get(MODULE_ID, "poderesPorNivel")) {
         try { marcarPoderesComNivel(doc, root); }
