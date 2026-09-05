@@ -8,9 +8,15 @@
 const MODULE_ID = "t20-hayd-ui";
 const SYSTEM_ID = "tormenta20";
 const FLAG_COR = "configCor";
-const SHEET_CLASS = "t20a";
 const LOGO_PATH = `modules/${MODULE_ID}/assets/logo-tormenta20.webp`;
 const COR_PADRAO = "#960505"; // vermelho-sangue arcano (default)
+
+/** Classe de janela por tema visual e cor clara de fallback usada no sweep de contraste. */
+const TEMAS = {
+    darkNeon: { classe: "t20a", corTexto: "#eceaf2" },
+    darkMode: { classe: "t20a-dm", corTexto: "#efe6d8" }
+};
+const TEMA_PADRAO = "darkMode";
 
 /* -------------------------------------------------------------------------- */
 /*  Init / Settings                                                            */
@@ -34,6 +40,20 @@ Hooks.once("init", () => {
         config: true,
         type: Boolean,
         default: true,
+        onChange: () => location.reload()
+    });
+
+    game.settings.register(MODULE_ID, "tema", {
+        name: "T20A.Settings.TemaName",
+        hint: "T20A.Settings.TemaHint",
+        scope: "client",
+        config: true,
+        type: String,
+        choices: {
+            darkMode: "T20A.Settings.TemaDarkMode",
+            darkNeon: "T20A.Settings.TemaDarkNeon"
+        },
+        default: TEMA_PADRAO,
         onChange: () => location.reload()
     });
 
@@ -115,9 +135,34 @@ function estiloInterfaceAtivo() {
     catch (_) { return true; }
 }
 
+/** Chave do tema visual escolhido pelo usuário ("darkNeon" | "darkMode"). */
+function temaAtual() {
+    try {
+        const t = game.settings.get(MODULE_ID, "tema");
+        return TEMAS[t] ? t : TEMA_PADRAO;
+    } catch (_) { return TEMA_PADRAO; }
+}
+
+/** Todas as classes de tema conhecidas — usado para limpar antes de reaplicar. */
+const TODAS_CLASSES_TEMA = Object.values(TEMAS).map(t => t.classe);
+
+/**
+ * Aplica a classe do tema atualmente selecionado num elemento de janela
+ * (ficha ou diálogo), removendo qualquer classe de outro tema.
+ */
+function aplicarClasseTema(el) {
+    if (!el) return;
+    el.classList.remove(...TODAS_CLASSES_TEMA);
+    el.classList.add("t20a-any", TEMAS[temaAtual()].classe);
+}
+
 /** Liga/desliga o gate CSS do tema de interface (bloco de diálogos do sistema). */
 function aplicarClasseCorpo() {
-    document.body?.classList.toggle("t20a-ui", estiloInterfaceAtivo());
+    const ativo = estiloInterfaceAtivo();
+    const tema = temaAtual();
+    document.body?.classList.toggle("t20a-ui", ativo);
+    document.body?.classList.toggle("t20a-theme-darkneon", ativo && tema === "darkNeon");
+    document.body?.classList.toggle("t20a-theme-darkmode", ativo && tema === "darkMode");
 }
 
 Hooks.once("setup", () => {
@@ -131,7 +176,7 @@ Hooks.once("setup", () => {
     const original = CM.prototype._setPosition;
     CM.prototype._setPosition = function(menu, target, options = {}) {
         try {
-            if (estiloInterfaceAtivo() && target?.closest?.(".t20a")) {
+            if (estiloInterfaceAtivo() && target?.closest?.(".t20a-any")) {
                 return this._setFixedPosition(menu, target, options);
             }
         } catch (err) {
@@ -160,6 +205,11 @@ function aplicarTemaDialog(_app, html) {
     if (!windowEl.classList?.contains("tormenta20")) return;
     if (!windowEl.classList?.contains("dialog")) return;
 
+    // Classe do tema selecionado — as regras de CSS do bloco de diálogos
+    // exigem essa classe diretamente na janela (dá acesso às variáveis do
+    // tema e serve de gate: sem ela, o CSS do módulo não toca a janela).
+    aplicarClasseTema(windowEl);
+
     // Cor do usuário atual (sem depender de um ator específico)
     const cor = corCSSDoUsuario(game.user) ?? corPadraoConfigurada();
     windowEl.style.setProperty("--t20a-cor-destaque", cor);
@@ -167,7 +217,7 @@ function aplicarTemaDialog(_app, html) {
     // Força texto claro via inline style — sobrepõe o theme-light que o Foundry
     // aplica em janelas AppV1, sem depender da cascata de CSS do sistema.
     // Varre todo o conteúdo e clareia qualquer elemento de texto (menos ícones).
-    const COR = "#eceaf2";
+    const COR = TEMAS[temaAtual()].corTexto;
     const conteudo = windowEl.querySelector(".window-content") ?? windowEl;
     const IGNORAR = new Set(["I", "SVG", "PATH", "IMG", "HR", "BUTTON"]);
     conteudo.querySelectorAll("*").forEach(el => {
@@ -189,7 +239,7 @@ function aplicarTema(app, html) {
     // Tema visual das fichas: só quando a estilização de interface está ativa.
     if (estiloInterfaceAtivo()) {
         const windowApp = root.closest?.(".window-app") ?? root;
-        windowApp.classList.add(SHEET_CLASS);
+        aplicarClasseTema(windowApp);
 
         try {
             const cor = resolverCorDeDestaque(app);
@@ -402,7 +452,8 @@ function forcarTamanhoMinimo(app) {
  * O logo fica LIFT px acima da barra de abas (efeito 3D).
  * O padding-left do nav é ajustado para reservar o espaço visual do logo.
  */
-const LOGO_LIFT = 5; // px que o logo sobe acima da barra de abas
+const LOGO_LIFT = 5;   // px que o logo sobe acima da barra de abas
+const LOGO_LEFT = -15; // deve bater com "left" no CSS (.t20a-brand-logo / .t20a-dm .t20a-brand-logo)
 
 function injetarLogo(windowApp, root) {
     if (!windowApp || !root) return;
@@ -434,10 +485,16 @@ function injetarLogo(windowApp, root) {
         img.style.top    = `${top}px`;
         img.style.height = `${logoHeight}px`;
 
-        // Reserva espaço no nav; desconta os 10px do deslocamento à esquerda
+        // Reserva no nav exatamente até onde a borda direita do logo cai,
+        // medindo as posições reais (não um deslocamento fixo): o nav não
+        // começa sempre no mesmo x relativo à janela — na ficha normal o
+        // nav é o primeiro filho do form, na de abas vem depois do header,
+        // e um valor fixo deixava um vão vazio antes da 1ª aba num dos dois.
         if (img.naturalWidth && img.naturalHeight) {
             const logoWidth = Math.round(img.naturalWidth / img.naturalHeight * logoHeight);
-            tabs.style.paddingLeft = `${Math.max(0, logoWidth - 10 + 6)}px`;
+            const logoRight = LOGO_LEFT + logoWidth;          // relativo à borda de windowApp
+            const tabsLeft  = tabsRect.left - appRect.left;   // relativo à borda de windowApp
+            tabs.style.paddingLeft = `${Math.max(0, logoRight - tabsLeft + 6)}px`;
         }
     };
 

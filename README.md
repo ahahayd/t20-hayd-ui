@@ -19,7 +19,12 @@ https://github.com/ahahayd/t20-hayd-ui/releases/latest/download/module.json
 
 ### Tema das fichas
 
-Ative o módulo e pronto: fichas de personagem, NPC e itens passam para o visual escuro, com a cor de destaque aplicada em cabeçalhos, abas, atributos, barras de PV/PM, listas e scrollbars. Itens abertos a partir de um ator herdam a cor do ator. Cada usuário pode desligar o tema só para si nas configurações.
+Ative o módulo e pronto: fichas de personagem, NPC e itens passam para o visual escuro, com a cor de destaque aplicada em cabeçalhos, abas, atributos, barras de PV/PM, listas e scrollbars. Itens abertos a partir de um ator herdam a cor do ator, e as janelas de uso do sistema (usar/conjurar, editor de efeitos etc.) recebem o mesmo tratamento. Cada usuário pode desligar o tema só para si nas configurações.
+
+Dois temas visuais à escolha, por usuário:
+
+- **Dark Mode** (padrão): visual vanilla do Foundry moderno — painéis translúcidos com desfoque, paleta neutra, cantos suaves e a cor de destaque usada só como um leve acento (aba ativa, foco, links, botão principal). Cobre exatamente as mesmas fichas e janelas de uso que o Dark Neon, com bom contraste garantido tanto na ficha normal quanto na ficha em abas.
+- **Dark Neon**: visual escuro com a cor de destaque bem presente — gradientes, brilho, cantos quadrados.
 
 ### Cor da ficha
 
@@ -35,12 +40,12 @@ Opção por usuário que exibe um pequeno selo antes do ícone de cada poder na 
 
 ### Configurações
 
-Em *Configurar → Configurações → T20 Hayd UI*: ativar/desativar o tema (por usuário), **estilizar fichas e janelas** (desligue para manter só as personalizações do chat), cor de destaque padrão do mundo, mostrar o logo do Tormenta 20 nas fichas de personagem e o selo de nível dos poderes.
+Em *Configurar → Configurações → T20 Hayd UI*: ativar/desativar o tema (por usuário), **estilizar fichas e janelas** (desligue para manter só as personalizações do chat), **tema visual** (Dark Neon ou Dark Mode), cor de destaque padrão do mundo, mostrar o logo do Tormenta 20 nas fichas de personagem e o selo de nível dos poderes.
 
 ## Detalhes adicionais
 
 - Não modifica o código do sistema — apenas CSS sobreposto e hooks de renderização do Foundry; pode ser desativado a qualquer momento sem afetar dados.
-- Módulos compatíveis: **t20-hayd-loja**, **t20-hayd-bases** e **t20-hayd-dominios** detectam o tema e adotam o mesmo visual automaticamente.
+- Módulos compatíveis: **t20-hayd-loja**, **t20-hayd-bases** e **t20-hayd-dominios** detectam o tema e adotam o mesmo visual automaticamente (por ora, alinhados ao visual do Dark Neon).
 - Como a cor é resolvida: modo padrão usa a cor do mundo; modo automático usa a cor do primeiro dono jogador; mensagens de chat priorizam a cor do ator que fala; janelas de uso usam a cor do usuário logado.
 
 ## Aviso

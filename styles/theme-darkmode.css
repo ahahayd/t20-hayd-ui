@@ -1,0 +1,1418 @@
+/* ==========================================================================
+   Tormenta20 – Arcano • Tema "darkMode"
+   Vanilla Foundry VTT moderno: painéis translúcidos com desfoque, paleta
+   neutra (sem gradientes/glow neon), cantos suaves e um único acento sutil
+   (a cor do jogador dono da ficha). Cobre exatamente as mesmas janelas que
+   o tema darkNeon (fichas de ator/item — normal e em abas — e os diálogos
+   de uso do sistema), sem tocar no chat.
+   Todos os seletores são prefixados com .t20a-dm para isolar do resto do app.
+   ========================================================================== */
+
+/* ===== Janela / Wrapper ================================================== */
+
+.t20a-dm.window-app {
+    color: var(--t20dm-text-primary);
+    font-family: var(--t20dm-font);
+    border: 1px solid var(--t20dm-border);
+    border-radius: var(--t20dm-radius);
+    box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.5),
+        0 16px 44px rgba(0, 0, 0, 0.45);
+    overflow: visible;
+}
+
+.t20a-dm .window-header {
+    background: var(--t20dm-bg-deep);
+    color: var(--t20dm-text-primary);
+    border-bottom: 1px solid var(--t20dm-border);
+}
+
+.t20a-dm .window-header .window-title {
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--t20dm-text-primary);
+}
+
+.t20a-dm .window-header a,
+.t20a-dm .window-header .header-button,
+.t20a-dm .window-header a.header-control {
+    color: var(--t20dm-text-secondary);
+    transition: color 120ms ease;
+}
+
+.t20a-dm .window-header a:hover,
+.t20a-dm .window-header .header-button:hover {
+    color: var(--t20dm-text-primary);
+}
+
+.t20a-dm .window-header .t20a-config i {
+    color: var(--t20dm-text-secondary);
+}
+
+/* Conteúdo da janela: vidro translúcido neutro com desfoque discreto */
+.t20a-dm .window-content {
+    background:
+        linear-gradient(180deg,
+            var(--t20dm-bg-primary) 0%,
+            var(--t20dm-bg-surface) 100%);
+    color: var(--t20dm-text-primary);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    padding: 0;
+    overflow: hidden;
+}
+
+/* ===== Logo do Tormenta 20 (posicionamento igual ao darkNeon, via JS) ==== */
+
+.t20a-dm.window-app > .t20a-brand-logo {
+    position: absolute;
+    top: 25px !important;
+    left: -15px;
+    height: 55px !important;
+    width: auto;
+    z-index: 100;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
+}
+
+/* ===== Sheet Header (imagem + nome + sumário) ============================ */
+
+.t20a-dm .sheet-header {
+    background: transparent;
+    border-bottom: 1px solid var(--t20dm-border);
+    padding: 12px 14px 8px;
+    margin: 0 0 12px;
+    position: relative;
+    overflow: visible;
+}
+
+.t20a-dm .sheet-header h1 {
+    border: none;
+    margin: 0;
+}
+
+.t20a-dm .sheet-header h1 input,
+.t20a-dm .sheet-header input[name="name"] {
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--t20dm-text-primary);
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed transparent;
+    height: auto;
+    padding: 2px 4px;
+    box-shadow: none;
+    transition: border-color 140ms ease;
+}
+
+.t20a-dm .sheet-header h1 input:hover,
+.t20a-dm .sheet-header h1 input:focus {
+    border-bottom-color: var(--t20dm-border-strong);
+}
+
+.t20a-dm .sheet-header img.profile,
+.t20a-dm .sheet-header .profile,
+.t20a-dm .sheet-header .profile-img {
+    border: 1px solid var(--t20dm-border-strong);
+    border-radius: var(--t20dm-radius-sm);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+    background: var(--t20dm-bg-deep);
+}
+
+.t20a-dm .sheet-header .summary {
+    background: transparent;
+    border: none;
+    margin-top: 6px;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    list-style: none;
+}
+
+.t20a-dm .sheet-header .summary li {
+    background: var(--t20dm-bg-elevated);
+    color: var(--t20dm-text-secondary);
+    border: 1px solid var(--t20dm-border);
+    border-radius: var(--t20dm-radius-sm);
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.6;
+    margin: 0;
+    float: none;
+}
+
+.t20a-dm .sheet-header .summary li > input {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: var(--t20dm-text-secondary) !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    padding: 0 !important;
+    height: auto !important;
+    width: 100%;
+    line-height: 1.6;
+}
+
+/* ===== Abas / Tabs ======================================================= */
+
+.t20a-dm .sheet-tabs {
+    display: flex;
+    align-items: stretch;
+    gap: 2px;
+    background: var(--t20dm-bg-deep);
+    border-top: none;
+    border-bottom: 1px solid var(--t20dm-border);
+    padding: 0 8px;
+    margin: 0;
+    overflow: visible;
+}
+
+.t20a-dm .sheet-tabs label,
+.t20a-dm .sheet-tabs > * {
+    background: transparent;
+}
+
+.t20a-dm .sheet-tabs a.item,
+.t20a-dm .tabs > a.item {
+    position: relative;
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--t20dm-text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 12px 14px;
+    line-height: 1;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 140ms ease, background 140ms ease, border-color 140ms ease;
+}
+
+.t20a-dm .sheet-tabs a.item:hover,
+.t20a-dm .tabs > a.item:hover {
+    color: var(--t20dm-text-primary);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.t20a-dm .sheet-tabs a.item.active,
+.t20a-dm .tabs > a.item.active {
+    color: var(--t20dm-text-primary);
+    background: var(--t20dm-acento-suave);
+    border-bottom-color: var(--t20dm-acento);
+}
+
+.t20a-dm .sheet-tabs label i,
+.t20a-dm .sheet-tabs i.fas {
+    color: inherit;
+    margin-right: 4px;
+}
+
+/* ===== Sheet body ========================================================= */
+
+.t20a-dm .sheet-body {
+    padding: 12px 0 12px 14px;
+}
+
+/* Compatibilidade ficha normal x ficha em abas: o sistema fixa .sheet-body em
+   calc(100% - 195px) na ficha tabbed, medida calibrada para o visual padrão.
+   Com o tema, cabeçalho e abas mudam de altura e o corpo estourava por baixo.
+   Layout em coluna flexível dispensa a constante mágica em ambos os casos. */
+.t20a-dm .window-content form.tabbed {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.t20a-dm .window-content form.tabbed > header,
+.t20a-dm .window-content form.tabbed > .sheet-header,
+.t20a-dm .window-content form.tabbed > nav,
+.t20a-dm .window-content form.tabbed > .sheet-tabs {
+    flex: 0 0 auto;
+}
+
+.t20a-dm .window-content form.tabbed .sheet-body {
+    flex: 1 1 auto;
+    height: auto !important;
+    min-height: 0;
+}
+
+/* ===== Tipografia geral ================================================== */
+
+.t20a-dm h1, .t20a-dm h2, .t20a-dm h3, .t20a-dm h4 {
+    color: var(--t20dm-text-primary);
+    margin: 0;
+}
+
+.t20a-dm a {
+    color: var(--t20dm-acento-claro);
+}
+
+.t20a-dm a:hover {
+    color: var(--t20dm-text-primary);
+    text-decoration: underline;
+}
+
+/* ===== Inputs ============================================================ */
+
+.t20a-dm input[type="text"],
+.t20a-dm input[type="number"],
+.t20a-dm input[type="password"],
+.t20a-dm input[type="search"],
+.t20a-dm textarea,
+.t20a-dm select {
+    background: var(--t20dm-bg-input);
+    color: var(--t20dm-text-primary);
+    border: 1px solid var(--t20dm-border);
+    border-radius: var(--t20dm-radius-sm);
+    font-family: var(--t20dm-font);
+    transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
+    box-shadow: none;
+}
+
+.t20a-dm option {
+    background: #202024;
+    color: var(--t20dm-text-primary);
+}
+
+.t20a-dm option:hover,
+.t20a-dm option:checked {
+    background: var(--t20dm-acento);
+    color: #ffffff;
+}
+
+.t20a-dm input::placeholder,
+.t20a-dm textarea::placeholder {
+    color: var(--t20dm-text-muted);
+    opacity: 1;
+}
+
+.t20a-dm input:hover,
+.t20a-dm textarea:hover,
+.t20a-dm select:hover {
+    border-color: var(--t20dm-border-strong);
+    background: var(--t20dm-bg-input-hover);
+}
+
+.t20a-dm input:focus,
+.t20a-dm textarea:focus,
+.t20a-dm select:focus {
+    border-color: var(--t20dm-acento);
+    background: var(--t20dm-bg-input-hover);
+    box-shadow: 0 0 0 2px var(--t20dm-acento-suave);
+    outline: none;
+}
+
+.t20a-dm input[disabled],
+.t20a-dm textarea[disabled],
+.t20a-dm select[disabled] {
+    color: var(--t20dm-text-muted);
+    background: rgba(0, 0, 0, 0.16);
+    border-color: var(--t20dm-border-soft);
+}
+
+/* Botões */
+.t20a-dm button,
+.t20a-dm .dialog-button {
+    background: var(--t20dm-bg-elevated);
+    color: var(--t20dm-text-primary);
+    border: 1px solid var(--t20dm-border);
+    border-radius: var(--t20dm-radius-sm);
+    font-weight: 600;
+    transition: background 140ms ease, border-color 140ms ease;
+    text-shadow: none;
+}
+
+.t20a-dm button:hover {
+    background: var(--t20dm-acento-suave);
+    border-color: var(--t20dm-acento-borda);
+}
+
+/* ===== Títulos de seção (.box-title, .attribute-name) =================== */
+
+.t20a-dm .box-title,
+.t20a-dm .attribute-name,
+.t20a-dm .poderes-title {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--t20dm-text-secondary);
+    border-bottom: 1px solid var(--t20dm-border);
+    padding: 4px 6px;
+    margin: 0 0 2px !important;
+    text-align: center;
+    background: transparent;
+}
+
+/* ===== Atributos (FOR/DES/CON/INT/SAB/CAR) ============================== */
+
+.t20a-dm .attributes-body {
+    padding: 0;
+}
+
+.t20a-dm .ability-scores {
+    border: 1px solid var(--t20dm-border);
+    background: var(--t20dm-bg-deep);
+    border-radius: var(--t20dm-radius);
+    box-shadow: var(--t20dm-shadow-block);
+    overflow: hidden;
+    margin: 0 0 10px;
+}
+
+.t20a-dm .ability-scores .ability {
+    border-right: 1px solid var(--t20dm-border-soft) !important;
+    padding: 0 0 6px;
+    transition: background 150ms ease;
+    position: relative;
+}
+
+.t20a-dm .ability-scores .ability:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.t20a-dm .ability-scores .ability:last-child {
+    border-right: none !important;
+}
+
+.t20a-dm .ability-scores .ability .ability-name {
+    background: transparent;
+    color: var(--t20dm-text-secondary);
+    border-bottom: 1px solid var(--t20dm-border) !important;
+    margin: 0 0 2px !important;
+    padding: 4px 0;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.t20a-dm .ability-scores .ability h1 {
+    color: var(--t20dm-text-primary);
+    font-size: 26px;
+    font-weight: 600;
+    margin: 8px 0 4px;
+    border: 0 !important;
+    text-align: center;
+    line-height: 1;
+}
+
+.t20a-dm .ability-scores .ability:hover h1 {
+    color: var(--t20dm-acento-claro);
+}
+
+.t20a-dm .atributo-rollable {
+    cursor: pointer;
+}
+
+.t20a-dm .ability footer input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px dotted var(--t20dm-border-strong);
+    color: var(--t20dm-text-secondary);
+    text-align: center;
+    font-size: 12px;
+    padding: 1px 2px;
+}
+
+.t20a-dm .ability footer input:hover,
+.t20a-dm .ability footer input:focus {
+    border-bottom-color: var(--t20dm-acento);
+    color: var(--t20dm-text-primary);
+}
+
+/* ===== Recursos (PV / PM) =============================================== */
+
+.t20a-dm .recursos {
+    margin: 10px 0;
+}
+
+.t20a-dm .attributes.flexrow {
+    gap: 10px;
+}
+
+.t20a-dm .attribute.health,
+.t20a-dm .attribute.mana {
+    border: 1px solid var(--t20dm-border);
+    background: var(--t20dm-bg-deep);
+    border-radius: var(--t20dm-radius);
+    padding: 0 6px 8px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--t20dm-shadow-block);
+}
+
+.t20a-dm .attribute.health::before,
+.t20a-dm .attribute.mana::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    background: var(--t20dm-acento);
+}
+
+.t20a-dm .attribute.health .attribute-name,
+.t20a-dm .attribute.mana   .attribute-name,
+.t20a-dm .attribute.defense .attribute-name {
+    background: transparent;
+    border: none !important;
+    color: var(--t20dm-text-secondary);
+    text-align: center;
+    padding: 6px 0 0;
+    margin-bottom: 2px !important;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+}
+
+.t20a-dm .attribute-value {
+    text-align: center;
+}
+
+.t20a-dm .attribute-value input {
+    font-size: 22px;
+    font-weight: 600;
+    text-align: center;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--t20dm-border-strong);
+    color: var(--t20dm-text-primary);
+    width: 45%;
+    box-shadow: none;
+    padding: 2px 0;
+}
+
+.t20a-dm .attribute-value input:focus {
+    border-bottom-color: var(--t20dm-acento);
+}
+
+.t20a-dm .attribute-value .sep {
+    color: var(--t20dm-text-muted);
+    margin: 0 6px;
+    font-size: 16px;
+}
+
+.t20a-dm .attribute-footer {
+    margin-top: 2px;
+}
+
+.t20a-dm .attribute-footer input,
+.t20a-dm .attribute-footer input.temphealth {
+    background: var(--t20dm-bg-input);
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    text-align: center;
+    color: var(--t20dm-text-secondary);
+    font-size: 11px;
+    border-radius: var(--t20dm-radius-sm);
+}
+
+/* ===== Defesa / Conditions ============================================== */
+
+.t20a-dm .defesa,
+.t20a-dm .conditions {
+    background: var(--t20dm-bg-deep);
+    border: 1px solid var(--t20dm-border);
+    border-left: 3px solid var(--t20dm-acento);
+    border-radius: var(--t20dm-radius);
+    padding: 8px 10px;
+    margin: 10px 0;
+    box-shadow: var(--t20dm-shadow-block);
+}
+
+/* Seletores mais genéricos (pegam variações de nome do sistema, incluindo o
+   <li class="attribute defense"> da barra PV/PM/Defesa) — só cor e borda,
+   SEM padding/margin: esse <li> é irmão de flexrow de .attribute.health/.mana
+   e qualquer espaçamento extra aqui desalinha o topo dos três na fileira. */
+.t20a-dm .defesa,
+.t20a-dm .defesas,
+.t20a-dm .defense,
+.t20a-dm .defenses,
+.t20a-dm [class*="defesa"]:not([class*="rolavel"]):not(.ability),
+.t20a-dm [class*="defense"] {
+    background: var(--t20dm-bg-deep) !important;
+    border: 1px solid var(--t20dm-border) !important;
+    border-left: 3px solid var(--t20dm-acento) !important;
+    color: var(--t20dm-text-primary);
+}
+
+/* ===== Listas de itens (ataques, magias, equipamento, talentos) ========= */
+
+.t20a-dm .item-list,
+.t20a-dm ol.item-list,
+.t20a-dm ul.item-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--t20dm-border);
+    border-radius: var(--t20dm-radius);
+    overflow: visible;
+    background: var(--t20dm-bg-deep);
+}
+
+.t20a-dm .ataques,
+.t20a-dm .conditions,
+.t20a-dm .defesa {
+    margin: 10px 0;
+}
+
+.t20a-dm .item-header,
+.t20a-dm .item-list .item-header,
+.t20a-dm .items-header {
+    background: var(--t20dm-bg-elevated);
+    color: var(--t20dm-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 11px;
+    font-weight: 700;
+    border: none;
+    border-bottom: 1px solid var(--t20dm-border);
+    padding: 6px 10px;
+}
+
+.t20a-dm .item-list .item {
+    border-bottom: 1px solid var(--t20dm-border-soft);
+    padding: 6px 10px;
+    transition: background 120ms ease, border-color 120ms ease;
+    color: var(--t20dm-text-primary);
+    background: transparent;
+}
+
+.t20a-dm .item-list .item:last-child {
+    border-bottom: none;
+}
+
+.t20a-dm .item-list .item:nth-child(even) {
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.t20a-dm .item-list .item:hover {
+    background: var(--t20dm-acento-hover) !important;
+    border-bottom-color: var(--t20dm-acento-borda);
+}
+
+.t20a-dm .item-list .item h4 {
+    margin: 0;
+    font-size: 13px;
+    color: var(--t20dm-text-primary);
+    border: none;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 600;
+}
+
+.t20a-dm .item-image {
+    border: 1px solid var(--t20dm-border);
+    border-radius: var(--t20dm-radius-sm);
+    background-size: cover;
+    background-position: center;
+}
+
+.t20a-dm .item-list .item .item-qty,
+.t20a-dm .item-list .item .item-weight {
+    border-left: 1px solid var(--t20dm-border-soft);
+    border-right: 1px solid var(--t20dm-border-soft);
+}
+
+/* ===== Controles de item ================================================ */
+
+.t20a-dm .item-controls,
+.t20a-dm .item-control {
+    color: var(--t20dm-text-muted);
+    transition: color 120ms ease;
+}
+
+.t20a-dm .item-control:hover,
+.t20a-dm .item-controls a:hover {
+    color: var(--t20dm-acento-claro);
+}
+
+.t20a-dm .item-create {
+    color: var(--t20dm-acento-claro);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.t20a-dm .item-create:hover {
+    color: var(--t20dm-text-primary);
+}
+
+/* ===== Item summary (descrição expansível) ============================== */
+
+.t20a-dm .item-summary,
+.t20a-dm .item-summary p,
+.t20a-dm .item-summary span {
+    color: var(--t20dm-text-primary) !important;
+    background-color: transparent !important;
+}
+
+.t20a-dm .item-summary .content-link {
+    background: var(--t20dm-bg-elevated) !important;
+    color: var(--t20dm-acento-claro) !important;
+    border: 1px solid var(--t20dm-border) !important;
+    border-radius: 3px;
+    padding: 0 3px;
+}
+
+.t20a-dm .item-summary .content-link:hover {
+    background: var(--t20dm-acento-suave) !important;
+    border-color: var(--t20dm-acento-borda) !important;
+}
+
+/* ===== Currency (TO/TP/TC) ============================================== */
+
+.t20a-dm .currency {
+    background: var(--t20dm-bg-deep);
+    border: 1px solid var(--t20dm-border);
+    border-radius: var(--t20dm-radius);
+    padding: 6px 10px;
+    box-shadow: var(--t20dm-shadow-block);
+}
+
+.t20a-dm .currency-header {
+    color: var(--t20dm-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 11px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--t20dm-border);
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+}
+
+.t20a-dm .currency-item {
+    background: var(--t20dm-bg-deep) !important;
+    border: 1px solid var(--t20dm-border) !important;
+    border-radius: var(--t20dm-radius-sm) !important;
+    color: var(--t20dm-text-primary);
+}
+
+.t20a-dm .currency-item .denomination {
+    color: var(--t20dm-text-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.t20a-dm .currency-item input {
+    background: var(--t20dm-bg-input);
+    border: 1px solid var(--t20dm-border);
+    text-align: center;
+    color: var(--t20dm-text-primary);
+}
+
+/* ===== Carga / Encumbrance ============================================== */
+
+.t20a-dm .encumbrance {
+    background: var(--t20dm-bg-deep);
+    border: 1px solid var(--t20dm-border);
+    border-radius: var(--t20dm-radius-sm);
+    overflow: hidden;
+    position: relative;
+    height: 14px;
+    margin: 6px 0;
+    /* Na ficha de abas o inventário é flex com a lista em basis 100%; sem
+       impedir o encolhimento a barra some. Fica sempre visível no rodapé. */
+    flex: 0 0 auto;
+    min-height: 14px;
+}
+
+.t20a-dm .encumbrance-bar {
+    background: var(--t20dm-acento);
+    height: 100%;
+}
+
+.t20a-dm .encumbrance-label {
+    position: relative;
+    z-index: 2;
+    color: var(--t20dm-text-primary);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.t20a-dm .encumbrance-breakpoint {
+    border-color: var(--t20dm-border-strong);
+}
+
+/* ===== Editor de descrição (ProseMirror / TinyMCE) ====================== */
+
+.t20a-dm .editor,
+.t20a-dm .editor-content {
+    background: var(--t20dm-bg-input);
+    border: 1px solid var(--t20dm-border);
+    border-radius: var(--t20dm-radius-sm);
+    color: var(--t20dm-text-primary);
+    font-family: var(--t20dm-font);
+    padding: 6px 10px;
+    min-height: 80px;
+}
+
+.t20a-dm .editor.prosemirror .editor-menu {
+    background: var(--t20dm-bg-elevated);
+    border-bottom: 1px solid var(--t20dm-border);
+    color: var(--t20dm-text-primary);
+    flex: 0 0 auto;
+}
+
+.t20a-dm .editor.prosemirror {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    min-height: 18em !important;
+    padding: 0 !important;
+}
+
+.t20a-dm .editor.prosemirror .editor-container {
+    flex: 1 1 auto !important;
+    position: relative !important;
+    min-height: 12em !important;
+    overflow: hidden !important;
+    border: none;
+    background: transparent;
+}
+
+.t20a-dm .editor.prosemirror .editor-content {
+    position: absolute !important;
+    inset: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: hidden auto !important;
+    padding: 6px 10px;
+    border: none;
+    background: transparent;
+}
+
+.t20a-dm .editor-edit {
+    color: var(--t20dm-acento-claro);
+}
+
+.t20a-dm .editor-content p,
+.t20a-dm .editor-content span,
+.t20a-dm .editor-content li {
+    color: var(--t20dm-text-primary);
+}
+
+/* ===== Itens (ItemSheet) ================================================ */
+
+.t20a-dm.sheet.item .sheet-header,
+.t20a-dm .sheet.item .sheet-header {
+    border-bottom: 1px solid var(--t20dm-border);
+    padding: 10px 14px;
+}
+
+.t20a-dm.sheet.item .sheet-body,
+.t20a-dm .sheet.item .sheet-body {
+    padding: 12px 14px;
+}
+
+.t20a-dm .item-detail {
+    background: var(--t20dm-bg-deep);
+    border: 1px solid var(--t20dm-border);
+    border-radius: var(--t20dm-radius-sm);
+    padding: 6px 10px;
+    margin: 6px 0;
+}
+
+.t20a-dm .item-detail label,
+.t20a-dm .form-group > label,
+.t20a-dm label {
+    color: var(--t20dm-text-secondary);
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    font-weight: 700;
+}
+
+/* ===== NPC Sheet específicos ============================================ */
+
+.t20a-dm .npc-tasks,
+.t20a-dm .npc-stats {
+    background: var(--t20dm-bg-deep);
+    border: 1px solid var(--t20dm-border);
+    border-left: 3px solid var(--t20dm-acento);
+    border-radius: var(--t20dm-radius);
+    padding: 8px 10px;
+    margin: 8px 0;
+}
+
+/* ===== Lista de perícias — zebra sutil e alinhada ao core =============== */
+
+.t20a-dm .skills-list {
+    border: 1px solid var(--t20dm-border);
+    border-radius: var(--t20dm-radius-sm);
+    box-shadow: var(--t20dm-shadow-block);
+}
+
+.t20a-dm .skills-list .skill {
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+.t20a-dm .skills-list .skill:not(.item-header):not(.create-skill):nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.035) !important;
+}
+
+.t20a-dm .skills-list .skill:not(.item-header):not(.create-skill):hover {
+    background-color: var(--t20dm-acento-hover) !important;
+}
+
+.t20a-dm li.pericia,
+.t20a-dm li.pericias-row,
+.t20a-dm li[class*="pericia"],
+.t20a-dm ol[class*="pericia"] > li,
+.t20a-dm ul[class*="pericia"] > li,
+.t20a-dm ol.pericias > li,
+.t20a-dm ul.pericias > li,
+.t20a-dm .pericias > li,
+.t20a-dm .lista-pericias > li,
+.t20a-dm .item-list li,
+.t20a-dm table.pericias > tbody > tr {
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+.t20a-dm li.pericia:nth-child(even),
+.t20a-dm li[class*="pericia"]:nth-child(even),
+.t20a-dm ol[class*="pericia"] > li:nth-child(even),
+.t20a-dm ul[class*="pericia"] > li:nth-child(even),
+.t20a-dm ol.pericias > li:nth-child(even),
+.t20a-dm ul.pericias > li:nth-child(even),
+.t20a-dm .pericias > li:nth-child(even),
+.t20a-dm .lista-pericias > li:nth-child(even),
+.t20a-dm .item-list li:nth-child(even),
+.t20a-dm table.pericias > tbody > tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.025) !important;
+}
+
+.t20a-dm li.pericia:hover,
+.t20a-dm li[class*="pericia"]:hover,
+.t20a-dm ol[class*="pericia"] > li:hover,
+.t20a-dm ul[class*="pericia"] > li:hover,
+.t20a-dm ol.pericias > li:hover,
+.t20a-dm ul.pericias > li:hover,
+.t20a-dm .pericias > li:hover,
+.t20a-dm table.pericias > tbody > tr:hover {
+    background-color: var(--t20dm-acento-hover) !important;
+}
+
+/* ===== Efeitos: cores e bordas no tema =================================== */
+
+.t20a-dm .effects-list {
+    color: var(--t20dm-text-primary) !important;
+    background-color: transparent !important;
+}
+
+.t20a-dm .effects-list .items-header {
+    border: none !important;
+    border-bottom: 1px solid var(--t20dm-border) !important;
+    background: var(--t20dm-bg-elevated) !important;
+    color: var(--t20dm-text-primary) !important;
+}
+
+.t20a-dm .effects-list .items-header h3,
+.t20a-dm .effects-list .items-header h4 {
+    color: var(--t20dm-text-secondary) !important;
+}
+
+.t20a-dm .effects-list .item {
+    border-bottom: 1px solid var(--t20dm-border) !important;
+    color: var(--t20dm-text-primary) !important;
+}
+
+.t20a-dm .effects-list .item .item-name,
+.t20a-dm .effects-list .item .item-name h3,
+.t20a-dm .effects-list .item .item-name h4,
+.t20a-dm .effects-list .item .effect-source,
+.t20a-dm .effects-list .item .effect-duration {
+    color: var(--t20dm-text-primary) !important;
+}
+
+.t20a-dm .effects-list .item-controls a {
+    color: var(--t20dm-text-secondary) !important;
+}
+
+.t20a-dm .effects-list .item-controls a:hover {
+    color: var(--t20dm-acento-claro) !important;
+}
+
+/* ===== Nível / XP — barra sempre verde, como no darkNeon ================ */
+
+.t20a-dm .nivel,
+.t20a-dm .level,
+.t20a-dm .character-level,
+.t20a-dm .xp,
+.t20a-dm .exp,
+.t20a-dm .experience,
+.t20a-dm .experiencia,
+.t20a-dm [class*="nivel"]:not(.ability),
+.t20a-dm [class*="experienc"]:not(.ability),
+.t20a-dm [class*="-xp"]:not(.ability) {
+    background: var(--t20dm-bg-deep) !important;
+    border: 1px solid var(--t20dm-border) !important;
+    border-radius: var(--t20dm-radius-sm);
+    color: var(--t20dm-text-primary);
+}
+
+.t20a-dm .nivel input,
+.t20a-dm .level input,
+.t20a-dm [class*="nivel"] input,
+.t20a-dm [class*="experienc"] input {
+    color: var(--t20dm-text-primary);
+    background: transparent;
+    border: none;
+    text-align: center;
+    font-weight: 600;
+}
+
+.t20a-dm .xp-bar,
+.t20a-dm .xpbar,
+.t20a-dm .exp-bar,
+.t20a-dm .experiencia-bar,
+.t20a-dm .progress,
+.t20a-dm [class*="xp-bar"],
+.t20a-dm [class*="experience-bar"],
+.t20a-dm progress,
+.t20a-dm meter {
+    background: var(--t20dm-bg-deep) !important;
+    border: 1px solid var(--t20dm-border) !important;
+    border-radius: var(--t20dm-radius-sm) !important;
+    overflow: hidden;
+    height: 10px;
+}
+
+.t20a-dm .xp-bar > *,
+.t20a-dm .xpbar > *,
+.t20a-dm .exp-bar > *,
+.t20a-dm .experiencia-bar > *,
+.t20a-dm [class*="xp-bar"] > div,
+.t20a-dm [class*="xp-bar"] > span,
+.t20a-dm [class*="xp"] .bar,
+.t20a-dm [class*="xp"] .fill,
+.t20a-dm [class*="xp"] .progress-fill,
+.t20a-dm [class*="experience"] .bar,
+.t20a-dm [class*="experience"] .fill {
+    background: linear-gradient(180deg, #6ee087 0%, #16a34a 100%) !important;
+    border-radius: var(--t20dm-radius-sm) !important;
+}
+
+.t20a-dm progress::-webkit-progress-bar {
+    background: var(--t20dm-bg-deep);
+}
+.t20a-dm progress::-webkit-progress-value,
+.t20a-dm meter::-webkit-meter-optimum-value {
+    background: linear-gradient(180deg, #6ee087, #16a34a) !important;
+}
+.t20a-dm progress::-moz-progress-bar,
+.t20a-dm meter::-moz-meter-bar {
+    background: linear-gradient(180deg, #6ee087, #16a34a) !important;
+}
+
+/* ===== Headers de seção do Diário (e gerais no sheet-body) -------------- */
+
+.t20a-dm .sheet-body h2,
+.t20a-dm .sheet-body h3,
+.t20a-dm .sheet-body h4,
+.t20a-dm .sheet-body .section-title,
+.t20a-dm .sheet-body .section-header,
+.t20a-dm .sheet-body fieldset > legend,
+.t20a-dm [class*="diario"] h2,
+.t20a-dm [class*="diario"] h3,
+.t20a-dm [class*="diari"] .label,
+.t20a-dm .biografia h2,
+.t20a-dm .biografia h3,
+.t20a-dm .pessoas h2,
+.t20a-dm .pessoas h3,
+.t20a-dm .locais h2,
+.t20a-dm .locais h3,
+.t20a-dm .missoes h2,
+.t20a-dm .missoes h3,
+.t20a-dm [class*="entrada"] h3,
+.t20a-dm [class*="bio"] h2,
+.t20a-dm [class*="bio"] h3 {
+    color: var(--t20dm-text-secondary) !important;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 12px;
+    border-bottom: 1px solid var(--t20dm-border) !important;
+    padding-bottom: 4px;
+    margin: 8px 0 6px;
+    background: transparent;
+}
+
+.t20a-dm hr,
+.t20a-dm .separator {
+    border: none !important;
+    border-top: 1px solid var(--t20dm-border) !important;
+    background: transparent !important;
+    height: 0;
+    margin: 8px 0;
+}
+
+.t20a-dm .section-titles {
+    border-bottom: 1px solid var(--t20dm-border) !important;
+}
+
+/* ===== Margem entre containers (raça/origem/classe vs PV/PM/defesa) ------ */
+
+.t20a-dm .sheet-body > * + *,
+.t20a-dm form.sheet > * + * {
+    margin-top: 10px;
+}
+
+.t20a-dm .sheet-header .flexrow + .flexrow,
+.t20a-dm .sheet-header .flex-row + .flex-row,
+.t20a-dm .sheet-header .form-fields + .form-fields,
+.t20a-dm .sheet-header > div + div {
+    margin-top: 8px;
+}
+
+.t20a-dm .sheet-header + *,
+.t20a-dm .sheet-header + section,
+.t20a-dm .sheet-header + div {
+    margin-top: 12px !important;
+}
+
+/* ===== Scrollbars ======================================================== */
+
+.t20a-dm ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.t20a-dm ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 4px;
+}
+
+.t20a-dm ::-webkit-scrollbar-thumb {
+    background: var(--t20dm-border-strong);
+    border-radius: 4px;
+}
+
+.t20a-dm ::-webkit-scrollbar-thumb:hover {
+    background: var(--t20dm-acento);
+}
+
+.t20a-dm {
+    scrollbar-width: thin;
+    scrollbar-color: var(--t20dm-border-strong) rgba(0, 0, 0, 0.25);
+}
+
+/* ===== Foco de acessibilidade ============================================ */
+/* Contorno bem visível — é o único elemento "chamativo" do tema, de propósito. */
+
+.t20a-dm *:focus-visible {
+    outline: 2px solid var(--t20dm-acento);
+    outline-offset: 1px;
+}
+
+/* ==========================================================================
+   DIALOGS do sistema Tormenta20 — tema darkMode (ability-use, item-use, etc.)
+   Escopo: .tormenta20.window-app.dialog.t20a-dm — mesma classe posta pelo JS
+   nas janelas de ator/item, aqui também na janela de diálogo quando o tema
+   darkMode está selecionado.
+   ========================================================================== */
+
+.tormenta20.window-app.dialog.t20a-dm {
+    color: var(--t20dm-text-primary) !important;
+    font-family: var(--t20dm-font) !important;
+    border: 1px solid var(--t20dm-border) !important;
+    border-radius: var(--t20dm-radius) !important;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 16px 44px rgba(0, 0, 0, 0.45) !important;
+    max-height: 90vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .window-header {
+    background: var(--t20dm-bg-deep) !important;
+    border-bottom: 1px solid var(--t20dm-border) !important;
+    color: var(--t20dm-text-primary) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .window-header .window-title {
+    font-weight: 600 !important;
+    color: var(--t20dm-text-primary) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .window-header a,
+.tormenta20.window-app.dialog.t20a-dm .window-header .header-button {
+    color: var(--t20dm-text-secondary) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .window-header a:hover {
+    color: var(--t20dm-text-primary) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .window-content {
+    background:
+        linear-gradient(180deg,
+            var(--t20dm-bg-primary) 0%,
+            var(--t20dm-bg-surface) 100%) !important;
+    color: var(--t20dm-text-primary) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    padding: 12px !important;
+    overflow-y: auto !important;
+    flex: 1 !important;
+    min-height: 0 !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .window-content,
+.tormenta20.window-app.dialog.t20a-dm .dialog-content,
+.tormenta20.window-app.dialog.t20a-dm form,
+.tormenta20.window-app.dialog.t20a-dm p,
+.tormenta20.window-app.dialog.t20a-dm h1,
+.tormenta20.window-app.dialog.t20a-dm h2,
+.tormenta20.window-app.dialog.t20a-dm h3,
+.tormenta20.window-app.dialog.t20a-dm h4,
+.tormenta20.window-app.dialog.t20a-dm h5,
+.tormenta20.window-app.dialog.t20a-dm span:not([class*="fa"]),
+.tormenta20.window-app.dialog.t20a-dm div {
+    color: var(--t20dm-text-primary) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .form-group {
+    border-bottom: 1px solid var(--t20dm-border-soft) !important;
+    padding: 6px 0 !important;
+    color: var(--t20dm-text-primary) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .form-group:last-child {
+    border-bottom: none !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm label {
+    color: var(--t20dm-text-secondary) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]) {
+    background: var(--t20dm-bg-input) !important;
+    border: 1px solid var(--t20dm-border) !important;
+    color: var(--t20dm-text-primary) !important;
+    box-shadow: none !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm input:focus:not([type="checkbox"]):not([type="radio"]) {
+    border-color: var(--t20dm-acento) !important;
+    box-shadow: 0 0 0 2px var(--t20dm-acento-suave) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm input:disabled {
+    opacity: 0.55 !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm input[type="checkbox"] {
+    accent-color: var(--t20dm-acento) !important;
+    width: 14px !important;
+    height: 14px !important;
+    cursor: pointer !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm select {
+    background: #202024 !important;
+    color: var(--t20dm-text-primary) !important;
+    border: 1px solid var(--t20dm-border) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm option {
+    background: #202024 !important;
+    color: var(--t20dm-text-primary) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .item-list {
+    border: 1px solid var(--t20dm-border) !important;
+    border-radius: var(--t20dm-radius-sm) !important;
+    overflow: hidden !important;
+    margin-bottom: 4px !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .items-header {
+    background: var(--t20dm-bg-elevated) !important;
+    border: none !important;
+    border-bottom: 1px solid var(--t20dm-border) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .items-header h3,
+.tormenta20.window-app.dialog.t20a-dm .items-header h4 {
+    color: var(--t20dm-text-secondary) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    font-size: 11px !important;
+    border: none !important;
+    margin: 0 !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .item-list .item {
+    background: var(--t20dm-bg-elevated) !important;
+    border-bottom: 1px solid var(--t20dm-border-soft) !important;
+    color: var(--t20dm-text-primary) !important;
+    padding: 5px 8px !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .item-list .item:last-child {
+    border-bottom: none !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .item-list .item,
+.tormenta20.window-app.dialog.t20a-dm .item-list .item h3,
+.tormenta20.window-app.dialog.t20a-dm .item-list .item h4,
+.tormenta20.window-app.dialog.t20a-dm .item-list .item label,
+.tormenta20.window-app.dialog.t20a-dm .item-list .item span,
+.tormenta20.window-app.dialog.t20a-dm .item-list .item div,
+.tormenta20.window-app.dialog.t20a-dm .item-list .item .item-name,
+.tormenta20.window-app.dialog.t20a-dm .item-list h4.item-name {
+    color: var(--t20dm-text-primary) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .item-cost label {
+    color: var(--t20dm-text-muted) !important;
+    font-size: 11px !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .form-group.total-cost {
+    border-bottom: none !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .total-cost {
+    border: 1px solid var(--t20dm-acento-borda) !important;
+    border-radius: var(--t20dm-radius-sm) !important;
+    padding: 4px 8px !important;
+    background: var(--t20dm-acento-suave) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .total-cost label {
+    color: var(--t20dm-text-secondary) !important;
+    font-weight: 600 !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .total-cost input {
+    font-weight: 700 !important;
+    text-align: center !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    color: var(--t20dm-text-primary) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .dialog-buttons button.use,
+.tormenta20.window-app.dialog.t20a-dm .dialog-buttons button.default,
+.tormenta20.window-app.dialog.t20a-dm .dialog-buttons button.bright {
+    background: var(--t20dm-acento) !important;
+    border-color: var(--t20dm-acento) !important;
+    color: #ffffff !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .dialog-buttons button.use:hover,
+.tormenta20.window-app.dialog.t20a-dm .dialog-buttons button.default:hover,
+.tormenta20.window-app.dialog.t20a-dm .dialog-buttons button.bright:hover {
+    background: var(--t20dm-acento-claro) !important;
+    border-color: var(--t20dm-acento-claro) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .numCtrl {
+    background: var(--t20dm-bg-elevated) !important;
+    border: 1px solid var(--t20dm-border) !important;
+    color: var(--t20dm-text-primary) !important;
+    font-size: 0.85em !important;
+    padding: 1px 4px !important;
+    line-height: 1.2 !important;
+    min-width: 0 !important;
+    height: auto !important;
+    border-radius: var(--t20dm-radius-sm) !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
+    transition: background 100ms ease, border-color 100ms ease !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .numCtrl:hover {
+    background: var(--t20dm-bg-deep) !important;
+    border-color: var(--t20dm-acento) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm input.numInp {
+    background: var(--t20dm-bg-input) !important;
+    border: 1px solid var(--t20dm-border) !important;
+    color: var(--t20dm-text-primary) !important;
+    text-align: center !important;
+    border-radius: var(--t20dm-radius-sm) !important;
+    box-shadow: none !important;
+    padding: 1px 2px !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .dialog-buttons {
+    border-top: 1px solid var(--t20dm-border) !important;
+    padding-top: 8px !important;
+    background: rgba(14, 14, 17, 0.9) !important;
+    display: flex !important;
+    gap: 6px !important;
+    position: sticky !important;
+    bottom: -12px !important;
+    margin: 0 -12px -12px !important;
+    padding: 8px 12px 12px !important;
+    z-index: 1 !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .dialog-buttons button {
+    background: var(--t20dm-bg-elevated) !important;
+    border: 1px solid var(--t20dm-border) !important;
+    color: var(--t20dm-text-primary) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    padding: 6px 14px !important;
+    border-radius: var(--t20dm-radius-sm) !important;
+    cursor: pointer !important;
+    transition: background 120ms ease, border-color 120ms ease !important;
+    box-shadow: none !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm .dialog-buttons button:hover {
+    background: var(--t20dm-acento-suave) !important;
+    border-color: var(--t20dm-acento-borda) !important;
+}
+
+/* ── Legibilidade: elementos de texto não cobertos pelas regras acima ───── */
+.tormenta20.window-app.dialog.t20a-dm small,
+.tormenta20.window-app.dialog.t20a-dm b,
+.tormenta20.window-app.dialog.t20a-dm strong,
+.tormenta20.window-app.dialog.t20a-dm em,
+.tormenta20.window-app.dialog.t20a-dm li,
+.tormenta20.window-app.dialog.t20a-dm td,
+.tormenta20.window-app.dialog.t20a-dm th,
+.tormenta20.window-app.dialog.t20a-dm .item-name,
+.tormenta20.window-app.dialog.t20a-dm .item-name *,
+.tormenta20.window-app.dialog.t20a-dm .effects-list,
+.tormenta20.window-app.dialog.t20a-dm .effects-list *:not(i):not([class*="fa"]) {
+    color: var(--t20dm-text-primary) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm a:not(.header-button):not(.header-control),
+.tormenta20.window-app.dialog.t20a-dm .content-link {
+    color: var(--t20dm-acento-claro) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-dm input::placeholder,
+.tormenta20.window-app.dialog.t20a-dm textarea::placeholder {
+    color: var(--t20dm-text-muted) !important;
+    opacity: 1;
+}

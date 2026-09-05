@@ -6,12 +6,10 @@
 
 @layer variables {
 
-    /* As variáveis do tema também precisam existir nas janelas de diálogo do
-       sistema (usar/conjurar etc.), que não recebem a classe .t20a. Sem isto,
-       var(--t20a-*) não resolvia e as regras de texto claro do tema falhavam
-       silenciosamente — deixando o texto preto sobre o fundo escuro. */
-    .t20a,
-    body.t20a-ui .tormenta20.window-app.dialog {
+    /* A classe .t20a agora é posta diretamente também nas janelas de diálogo
+       do sistema (usar/conjurar etc.) via JS, então estas variáveis resolvem
+       normalmente ali sem precisar de seletor extra. */
+    .t20a {
         /* ----- Backgrounds (escuro semi-transparente, glassmórfico) ------- */
         --t20a-bg-primary:    rgba(15, 16, 26, 0.88);
         --t20a-bg-surface:    rgba(24, 26, 38, 0.86);
@@ -71,5 +69,49 @@
         --t20a-brand-height: 0px;     /* não usado mais (logo agora é flutuante) */
         --t20a-radius:    0;          /* tudo quadrado */
         --t20a-radius-sm: 0;
+    }
+
+    /* ==========================================================================
+       Tema "darkMode" — vanilla Foundry moderno, fundo translúcido, sem neon.
+       Reaproveita --t20a-cor-destaque (mesma cor de jogador, posta via JS) como
+       único acento; todo o resto é neutro para máximo contraste e simplicidade.
+       ========================================================================== */
+    .t20a-dm {
+        /* ----- Backgrounds (vidro neutro, mais transparente que o darkNeon) - */
+        --t20dm-bg-primary:     rgba(20, 20, 24, 0.80);
+        --t20dm-bg-surface:     rgba(28, 28, 33, 0.78);
+        --t20dm-bg-elevated:    rgba(42, 42, 48, 0.90);
+        --t20dm-bg-deep:        rgba(10, 10, 13, 0.50);
+        --t20dm-bg-input:       rgba(0, 0, 0, 0.24);
+        --t20dm-bg-input-hover: rgba(0, 0, 0, 0.36);
+
+        /* ----- Bordas -------------------------------------------------------- */
+        --t20dm-border-soft:   rgba(255, 255, 255, 0.07);
+        --t20dm-border:        rgba(255, 255, 255, 0.14);
+        --t20dm-border-strong: rgba(255, 255, 255, 0.26);
+
+        /* ----- Texto (tons quentes claros — mesma família da paleta dark      */
+        /* nativa do Foundry v13, garantidamente legível sobre os fundos acima) */
+        --t20dm-text-primary:   #efe6d8;
+        --t20dm-text-secondary: #c9c0b3;
+        --t20dm-text-muted:     #96897c;
+        --t20dm-text-faint:     #6b6055;
+
+        /* ----- Acento: cor do jogador (mesma variável que o darkNeon usa) --- */
+        --t20dm-acento:        var(--t20a-cor-destaque, #6a8fbf);
+        --t20dm-acento-claro:  color-mix(in srgb, var(--t20dm-acento) 60%, white);
+        --t20dm-acento-suave:  color-mix(in srgb, var(--t20dm-acento) 16%, transparent);
+        --t20dm-acento-borda:  color-mix(in srgb, var(--t20dm-acento) 55%, transparent);
+        --t20dm-acento-hover:  color-mix(in srgb, var(--t20dm-acento) 24%, transparent);
+
+        /* ----- Tipografia: fonte padrão do próprio Foundry (sem display font) */
+        --t20dm-font:
+            "Signika", "Inter", system-ui, -apple-system,
+            "Segoe UI", Roboto, sans-serif;
+
+        /* ----- Efeitos / layout — cantos suaves, sombra discreta ------------ */
+        --t20dm-shadow-block: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 4px 14px rgba(0, 0, 0, 0.30);
+        --t20dm-radius:    8px;
+        --t20dm-radius-sm: 6px;
     }
 }

@@ -1462,10 +1462,11 @@
 }
 
 /* ===== Menu de contexto (botão direito) ==================================== */
-/* Prefixo body.t20a-ui = gate pela opção "Estilizar fichas e janelas".       */
+/* O visual customizado (cores, hover) é exclusivo do tema darkNeon — no      */
+/* darkMode o menu de contexto fica no visual padrão do Foundry.             */
 
 .t20a #context-menu,
-body.t20a-ui #context-menu {
+body.t20a-theme-darkneon #context-menu {
     position: absolute;
     z-index: 9999 !important;
     background: var(--t20a-bg-elevated, rgba(34, 37, 54, 0.97)) !important;
@@ -1476,7 +1477,7 @@ body.t20a-ui #context-menu {
 }
 
 .t20a #context-menu .context-items,
-body.t20a-ui #context-menu .context-items {
+body.t20a-theme-darkneon #context-menu .context-items {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -1486,7 +1487,7 @@ body.t20a-ui #context-menu .context-items {
 }
 
 .t20a #context-menu .context-item,
-body.t20a-ui #context-menu .context-item {
+body.t20a-theme-darkneon #context-menu .context-item {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -1500,20 +1501,20 @@ body.t20a-ui #context-menu .context-item {
 }
 
 .t20a #context-menu .context-item:hover,
-body.t20a-ui #context-menu .context-item:hover {
+body.t20a-theme-darkneon #context-menu .context-item:hover {
     background: var(--t20a-destaque-hover, rgba(150,5,5,0.28)) !important;
     color: white !important;
 }
 
 .t20a #context-menu .context-item i,
-body.t20a-ui #context-menu .context-item i {
+body.t20a-theme-darkneon #context-menu .context-item i {
     color: var(--t20a-text-muted, #7b7889);
     width: 16px;
     text-align: center;
 }
 
 .t20a #context-menu .context-item:hover i,
-body.t20a-ui #context-menu .context-item:hover i {
+body.t20a-theme-darkneon #context-menu .context-item:hover i {
     color: var(--t20a-destaque-claro, #cc4444);
 }
 
@@ -1521,7 +1522,7 @@ body.t20a-ui #context-menu .context-item:hover i {
 /* modo popover, então a regra do sistema não o alcança e a imagem estica.    */
 /* Recompomos o tamanho compacto original.                                    */
 .t20a #context-menu .context-item img,
-body.t20a-ui #context-menu .context-item img {
+body.t20a-theme-darkneon #context-menu .context-item img {
     flex: 0 0 auto !important;
     width: 20px !important;
     height: 20px !important;
@@ -1532,14 +1533,14 @@ body.t20a-ui #context-menu .context-item img {
 }
 
 .t20a #context-menu .context-group,
-body.t20a-ui #context-menu .context-group {
+body.t20a-theme-darkneon #context-menu .context-group {
     border-top: 1px solid var(--t20a-border, rgba(255,255,255,0.12));
     margin-top: 2px;
     padding-top: 2px;
 }
 
 .t20a #context-menu .context-group ol,
-body.t20a-ui #context-menu .context-group ol {
+body.t20a-theme-darkneon #context-menu .context-group ol {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -1817,12 +1818,14 @@ body.t20a-ui #context-menu[popover] {
 }
 
 /* ==========================================================================
-   DIALOGS do sistema Tormenta20 (ability-use, item-use, etc.)
-   Escopo: body.t20a-ui .tormenta20.dialog — prefixo body.t20a-ui liga/desliga
-   o bloco pela opção "Estilizar fichas e janelas" (classe posta via JS).
+   DIALOGS do sistema Tormenta20 — tema darkNeon (ability-use, item-use, etc.)
+   Escopo: .tormenta20.window-app.dialog.t20a — a classe .t20a é posta pelo JS
+   diretamente na janela quando o tema darkNeon está selecionado, o que serve
+   de gate (sem ela, nada deste bloco se aplica) e dá acesso às variáveis do
+   tema (definidas em variables.css sob o mesmo seletor .t20a).
    ========================================================================== */
 
-body.t20a-ui .tormenta20.window-app.dialog {
+.tormenta20.window-app.dialog.t20a {
     color: var(--t20a-text-primary) !important;
     font-family: var(--t20a-font-texto) !important;
     border: 1px solid var(--t20a-border) !important;
@@ -1844,7 +1847,7 @@ body.t20a-ui .tormenta20.window-app.dialog {
 }
 
 /* ── Cabeçalho da janela ────────────────────────────────────────────────── */
-body.t20a-ui .tormenta20.window-app.dialog .window-header {
+.tormenta20.window-app.dialog.t20a .window-header {
     background: linear-gradient(180deg,
         var(--t20a-bg-deep) 0%,
         var(--t20a-bg-primary) 100%) !important;
@@ -1852,24 +1855,24 @@ body.t20a-ui .tormenta20.window-app.dialog .window-header {
     color: var(--t20a-text-primary) !important;
 }
 
-body.t20a-ui .tormenta20.window-app.dialog .window-header .window-title {
+.tormenta20.window-app.dialog.t20a .window-header .window-title {
     font-family: var(--t20a-font-titulo) !important;
     font-weight: 600 !important;
     color: var(--t20a-text-primary) !important;
     text-shadow: 0 1px 2px rgba(0,0,0,0.6) !important;
 }
 
-body.t20a-ui .tormenta20.window-app.dialog .window-header a,
-body.t20a-ui .tormenta20.window-app.dialog .window-header .header-button {
+.tormenta20.window-app.dialog.t20a .window-header a,
+.tormenta20.window-app.dialog.t20a .window-header .header-button {
     color: var(--t20a-text-secondary) !important;
 }
 
-body.t20a-ui .tormenta20.window-app.dialog .window-header a:hover {
+.tormenta20.window-app.dialog.t20a .window-header a:hover {
     color: var(--t20a-text-primary) !important;
 }
 
 /* ── Conteúdo da janela ─────────────────────────────────────────────────── */
-body.t20a-ui .tormenta20.window-app.dialog .window-content {
+.tormenta20.window-app.dialog.t20a .window-content {
     background:
         radial-gradient(ellipse at top right,
             rgba(30,33,51,0.55) 0%, transparent 55%),
@@ -1888,65 +1891,65 @@ body.t20a-ui .tormenta20.window-app.dialog .window-content {
 }
 
 /* Garante texto claro em todo conteúdo interno (sobrepõe theme-light) */
-body.t20a-ui .tormenta20.window-app.dialog .window-content,
-body.t20a-ui .tormenta20.window-app.dialog .dialog-content,
-body.t20a-ui .tormenta20.window-app.dialog form,
-body.t20a-ui .tormenta20.window-app.dialog p,
-body.t20a-ui .tormenta20.window-app.dialog h1,
-body.t20a-ui .tormenta20.window-app.dialog h2,
-body.t20a-ui .tormenta20.window-app.dialog h3,
-body.t20a-ui .tormenta20.window-app.dialog h4,
-body.t20a-ui .tormenta20.window-app.dialog h5,
-body.t20a-ui .tormenta20.window-app.dialog span:not([class*="fa"]),
-body.t20a-ui .tormenta20.window-app.dialog div {
+.tormenta20.window-app.dialog.t20a .window-content,
+.tormenta20.window-app.dialog.t20a .dialog-content,
+.tormenta20.window-app.dialog.t20a form,
+.tormenta20.window-app.dialog.t20a p,
+.tormenta20.window-app.dialog.t20a h1,
+.tormenta20.window-app.dialog.t20a h2,
+.tormenta20.window-app.dialog.t20a h3,
+.tormenta20.window-app.dialog.t20a h4,
+.tormenta20.window-app.dialog.t20a h5,
+.tormenta20.window-app.dialog.t20a span:not([class*="fa"]),
+.tormenta20.window-app.dialog.t20a div {
     color: var(--t20a-text-primary) !important;
 }
 
 /* ── Form groups ────────────────────────────────────────────────────────── */
-body.t20a-ui .tormenta20.window-app.dialog .form-group {
+.tormenta20.window-app.dialog.t20a .form-group {
     border-bottom: 1px solid var(--t20a-border-soft) !important;
     padding: 6px 0 !important;
     color: var(--t20a-text-primary) !important;
 }
 
-body.t20a-ui .tormenta20.window-app.dialog .form-group:last-child {
+.tormenta20.window-app.dialog.t20a .form-group:last-child {
     border-bottom: none !important;
 }
 
-body.t20a-ui .tormenta20.window-app.dialog label {
+.tormenta20.window-app.dialog.t20a label {
     color: var(--t20a-text-secondary) !important;
 }
 
 /* ── Inputs ─────────────────────────────────────────────────────────────── */
-body.t20a-ui .tormenta20.window-app.dialog input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]) {
+.tormenta20.window-app.dialog.t20a input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]) {
     background: var(--t20a-bg-input) !important;
     border: 1px solid var(--t20a-cor-destaque) !important;
     color: var(--t20a-text-primary) !important;
     box-shadow: 0 0 0 1px color-mix(in srgb, var(--t20a-cor-destaque) 30%, transparent) !important;
 }
 
-body.t20a-ui .tormenta20.window-app.dialog input:disabled {
+.tormenta20.window-app.dialog.t20a input:disabled {
     opacity: 0.55 !important;
 }
 
-body.t20a-ui .tormenta20.window-app.dialog input[type="checkbox"] {
+.tormenta20.window-app.dialog.t20a input[type="checkbox"] {
     accent-color: var(--t20a-text-muted) !important;
 }
 
 /* ── Selects ────────────────────────────────────────────────────────────── */
-body.t20a-ui .tormenta20.window-app.dialog select {
+.tormenta20.window-app.dialog.t20a select {
     background: #1e2133 !important;
     color: var(--t20a-text-primary) !important;
     border: 1px solid var(--t20a-border) !important;
 }
 
-body.t20a-ui .tormenta20.window-app.dialog option {
+.tormenta20.window-app.dialog.t20a option {
     background: #1e2133 !important;
     color: var(--t20a-text-primary) !important;
 }
 
 /* ── Lista de itens (aprimoramentos, efeitos, etc.) ─────────────────────── */
-body.t20a-ui .tormenta20.window-app.dialog .item-list {
+.tormenta20.window-app.dialog.t20a .item-list {
     border: 1px solid var(--t20a-cor-destaque) !important;
     border-radius: 2px !important;
     overflow: hidden !important;
@@ -1954,14 +1957,14 @@ body.t20a-ui .tormenta20.window-app.dialog .item-list {
 }
 
 /* items-header: limpa todas as bordas do sistema antes de aplicar a nossa */
-body.t20a-ui .tormenta20.window-app.dialog .items-header {
+.tormenta20.window-app.dialog.t20a .items-header {
     background: var(--t20a-bg-deep) !important;
     border: none !important;
     border-bottom: 1px solid var(--t20a-cor-destaque) !important;
 }
 
-body.t20a-ui .tormenta20.window-app.dialog .items-header h3,
-body.t20a-ui .tormenta20.window-app.dialog .items-header h4 {
+.tormenta20.window-app.dialog.t20a .items-header h3,
+.tormenta20.window-app.dialog.t20a .items-header h4 {
     color: var(--t20a-text-secondary) !important;
     font-family: var(--t20a-font-titulo) !important;
     text-transform: uppercase !important;
@@ -1971,58 +1974,58 @@ body.t20a-ui .tormenta20.window-app.dialog .items-header h4 {
     margin: 0 !important;
 }
 
-body.t20a-ui .tormenta20.window-app.dialog .item-list .item {
+.tormenta20.window-app.dialog.t20a .item-list .item {
     background: var(--t20a-bg-elevated) !important;
     border-bottom: 1px solid var(--t20a-border-soft) !important;
     color: var(--t20a-text-primary) !important;
     padding: 5px 8px !important;
 }
 
-body.t20a-ui .tormenta20.window-app.dialog .item-list .item:last-child {
+.tormenta20.window-app.dialog.t20a .item-list .item:last-child {
     border-bottom: none !important;
 }
 
 /* Texto dos itens da lista: padrão igual ao effects-list da ficha */
-body.t20a-ui .tormenta20.window-app.dialog .item-list .item,
-body.t20a-ui .tormenta20.window-app.dialog .item-list .item h3,
-body.t20a-ui .tormenta20.window-app.dialog .item-list .item h4,
-body.t20a-ui .tormenta20.window-app.dialog .item-list .item label,
-body.t20a-ui .tormenta20.window-app.dialog .item-list .item span,
-body.t20a-ui .tormenta20.window-app.dialog .item-list .item div,
-body.t20a-ui .tormenta20.window-app.dialog .item-list .item .item-name,
-body.t20a-ui .tormenta20.window-app.dialog .item-list h4.item-name {
+.tormenta20.window-app.dialog.t20a .item-list .item,
+.tormenta20.window-app.dialog.t20a .item-list .item h3,
+.tormenta20.window-app.dialog.t20a .item-list .item h4,
+.tormenta20.window-app.dialog.t20a .item-list .item label,
+.tormenta20.window-app.dialog.t20a .item-list .item span,
+.tormenta20.window-app.dialog.t20a .item-list .item div,
+.tormenta20.window-app.dialog.t20a .item-list .item .item-name,
+.tormenta20.window-app.dialog.t20a .item-list h4.item-name {
     color: var(--t20a-text-primary) !important;
 }
 
-body.t20a-ui .tormenta20.window-app.dialog .item-cost label {
+.tormenta20.window-app.dialog.t20a .item-cost label {
     color: var(--t20a-text-muted) !important;
     font-size: 11px !important;
 }
 
 /* ── Checkboxes ─────────────────────────────────────────────────────────── */
-body.t20a-ui .tormenta20.window-app.dialog input[type="checkbox"] {
+.tormenta20.window-app.dialog.t20a input[type="checkbox"] {
     accent-color: var(--t20a-cor-destaque) !important;
 }
 
 /* ── Total de custo ─────────────────────────────────────────────────────── */
 /* Sobrepõe o border-bottom do .form-group para não duplicar */
-body.t20a-ui .tormenta20.window-app.dialog .form-group.total-cost {
+.tormenta20.window-app.dialog.t20a .form-group.total-cost {
     border-bottom: none !important;
 }
 
-body.t20a-ui .tormenta20.window-app.dialog .total-cost {
+.tormenta20.window-app.dialog.t20a .total-cost {
     border: 1px solid var(--t20a-cor-destaque) !important;
     border-radius: 2px !important;
     padding: 4px 8px !important;
     background: color-mix(in srgb, var(--t20a-cor-destaque) 12%, transparent) !important;
 }
 
-body.t20a-ui .tormenta20.window-app.dialog .total-cost label {
+.tormenta20.window-app.dialog.t20a .total-cost label {
     color: var(--t20a-text-secondary) !important;
     font-weight: 600 !important;
 }
 
-body.t20a-ui .tormenta20.window-app.dialog .total-cost input {
+.tormenta20.window-app.dialog.t20a .total-cost input {
     font-weight: 700 !important;
     text-align: center !important;
     border: none !important;
@@ -2032,23 +2035,23 @@ body.t20a-ui .tormenta20.window-app.dialog .total-cost input {
 }
 
 /* ── Botões primários da dialog ─────────────────────────────────────────── */
-body.t20a-ui .tormenta20.window-app.dialog .dialog-buttons button.use,
-body.t20a-ui .tormenta20.window-app.dialog .dialog-buttons button.default,
-body.t20a-ui .tormenta20.window-app.dialog .dialog-buttons button.bright {
+.tormenta20.window-app.dialog.t20a .dialog-buttons button.use,
+.tormenta20.window-app.dialog.t20a .dialog-buttons button.default,
+.tormenta20.window-app.dialog.t20a .dialog-buttons button.bright {
     background: var(--t20a-cor-destaque) !important;
     border-color: var(--t20a-cor-destaque) !important;
     color: #ffffff !important;
 }
 
-body.t20a-ui .tormenta20.window-app.dialog .dialog-buttons button.use:hover,
-body.t20a-ui .tormenta20.window-app.dialog .dialog-buttons button.default:hover,
-body.t20a-ui .tormenta20.window-app.dialog .dialog-buttons button.bright:hover {
+.tormenta20.window-app.dialog.t20a .dialog-buttons button.use:hover,
+.tormenta20.window-app.dialog.t20a .dialog-buttons button.default:hover,
+.tormenta20.window-app.dialog.t20a .dialog-buttons button.bright:hover {
     background: color-mix(in srgb, var(--t20a-cor-destaque) 70%, white) !important;
     border-color: color-mix(in srgb, var(--t20a-cor-destaque) 70%, white) !important;
 }
 
 /* ── Botões numCtrl e input numInp ──────────────────────────────────────── */
-body.t20a-ui .tormenta20.window-app.dialog .numCtrl {
+.tormenta20.window-app.dialog.t20a .numCtrl {
     background: var(--t20a-bg-elevated) !important;
     border: 1px solid var(--t20a-border) !important;
     color: var(--t20a-text-primary) !important;
@@ -2063,12 +2066,12 @@ body.t20a-ui .tormenta20.window-app.dialog .numCtrl {
     transition: background 100ms ease, border-color 100ms ease !important;
 }
 
-body.t20a-ui .tormenta20.window-app.dialog .numCtrl:hover {
+.tormenta20.window-app.dialog.t20a .numCtrl:hover {
     background: var(--t20a-bg-deep) !important;
     border-color: var(--t20a-cor-destaque) !important;
 }
 
-body.t20a-ui .tormenta20.window-app.dialog input.numInp {
+.tormenta20.window-app.dialog.t20a input.numInp {
     background: var(--t20a-bg-input) !important;
     border: 1px solid var(--t20a-border) !important;
     color: var(--t20a-text-primary) !important;
@@ -2079,7 +2082,7 @@ body.t20a-ui .tormenta20.window-app.dialog input.numInp {
 }
 
 /* Checkboxes: usa a cor de destaque do jogador */
-body.t20a-ui .tormenta20.window-app.dialog input[type="checkbox"] {
+.tormenta20.window-app.dialog.t20a input[type="checkbox"] {
     accent-color: var(--t20a-cor-destaque) !important;
     width: 14px !important;
     height: 14px !important;
@@ -2087,7 +2090,7 @@ body.t20a-ui .tormenta20.window-app.dialog input[type="checkbox"] {
 }
 
 /* ── Botões da dialog ───────────────────────────────────────────────────── */
-body.t20a-ui .tormenta20.window-app.dialog .dialog-buttons {
+.tormenta20.window-app.dialog.t20a .dialog-buttons {
     border-top: 1px solid var(--t20a-border) !important;
     padding-top: 8px !important;
     background: rgba(15, 16, 26, 0.98) !important;
@@ -2100,7 +2103,7 @@ body.t20a-ui .tormenta20.window-app.dialog .dialog-buttons {
     z-index: 1 !important;
 }
 
-body.t20a-ui .tormenta20.window-app.dialog .dialog-buttons button {
+.tormenta20.window-app.dialog.t20a .dialog-buttons button {
     background: var(--t20a-bg-elevated) !important;
     border: 1px solid var(--t20a-border) !important;
     color: var(--t20a-text-primary) !important;
@@ -2116,33 +2119,33 @@ body.t20a-ui .tormenta20.window-app.dialog .dialog-buttons button {
     box-shadow: none !important;
 }
 
-body.t20a-ui .tormenta20.window-app.dialog .dialog-buttons button:hover {
+.tormenta20.window-app.dialog.t20a .dialog-buttons button:hover {
     background: var(--t20a-bg-deep) !important;
     border-color: var(--t20a-border-strong) !important;
 }
 
 /* ── Legibilidade: elementos de texto não cobertos pelas regras acima ───── */
-body.t20a-ui .tormenta20.window-app.dialog small,
-body.t20a-ui .tormenta20.window-app.dialog b,
-body.t20a-ui .tormenta20.window-app.dialog strong,
-body.t20a-ui .tormenta20.window-app.dialog em,
-body.t20a-ui .tormenta20.window-app.dialog li,
-body.t20a-ui .tormenta20.window-app.dialog td,
-body.t20a-ui .tormenta20.window-app.dialog th,
-body.t20a-ui .tormenta20.window-app.dialog .item-name,
-body.t20a-ui .tormenta20.window-app.dialog .item-name *,
-body.t20a-ui .tormenta20.window-app.dialog .effects-list,
-body.t20a-ui .tormenta20.window-app.dialog .effects-list *:not(i):not([class*="fa"]) {
+.tormenta20.window-app.dialog.t20a small,
+.tormenta20.window-app.dialog.t20a b,
+.tormenta20.window-app.dialog.t20a strong,
+.tormenta20.window-app.dialog.t20a em,
+.tormenta20.window-app.dialog.t20a li,
+.tormenta20.window-app.dialog.t20a td,
+.tormenta20.window-app.dialog.t20a th,
+.tormenta20.window-app.dialog.t20a .item-name,
+.tormenta20.window-app.dialog.t20a .item-name *,
+.tormenta20.window-app.dialog.t20a .effects-list,
+.tormenta20.window-app.dialog.t20a .effects-list *:not(i):not([class*="fa"]) {
     color: var(--t20a-text-primary) !important;
 }
 
-body.t20a-ui .tormenta20.window-app.dialog a:not(.header-button):not(.header-control),
-body.t20a-ui .tormenta20.window-app.dialog .content-link {
+.tormenta20.window-app.dialog.t20a a:not(.header-button):not(.header-control),
+.tormenta20.window-app.dialog.t20a .content-link {
     color: var(--t20a-destaque-claro) !important;
 }
 
-body.t20a-ui .tormenta20.window-app.dialog input::placeholder,
-body.t20a-ui .tormenta20.window-app.dialog textarea::placeholder {
+.tormenta20.window-app.dialog.t20a input::placeholder,
+.tormenta20.window-app.dialog.t20a textarea::placeholder {
     color: var(--t20a-text-muted) !important;
     opacity: 1;
 }
