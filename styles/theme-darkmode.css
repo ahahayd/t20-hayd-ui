@@ -56,8 +56,8 @@
             var(--t20dm-bg-primary) 0%,
             var(--t20dm-bg-surface) 100%);
     color: var(--t20dm-text-primary);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     padding: 0;
     overflow: hidden;
 }
@@ -1168,8 +1168,8 @@
             var(--t20dm-bg-primary) 0%,
             var(--t20dm-bg-surface) 100%) !important;
     color: var(--t20dm-text-primary) !important;
-    backdrop-filter: blur(14px) !important;
-    -webkit-backdrop-filter: blur(14px) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
     padding: 12px !important;
     overflow-y: auto !important;
     flex: 1 !important;

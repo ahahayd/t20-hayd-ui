@@ -148,12 +148,21 @@ const TODAS_CLASSES_TEMA = Object.values(TEMAS).map(t => t.classe);
 
 /**
  * Aplica a classe do tema atualmente selecionado num elemento de janela
- * (ficha ou diálogo), removendo qualquer classe de outro tema.
+ * (ficha ou diálogo), removendo qualquer classe de OUTRO tema.
+ *
+ * Nunca remove a classe do tema atual: quase todo o CSS do tema é descendente
+ * dela, então tirar e recolocar invalidaria o estilo computado da subárvore
+ * inteira da ficha — e a ficha (AppV1) re-renderiza a cada update do ator.
+ * `remove` de classe ausente e `add` de classe presente são no-ops, então no
+ * caminho normal (tema já aplicado) esta função não suja estilo nenhum.
  */
 function aplicarClasseTema(el) {
     if (!el) return;
-    el.classList.remove(...TODAS_CLASSES_TEMA);
-    el.classList.add("t20a-any", TEMAS[temaAtual()].classe);
+    const alvo = TEMAS[temaAtual()].classe;
+    for (const classe of TODAS_CLASSES_TEMA) {
+        if (classe !== alvo) el.classList.remove(classe);
+    }
+    el.classList.add("t20a-any", alvo);
 }
 
 /** Liga/desliga o gate CSS do tema de interface (bloco de diálogos do sistema). */
@@ -212,7 +221,9 @@ function aplicarTemaDialog(_app, html) {
 
     // Cor do usuário atual (sem depender de um ator específico)
     const cor = corCSSDoUsuario(game.user) ?? corPadraoConfigurada();
-    windowEl.style.setProperty("--t20a-cor-destaque", cor);
+    if (windowEl.style.getPropertyValue("--t20a-cor-destaque") !== cor) {
+        windowEl.style.setProperty("--t20a-cor-destaque", cor);
+    }
 
     // Força texto claro via inline style — sobrepõe o theme-light que o Foundry
     // aplica em janelas AppV1, sem depender da cascata de CSS do sistema.
@@ -223,6 +234,7 @@ function aplicarTemaDialog(_app, html) {
     conteudo.querySelectorAll("*").forEach(el => {
         if (IGNORAR.has(el.tagName)) return;
         if (el.classList.contains("fa") || /\bfa-/.test(el.className)) return;
+        if (el.style.color) return; // já clareado num render anterior
         el.style.setProperty("color", COR, "important");
     });
 }
@@ -241,12 +253,19 @@ function aplicarTema(app, html) {
         const windowApp = root.closest?.(".window-app") ?? root;
         aplicarClasseTema(windowApp);
 
+        let cor;
         try {
-            const cor = resolverCorDeDestaque(app);
-            windowApp.style.setProperty("--t20a-cor-destaque", cor);
+            cor = resolverCorDeDestaque(app);
         } catch (err) {
             console.warn(`${MODULE_ID} | falha ao resolver cor:`, err);
-            windowApp.style.setProperty("--t20a-cor-destaque", corPadraoConfigurada());
+            cor = corPadraoConfigurada();
+        }
+        /* Só escreve se mudou: --t20a-cor-destaque é herdada e alimenta as
+         * variações derivadas (color-mix) usadas em toda a ficha, então
+         * reescrevê-la invalida o estilo computado da subárvore inteira —
+         * caro num render que acontece a cada update do ator. */
+        if (windowApp.style.getPropertyValue("--t20a-cor-destaque") !== cor) {
+            windowApp.style.setProperty("--t20a-cor-destaque", cor);
         }
 
         // Forçar tamanho mínimo apenas no primeiro render de fichas de personagem jogador
@@ -482,8 +501,13 @@ function injetarLogo(windowApp, root) {
         const logoHeight = Math.round((tabsRect.height + LOGO_LIFT) * 1.2);
         const top        = tabsRect.top - appRect.top - (logoHeight - tabsRect.height);
 
-        img.style.top    = `${top}px`;
-        img.style.height = `${logoHeight}px`;
+        /* Só escreve quando o valor mudou de fato: a ficha re-renderiza a cada
+         * update do ator e, na maioria das vezes, a geometria é idêntica —
+         * reescrever sujaria o layout de graça em todo render. */
+        const novoTop    = `${top}px`;
+        const novaAltura = `${logoHeight}px`;
+        if (img.style.top    !== novoTop)    img.style.top    = novoTop;
+        if (img.style.height !== novaAltura) img.style.height = novaAltura;
 
         // Reserva no nav exatamente até onde a borda direita do logo cai,
         // medindo as posições reais (não um deslocamento fixo): o nav não
@@ -494,7 +518,8 @@ function injetarLogo(windowApp, root) {
             const logoWidth = Math.round(img.naturalWidth / img.naturalHeight * logoHeight);
             const logoRight = LOGO_LEFT + logoWidth;          // relativo à borda de windowApp
             const tabsLeft  = tabsRect.left - appRect.left;   // relativo à borda de windowApp
-            tabs.style.paddingLeft = `${Math.max(0, logoRight - tabsLeft + 6)}px`;
+            const novoPad   = `${Math.max(0, logoRight - tabsLeft + 6)}px`;
+            if (tabs.style.paddingLeft !== novoPad) tabs.style.paddingLeft = novoPad;
         }
     };
 
