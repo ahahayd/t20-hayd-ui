@@ -32,7 +32,7 @@ Clique em **"Cor da Ficha"** no cabeçalho da ficha (donos e Mestre) e escolha e
 
 ### Chat
 
-As mensagens viram cards temáticos: fundo claro para personagens jogadores e escuro para NPCs, retrato do ator no cabeçalho, nome do jogador abaixo do personagem e botões de ação (Aplicar Dano, Gastar Mana…) na cor de destaque.
+As mensagens viram cards temáticos: fundo claro para mensagens enviadas por jogadores e por atores pertencentes a eles; fundo escuro para NPCs, mensagens do Mestre sem ator e mensagens de sistema. O card também mostra o retrato do ator no cabeçalho, o nome do jogador abaixo do personagem e botões de ação (Aplicar Dano, Gastar Mana…) na cor de destaque.
 
 ### Nível obtido dos poderes
 

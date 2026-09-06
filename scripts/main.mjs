@@ -378,13 +378,20 @@ function aplicarTemaChatMsg(message, html) {
     const root = html instanceof jQuery ? html[0] : html;
     if (!root) return;
 
-    // Actor do speaker
-    const speakerId = message.speaker?.actor;
-    const actor = speakerId ? (game.actors?.get(speakerId) ?? null) : null;
+    // `speakerActor` resolve também atores sintéticos de tokens. Consultar só
+    // `game.actors.get(speaker.actor)` perde mensagens cujo speaker veio pela
+    // cena/token e fazia um jogador cair no visual escuro por falta de ator.
+    const actor = message.speakerActor
+        ?? ChatMessage.getSpeakerActor?.(message.speaker ?? {})
+        ?? null;
 
     // Usuário que enviou (v13: message.author; v12: message.user)
     const autorId = message.author?.id ?? message.user?.id;
     const autor   = autorId ? (game.users?.get(autorId) ?? null) : null;
+
+    // A lista já era necessária para resolver a cor. Guardá-la evita repetir
+    // testUserPermission para decidir o fundo da mensagem.
+    const donosJogadores = actor ? listarDonosJogadores(actor) : [];
 
     // Resolve cor de destaque do header
     let cor = null;
@@ -395,7 +402,7 @@ function aplicarTemaChatMsg(message, html) {
         } else if (modo === "custom") {
             cor = lerCorPersonalizada(actor);
         } else {
-            for (const dono of listarDonosJogadores(actor)) {
+            for (const dono of donosJogadores) {
                 const c = corCSSDoUsuario(dono);
                 if (c) { cor = c; break; }
             }
@@ -405,11 +412,16 @@ function aplicarTemaChatMsg(message, html) {
     if (!cor && autor) cor = corCSSDoUsuario(autor);
     if (!cor) cor = corPadraoConfigurada();
 
-    const ehPersonagem = actor?.type === "character";
+    // Claro quando quem enviou é jogador OU quando o ator pertence a algum
+    // jogador (inclusive se o Mestre rolou por ele). Todo o restante — NPCs do
+    // Mestre, mensagens do Mestre sem ator e mensagens de sistema — é escuro.
+    // Assim uma mensagem de jogador sem speaker nunca mais é confundida com
+    // uma mensagem de NPC só porque não havia ator para resolver.
+    const ehMensagemDeJogador = (!!autor && !autor.isGM) || donosJogadores.length > 0;
 
     root.classList.add("t20a-chat-msg");
-    root.classList.toggle("t20a-chat-player", ehPersonagem);
-    root.classList.toggle("t20a-chat-npc", !ehPersonagem);
+    root.classList.toggle("t20a-chat-player", ehMensagemDeJogador);
+    root.classList.toggle("t20a-chat-npc", !ehMensagemDeJogador);
     root.style.setProperty("--t20a-chat-cor", cor);
 
     /* Texto do header sempre legível: preto ou branco conforme a
