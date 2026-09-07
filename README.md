@@ -1,6 +1,6 @@
-# T20 Hayd UI
+[![Apoie no Ko-fi](https://img.shields.io/badge/Apoie_no_Ko--fi-FF5E5B?style=for-the-badge&logo=kofi&logoColor=white)](https://ko-fi.com/haydgi)
 
-[![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/haydgi)
+# T20 Hayd UI
 
 Tema visual moderno e sombrio para o sistema **Tormenta20** no FoundryVTT: fichas de personagem, NPC e itens, mensagens de chat e janelas de uso ganham um visual escuro glassmórfico, com a cor de destaque herdada automaticamente da cor do jogador dono da ficha.
 
@@ -60,7 +60,7 @@ Este módulo é totalmente gratuito. Se você gosta de usá-lo e quiser apoiar s
 
 Você pode apoiar meu trabalho pelo Ko-fi:
 
-[![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/haydgi)
+[![Apoie no Ko-fi](https://img.shields.io/badge/Apoie_no_Ko--fi-FF5E5B?style=for-the-badge&logo=kofi&logoColor=white)](https://ko-fi.com/haydgi)
 
 Ao apoiar pelo Ko-fi, você também pode deixar uma mensagem com um pedido ou sugestão de automação para Foundry VTT que gostaria de ver. Esses pedidos podem servir de inspiração para futuras funcionalidades, automações ou módulos.
 
