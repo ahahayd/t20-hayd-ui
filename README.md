@@ -1,5 +1,7 @@
 # T20 Hayd UI
 
+[![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/haydgi)
+
 Tema visual moderno e sombrio para o sistema **Tormenta20** no FoundryVTT: fichas de personagem, NPC e itens, mensagens de chat e janelas de uso ganham um visual escuro glassmórfico, com a cor de destaque herdada automaticamente da cor do jogador dono da ficha.
 
 ## Requisitos
@@ -47,6 +49,42 @@ Em *Configurar → Configurações → T20 Hayd UI*: ativar/desativar o tema (po
 - Não modifica o código do sistema — apenas CSS sobreposto e hooks de renderização do Foundry; pode ser desativado a qualquer momento sem afetar dados.
 - Módulos compatíveis: **t20-hayd-loja**, **t20-hayd-bases** e **t20-hayd-dominios** detectam o tema e adotam o mesmo visual automaticamente (por ora, alinhados ao visual do Dark Neon).
 - Como a cor é resolvida: modo padrão usa a cor do mundo; modo automático usa a cor do primeiro dono jogador; mensagens de chat priorizam a cor do ator que fala; janelas de uso usam a cor do usuário logado.
+
+---
+
+## ❤️ Apoio e Comissões
+
+Este módulo é totalmente gratuito. Se você gosta de usá-lo e quiser apoiar seu desenvolvimento, qualquer contribuição é muito bem-vinda!
+
+### ☕ Ko-fi
+
+Você pode apoiar meu trabalho pelo Ko-fi:
+
+[![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/haydgi)
+
+Ao apoiar pelo Ko-fi, você também pode deixar uma mensagem com um pedido ou sugestão de automação para Foundry VTT que gostaria de ver. Esses pedidos podem servir de inspiração para futuras funcionalidades, automações ou módulos.
+
+### 🇧🇷 Pix
+
+Se preferir, você também pode apoiar diretamente via Pix.
+
+**Chave Pix aleatória:**
+
+`a8baae96-f4d1-48a5-af25-45bf419fb0fb`
+
+<p align="center">
+  <img src="assets/qrcode.png" alt="QR Code Pix" width="220">
+</p>
+
+### 🛠️ Comissões para Foundry VTT
+
+Também aceito comissões para desenvolvimento no Foundry VTT, incluindo a implementação de **módulos completos de aventuras**, respeitando os direitos e licenças dos materiais utilizados, com cenas, atores, itens, diários, automações e outros conteúdos necessários para deixar a aventura pronta para uso no Foundry, além de módulos específicos para Tormenta20 e outros sistemas.
+
+Se tiver interesse em contratar uma comissão, você pode entrar em contato comigo pelo Discord `xddyahaha` para conversarmos sobre o projeto e seu escopo.
+
+<p align="center">
+  <sub>Todo apoio é opcional e ajuda a continuar desenvolvendo e mantendo meus módulos para Foundry VTT. ❤️</sub>
+</p>
 
 ## Aviso
 
