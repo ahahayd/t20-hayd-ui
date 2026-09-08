@@ -260,6 +260,8 @@ function aplicarTema(app, html) {
     if (estiloInterfaceAtivo()) {
         const windowApp = root.closest?.(".window-app") ?? root;
         aplicarClasseTema(windowApp);
+        const ehFichaJogador = doc?.documentName === "Actor" && doc.type === "character";
+        windowApp.classList.toggle("t20a-player-sheet", ehFichaJogador);
 
         let cor;
         try {
@@ -276,13 +278,18 @@ function aplicarTema(app, html) {
             windowApp.style.setProperty("--t20a-cor-destaque", cor);
         }
 
+        // Mede somente o espaço ocupado pela navbar sobreposta ao header.
+        if (ehFichaJogador) {
+            medirNavbarDaFicha(windowApp, root);
+        }
+
         // Forçar tamanho mínimo apenas no primeiro render de fichas de personagem jogador
-        if (doc?.documentName === "Actor" && doc.type === "character") {
+        if (ehFichaJogador) {
             forcarTamanhoMinimo(app);
         }
 
         // Logo: apenas para fichas de personagem jogador, se habilitado
-        if (doc?.documentName === "Actor" && doc.type === "character" && game.settings.get(MODULE_ID, "mostrarLogo")) {
+        if (ehFichaJogador && game.settings.get(MODULE_ID, "mostrarLogo")) {
             injetarLogo(windowApp, root);
         }
     }
@@ -483,6 +490,22 @@ function forcarTamanhoMinimo(app) {
     } catch (err) {
         console.warn(`${MODULE_ID} | falha ao forçar tamanho:`, err);
     }
+}
+
+/** Mede a navbar; a arte continua sendo controlada exclusivamente pelo CSS do header. */
+function medirNavbarDaFicha(windowApp, root) {
+    if (!windowApp || !root) return;
+
+    const tabs = root.querySelector?.(".sheet-tabs");
+    if (!tabs) return;
+
+    requestAnimationFrame(() => {
+        if (!tabs.isConnected) return;
+        const altura = Math.round(tabs.getBoundingClientRect().height);
+        if (altura > 0) {
+            windowApp.style.setProperty("--t20a-navbar-height", `${altura}px`);
+        }
+    });
 }
 
 /**

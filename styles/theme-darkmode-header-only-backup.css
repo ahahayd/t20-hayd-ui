@@ -1,4 +1,14 @@
 /* ==========================================================================
+   BACKUP FUTURO — DARK MODE COM ARTE SOMENTE NO HEADER
+
+   Este arquivo NÃO é carregado pelo module.json e não aparece como opção.
+   Ele preserva uma versão conservadora do tema para eventual restauração:
+   - nas fichas de personagem, a arte e o fade ficam somente no .sheet-header;
+   - a navbar mantém o fluxo e o comportamento normais do sistema;
+   - são removidos os espaços de 12px acima e 14px à esquerda do header.
+   ========================================================================== */
+
+/* ==========================================================================
    Tormenta20 – Arcano • Tema "darkMode"
    Vanilla Foundry VTT moderno: painéis translúcidos com desfoque, paleta
    neutra (sem gradientes/glow neon), cantos suaves e um único acento sutil
@@ -92,8 +102,7 @@
 }
 
 /* --- Arte de fundo do header (fichas de ator) ---------------------------- */
-/* A imagem pertence somente ao header e desaparece no fade inferior. A
-   navbar é sobreposta ao topo deste elemento, mas não recebe imagem própria. */
+/* A imagem pertence somente ao header e desaparece no fade inferior. */
 .t20a-dm.t20a-player-sheet .sheet-header::before {
     content: "";
     position: absolute;
@@ -112,7 +121,7 @@
     background-repeat: no-repeat;
     background-blend-mode: color;
     filter: blur(0px) saturate(0.9);
-    opacity: 0.55;
+    opacity: 0.75;
     mix-blend-mode: screen;
     -webkit-mask-image: linear-gradient(to bottom,
             rgba(0, 0, 0, 1) 0%,
@@ -217,22 +226,6 @@
     overflow: visible;
 }
 
-/* A navbar sai do fluxo e permanece congelada no topo. O header começa por
-   baixo dela; backdrop-filter desfoca o trecho da arte/conteúdo que passar
-   atrás da barra, sem aplicar nem movimentar uma imagem na própria navbar. */
-.t20a-dm.t20a-player-sheet .window-content form {
-    position: relative;
-}
-
-.t20a-dm.t20a-player-sheet .window-content form > .sheet-tabs {
-    position: absolute;
-    inset: 0 0 auto;
-    z-index: 20;
-    background: color-mix(in srgb, var(--t20dm-bg-deep) 42%, transparent);
-    -webkit-backdrop-filter: blur(14px) saturate(0.75);
-    backdrop-filter: blur(14px) saturate(0.75);
-}
-
 .t20a-dm .sheet-tabs label,
 .t20a-dm .sheet-tabs>* {
     background: transparent;
@@ -287,19 +280,6 @@
 .t20a-dm.t20a-player-sheet .sheet-tabs + .sheet-body {
     padding-top: 0;
     padding-left: 0;
-}
-
-/* Com a navbar fora do fluxo, o body ocupa o espaço completo e começa no
-   topo, por trás dela. A altura da barra vira padding INTERNO do header: isso
-   mantém nome/retrato no lugar e faz somente o fundo do header alcançar o topo.
-   O limite inferior e o fade continuam pertencendo ao próprio header. */
-.t20a-dm.t20a-player-sheet .window-content form:not(.tabbed) > .sheet-tabs + .sheet-body {
-    height: 100% !important;
-}
-
-.t20a-dm.t20a-player-sheet .window-content form > .sheet-header,
-.t20a-dm.t20a-player-sheet .window-content form:not(.tabbed) > .sheet-tabs + .sheet-body .sheet-header {
-    padding-top: calc(12px + var(--t20a-navbar-height, 38px));
 }
 
 /* Compatibilidade ficha normal x ficha em abas: o sistema fixa .sheet-body em
@@ -1205,108 +1185,6 @@
 .t20a-dm *:focus-visible {
     outline: 2px solid var(--t20dm-acento);
     outline-offset: 1px;
-}
-
-/* ===== Menu de contexto (botão direito) ================================= */
-/* O core move o popover para o body, fora da ficha. As variáveis do tema    */
-/* também são expostas no gate global para manter a mesma paleta nesse caso. */
-
-body.t20a-theme-darkmode #context-menu {
-    color: var(--t20dm-text-primary) !important;
-    background:
-        linear-gradient(180deg,
-            rgba(42, 42, 48, 0.96) 0%,
-            rgba(20, 20, 24, 0.96) 100%) !important;
-    border: 1px solid var(--t20dm-border-strong) !important;
-    border-radius: var(--t20dm-radius) !important;
-    box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.04) inset,
-        0 12px 32px rgba(0, 0, 0, 0.55) !important;
-    padding: 5px !important;
-    font-family: var(--t20dm-font);
-    overflow: hidden;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-}
-
-body.t20a-theme-darkmode #context-menu .context-items,
-body.t20a-theme-darkmode #context-menu .context-group ol {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-}
-
-body.t20a-theme-darkmode #context-menu .context-item {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    min-height: 30px;
-    padding: 5px 9px;
-    color: var(--t20dm-text-secondary) !important;
-    background: transparent !important;
-    border: 1px solid transparent !important;
-    border-radius: var(--t20dm-radius-sm);
-    font-size: 13px;
-    cursor: pointer;
-    transition:
-        background 120ms ease,
-        border-color 120ms ease,
-        box-shadow 120ms ease,
-        color 120ms ease;
-}
-
-body.t20a-theme-darkmode #context-menu .context-item:hover,
-body.t20a-theme-darkmode #context-menu .context-item:focus-visible {
-    color: var(--t20dm-text-primary) !important;
-    background:
-        color-mix(in srgb,
-            var(--t20a-context-accent, #6a8fbf) 18%,
-            rgb(46, 46, 52)) !important;
-    border-color:
-        color-mix(in srgb,
-            var(--t20a-context-accent, #6a8fbf) 45%,
-            white) !important;
-    box-shadow:
-        3px 0 0
-        color-mix(in srgb,
-            var(--t20a-context-accent, #6a8fbf) 45%,
-            white) inset;
-    outline: none;
-}
-
-body.t20a-theme-darkmode #context-menu .context-item i {
-    flex: 0 0 16px;
-    width: 16px;
-    color: var(--t20dm-text-muted);
-    text-align: center;
-    transition: color 120ms ease;
-}
-
-body.t20a-theme-darkmode #context-menu .context-item:hover i,
-body.t20a-theme-darkmode #context-menu .context-item:focus-visible i {
-    color:
-        color-mix(in srgb,
-            var(--t20a-context-accent, #6a8fbf) 45%,
-            white);
-}
-
-body.t20a-theme-darkmode #context-menu .context-item img {
-    border-radius: 4px !important;
-}
-
-body.t20a-theme-darkmode #context-menu .context-group {
-    margin-top: 4px;
-    padding-top: 4px;
-    border-top: 1px solid var(--t20dm-border-soft);
-}
-
-body.t20a-theme-darkmode #context-menu .context-group:first-child {
-    margin-top: 0;
-    padding-top: 0;
-    border-top: none;
 }
 
 /* ==========================================================================
