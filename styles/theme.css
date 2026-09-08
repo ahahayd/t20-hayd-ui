@@ -1673,6 +1673,14 @@ body.t20a-ui #context-menu[popover] {
     color: #ffffff !important;
 }
 
+/* Flavor/whisper também vivem sobre o header colorido e precisam acompanhar
+   o contraste calculado em JS para a cor de destaque da mensagem. */
+.t20a-chat-msg .message-header .flavor-text,
+.t20a-chat-msg .message-header .whisper-to {
+    color: var(--t20a-chat-texto, #ffffff) !important;
+    text-shadow: var(--t20a-chat-sombra, 0 1px 3px rgba(0,0,0,0.8));
+}
+
 /* ── Conteúdo: transparente – imagem do root aparece por baixo ─────────── */
 .t20a-chat-msg .message-content {
     background: transparent !important;
@@ -1686,6 +1694,29 @@ body.t20a-ui #context-menu[popover] {
 
 .t20a-chat-npc .message-content {
     color: #eceaf2 !important;
+}
+
+/* Aplicadas somente pelo corretor WCAG a trechos cujo estilo próprio vindo de
+   macro/tabela não contrasta com o fundo efetivo. `!important` vence inclusive
+   cores inline comuns, sem tocar nos elementos que já estavam legíveis. */
+.t20a-chat-msg .t20a-chat-texto-claro {
+    color: #ffffff !important;
+}
+
+.t20a-chat-msg .t20a-chat-texto-escuro {
+    color: #000000 !important;
+}
+
+/* O core força --color-dark-4 na descrição de RollTables. Corrige desde o
+   primeiro paint; o verificador adaptativo cuida do HTML livre dos resultados. */
+.t20a-chat-npc .table-draw .table-description,
+.t20a-chat-npc .table-draw .table-results .description {
+    color: #eceaf2 !important;
+}
+
+.t20a-chat-npc .table-draw .table-description,
+.t20a-chat-npc .table-draw .table-results > li {
+    border-color: rgba(236, 234, 242, 0.28) !important;
 }
 
 /* item-name em NPC: claro para contrastar com fundo escuro */

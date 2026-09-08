@@ -467,6 +467,104 @@ function aplicarTemaChatMsg(message, html) {
         span.textContent = autor.name;
         sender.appendChild(span);
     }
+
+    if (!ehMensagemDeJogador) agendarCorrecaoContrasteChat(root);
+}
+
+/**
+ * Macros e tabelas podem inserir cores próprias nos descendentes do conteúdo,
+ * impedindo que eles herdem o texto claro da mensagem do GM. No próximo frame,
+ * quando todo o HTML do chat já está montado, corrige somente os trechos abaixo
+ * de 4.5:1 e preserva qualquer cor que já tenha contraste suficiente.
+ */
+function agendarCorrecaoContrasteChat(root) {
+    requestAnimationFrame(() => {
+        if (!root?.isConnected || !root.classList.contains("t20a-chat-npc")) return;
+        const conteudo = root.querySelector(".message-content");
+        if (!conteudo) return;
+
+        const candidatos = [conteudo, ...conteudo.querySelectorAll("*")];
+        for (const el of candidatos) {
+            el.classList.remove("t20a-chat-texto-claro", "t20a-chat-texto-escuro");
+        }
+
+        for (const el of candidatos) {
+            if (!elementoPossuiTextoDireto(el)) continue;
+            if (el.matches("script, style, button, input, select, option, textarea, canvas, svg, svg *")) continue;
+
+            const estilo = getComputedStyle(el);
+            if (estilo.display === "none" || estilo.visibility === "hidden") continue;
+
+            const fundo = fundoEfetivoDoElemento(el, conteudo);
+            const cor = corCSSParaRGBA(estilo.color);
+            if (!cor) continue;
+
+            const corVisivel = comporRGBA(cor, fundo);
+            if (razaoContrasteRGB(corVisivel, fundo) >= 4.5) continue;
+
+            // Preto/branco puros garantem que ao menos uma opção alcance
+            // 4.5:1 para qualquer luminância de fundo (limite WCAG AA).
+            const claro = [255, 255, 255];
+            const escuro = [0, 0, 0];
+            const usarClaro = razaoContrasteRGB(claro, fundo) >= razaoContrasteRGB(escuro, fundo);
+            el.classList.add(usarClaro ? "t20a-chat-texto-claro" : "t20a-chat-texto-escuro");
+        }
+    });
+}
+
+function elementoPossuiTextoDireto(el) {
+    return [...el.childNodes].some(no =>
+        no.nodeType === Node.TEXT_NODE && no.textContent.trim().length > 0
+    );
+}
+
+/** Compõe os backgrounds declarados entre o conteúdo da mensagem e o texto. */
+function fundoEfetivoDoElemento(el, limite) {
+    const camadas = [];
+    for (let atual = el; atual; atual = atual.parentElement) {
+        camadas.push(atual);
+        if (atual === limite) break;
+    }
+
+    let fundo = [15, 15, 15]; // base das mensagens t20a-chat-npc
+    for (const camada of camadas.reverse()) {
+        const rgba = corCSSParaRGBA(getComputedStyle(camada).backgroundColor);
+        if (rgba && rgba[3] > 0) fundo = comporRGBA(rgba, fundo);
+    }
+    return fundo;
+}
+
+/** Converte a serialização rgb()/rgba() de getComputedStyle em [r, g, b, a]. */
+function corCSSParaRGBA(cor) {
+    if (typeof cor !== "string") return null;
+    const match = cor.match(/^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:\s*[,/]\s*([\d.]+)(%)?)?\s*\)$/i);
+    if (!match) return null;
+    const alpha = match[4] === undefined
+        ? 1
+        : Math.max(0, Math.min(1, Number(match[4]) / (match[5] ? 100 : 1)));
+    return [Number(match[1]), Number(match[2]), Number(match[3]), alpha];
+}
+
+function comporRGBA(frente, fundo) {
+    const alpha = frente[3] ?? 1;
+    return [
+        frente[0] * alpha + fundo[0] * (1 - alpha),
+        frente[1] * alpha + fundo[1] * (1 - alpha),
+        frente[2] * alpha + fundo[2] * (1 - alpha)
+    ];
+}
+
+function razaoContrasteRGB(a, b) {
+    const luminancia = (rgb) => {
+        const linear = rgb.map(c => {
+            const canal = c / 255;
+            return canal <= 0.04045 ? canal / 12.92 : Math.pow((canal + 0.055) / 1.055, 2.4);
+        });
+        return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+    };
+    const l1 = luminancia(a);
+    const l2 = luminancia(b);
+    return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
 }
 
 /**
