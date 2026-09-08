@@ -1175,6 +1175,108 @@
     outline-offset: 1px;
 }
 
+/* ===== Menu de contexto (botão direito) ================================= */
+/* O core move o popover para o body, fora da ficha. As variáveis do tema    */
+/* também são expostas no gate global para manter a mesma paleta nesse caso. */
+
+body.t20a-theme-darkmode #context-menu {
+    color: var(--t20dm-text-primary) !important;
+    background:
+        linear-gradient(180deg,
+            rgba(42, 42, 48, 0.96) 0%,
+            rgba(20, 20, 24, 0.96) 100%) !important;
+    border: 1px solid var(--t20dm-border-strong) !important;
+    border-radius: var(--t20dm-radius) !important;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.04) inset,
+        0 12px 32px rgba(0, 0, 0, 0.55) !important;
+    padding: 5px !important;
+    font-family: var(--t20dm-font);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+body.t20a-theme-darkmode #context-menu .context-items,
+body.t20a-theme-darkmode #context-menu .context-group ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+body.t20a-theme-darkmode #context-menu .context-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 30px;
+    padding: 5px 9px;
+    color: var(--t20dm-text-secondary) !important;
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    border-radius: var(--t20dm-radius-sm);
+    font-size: 13px;
+    cursor: pointer;
+    transition:
+        background 120ms ease,
+        border-color 120ms ease,
+        box-shadow 120ms ease,
+        color 120ms ease;
+}
+
+body.t20a-theme-darkmode #context-menu .context-item:hover,
+body.t20a-theme-darkmode #context-menu .context-item:focus-visible {
+    color: var(--t20dm-text-primary) !important;
+    background:
+        color-mix(in srgb,
+            var(--t20a-context-accent, #6a8fbf) 18%,
+            rgb(46, 46, 52)) !important;
+    border-color:
+        color-mix(in srgb,
+            var(--t20a-context-accent, #6a8fbf) 45%,
+            white) !important;
+    box-shadow:
+        3px 0 0
+        color-mix(in srgb,
+            var(--t20a-context-accent, #6a8fbf) 45%,
+            white) inset;
+    outline: none;
+}
+
+body.t20a-theme-darkmode #context-menu .context-item i {
+    flex: 0 0 16px;
+    width: 16px;
+    color: var(--t20dm-text-muted);
+    text-align: center;
+    transition: color 120ms ease;
+}
+
+body.t20a-theme-darkmode #context-menu .context-item:hover i,
+body.t20a-theme-darkmode #context-menu .context-item:focus-visible i {
+    color:
+        color-mix(in srgb,
+            var(--t20a-context-accent, #6a8fbf) 45%,
+            white);
+}
+
+body.t20a-theme-darkmode #context-menu .context-item img {
+    border-radius: 4px !important;
+}
+
+body.t20a-theme-darkmode #context-menu .context-group {
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px solid var(--t20dm-border-soft);
+}
+
+body.t20a-theme-darkmode #context-menu .context-group:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+}
+
 /* ==========================================================================
    DIALOGS do sistema Tormenta20 — tema darkMode (ability-use, item-use, etc.)
    Escopo: .tormenta20.window-app.dialog.t20a-dm — mesma classe posta pelo JS

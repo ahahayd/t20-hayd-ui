@@ -1462,8 +1462,8 @@
 }
 
 /* ===== Menu de contexto (botão direito) ==================================== */
-/* O visual customizado (cores, hover) é exclusivo do tema darkNeon — no      */
-/* darkMode o menu de contexto fica no visual padrão do Foundry.             */
+/* Regras do darkNeon. O darkMode possui uma variação própria em              */
+/* theme-darkmode.css; ambos cobrem o menu movido para o body.                */
 
 .t20a #context-menu,
 body.t20a-theme-darkneon #context-menu {
@@ -1520,9 +1520,10 @@ body.t20a-theme-darkneon #context-menu .context-item:hover i {
 
 /* Ícone de item (ex.: opções de equipar do T20) — o menu vive no body em     */
 /* modo popover, então a regra do sistema não o alcança e a imagem estica.    */
-/* Recompomos o tamanho compacto original.                                    */
+/* Recompomos o tamanho compacto nos dois temas sem mudar o visual do menu.    */
 .t20a #context-menu .context-item img,
-body.t20a-theme-darkneon #context-menu .context-item img {
+body.t20a-theme-darkneon #context-menu .context-item img,
+body.t20a-theme-darkmode #context-menu .context-item img {
     flex: 0 0 auto !important;
     width: 20px !important;
     height: 20px !important;

@@ -76,7 +76,8 @@
        Reaproveita --t20a-cor-destaque (mesma cor de jogador, posta via JS) como
        único acento; todo o resto é neutro para máximo contraste e simplicidade.
        ========================================================================== */
-    .t20a-dm {
+    .t20a-dm,
+    body.t20a-theme-darkmode {
         /* ----- Backgrounds (vidro neutro, mais transparente que o darkNeon) - */
         --t20dm-bg-primary:     rgba(20, 20, 24, 0.80);
         --t20dm-bg-surface:     rgba(28, 28, 33, 0.78);

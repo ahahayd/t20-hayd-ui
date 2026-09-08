@@ -185,7 +185,15 @@ Hooks.once("setup", () => {
     const original = CM.prototype._setPosition;
     CM.prototype._setPosition = function(menu, target, options = {}) {
         try {
-            if (estiloInterfaceAtivo() && target?.closest?.(".t20a-any")) {
+            const janelaTema = target?.closest?.(".t20a-any");
+            if (estiloInterfaceAtivo() && janelaTema) {
+                // O popover será movido para o body e deixará de herdar as
+                // variáveis da ficha. Copia o acento da janela que o abriu.
+                const corDestaque = getComputedStyle(janelaTema)
+                    .getPropertyValue("--t20a-cor-destaque")
+                    .trim();
+                if (corDestaque) menu.style.setProperty("--t20a-context-accent", corDestaque);
+                else menu.style.removeProperty("--t20a-context-accent");
                 return this._setFixedPosition(menu, target, options);
             }
         } catch (err) {
