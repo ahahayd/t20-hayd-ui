@@ -78,7 +78,7 @@
 
 .t20a.window-app > .t20a-brand-logo {
     position: absolute;
-    top: 25px !important;
+    top: 18px !important;
     left: -15px;
     height: 55px !important;          /* fallback; JS sobrescreve com (tabs_height + lift) × 1.2 */
     width: auto;
@@ -362,6 +362,13 @@
     padding-top: 0;
     padding-left: 0;
     height: 100% !important;
+}
+
+/* Sem o recuo do body, Outras Características, Proficiências e a caixa de
+   texto encostavam na borda. Devolve a eles o recuo original do body. */
+.t20a.t20a-player-sheet-base form.base > .sheet-body .traits {
+    box-sizing: border-box;
+    padding-left: 14px;
 }
 
 /* Retrato e nome ficam abaixo da navbar; a arte continua no topo. */
@@ -956,24 +963,6 @@
     padding: 6px 10px;
     border: none;          /* a borda já está no .editor */
     background: transparent;
-}
-
-/* No Diário, somente o campo aberto para edição deve crescer. O sistema
-   divide a coluna entre vários articles; sem reservar espaço no article e no
-   prose-mirror ativo, a barra de ferramentas comprime a área de digitação. */
-.t20a.t20a-player-sheet .tab.journal article:has(> prose-mirror.active) {
-    flex: 0 0 25rem !important;
-    min-height: 25rem !important;
-}
-
-.t20a.t20a-player-sheet .tab.journal prose-mirror.active {
-    flex: 0 0 22rem !important;
-    height: 22rem !important;
-    min-height: 22rem !important;
-}
-
-.t20a.t20a-player-sheet .tab.journal prose-mirror.active .editor-container {
-    min-height: 14rem !important;
 }
 
 .t20a .editor-edit {
@@ -1648,10 +1637,11 @@ body.t20a-theme-darkneon #context-menu .context-item:hover i {
 
 /* Ícone de item (ex.: opções de equipar do T20) — o menu vive no body em     */
 /* modo popover, então a regra do sistema não o alcança e a imagem estica.    */
-/* Recompomos o tamanho compacto nos dois temas sem mudar o visual do menu.    */
+/* Recompomos o tamanho compacto nos três temas sem mudar o visual do menu.   */
 .t20a #context-menu .context-item img,
 body.t20a-theme-darkneon #context-menu .context-item img,
-body.t20a-theme-darkmode #context-menu .context-item img {
+body.t20a-theme-darkmode #context-menu .context-item img,
+body.t20a-theme-lightmode #context-menu .context-item img {
     flex: 0 0 auto !important;
     width: 20px !important;
     height: 20px !important;

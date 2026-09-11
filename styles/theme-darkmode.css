@@ -66,7 +66,7 @@
 
 .t20a-dm.window-app>.t20a-brand-logo {
     position: absolute;
-    top: 25px !important;
+    top: 18px !important;
     left: -15px;
     height: 55px !important;
     width: auto;
@@ -303,6 +303,13 @@
     padding-top: 0;
     padding-left: 0;
     height: 100% !important;
+}
+
+/* Sem o recuo do body, Outras Características, Proficiências e a caixa de
+   texto encostavam na borda. Devolve a eles o recuo original do body. */
+.t20a-dm.t20a-player-sheet-base form.base > .sheet-body .traits {
+    box-sizing: border-box;
+    padding-left: 14px;
 }
 
 /* Na aba de atributos, reserva a altura da navbar dentro do header: a arte
@@ -711,6 +718,21 @@
     font-weight: 600;
 }
 
+/* Caixa de treinamento das perícias: o sistema a define com 10px de largura
+   e altura livre (a da linha); com a borda e o raio do tema virava uma
+   pílula. Quadrado fixo, centrado, com o ícone de treino no meio. */
+.t20a-dm .skills-list .skill .item-image {
+    flex: 0 0 14px !important;
+    width: 14px !important;
+    height: 14px !important;
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    line-height: 1;
+}
+
 .t20a-dm .item-image {
     border: 1px solid var(--t20dm-border);
     border-radius: var(--t20dm-radius-sm);
@@ -894,24 +916,6 @@
     padding: 6px 10px;
     border: none;
     background: transparent;
-}
-
-/* No Diário, somente o campo aberto para edição deve crescer. O sistema
-   divide a coluna entre vários articles; sem reservar espaço no article e no
-   prose-mirror ativo, a barra de ferramentas comprime a área de digitação. */
-.t20a-dm.t20a-player-sheet .tab.journal article:has(> prose-mirror.active) {
-    flex: 0 0 25rem !important;
-    min-height: 25rem !important;
-}
-
-.t20a-dm.t20a-player-sheet .tab.journal prose-mirror.active {
-    flex: 0 0 22rem !important;
-    height: 22rem !important;
-    min-height: 22rem !important;
-}
-
-.t20a-dm.t20a-player-sheet .tab.journal prose-mirror.active .editor-container {
-    min-height: 14rem !important;
 }
 
 .t20a-dm .editor-edit {

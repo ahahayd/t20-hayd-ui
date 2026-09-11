@@ -23,7 +23,8 @@
     },
     "styles/theme.css",
     "styles/theme-darkmode.css",
-    "styles/theme-lightmode.css"
+    "styles/theme-lightmode.css",
+    "styles/journal-layout.css"
   ],
   "languages": [
     {

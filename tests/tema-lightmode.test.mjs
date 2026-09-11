@@ -6,6 +6,7 @@ const raiz = new URL("../", import.meta.url);
 const ler = (caminho) => readFile(new URL(caminho, raiz), "utf8");
 const dark = await ler("styles/theme-darkmode.css");
 const light = await ler("styles/theme-lightmode.css");
+const compartilhado = await ler("styles/theme.css");
 const variaveis = await ler("styles/variables.css");
 const main = await ler("scripts/main.mjs");
 const modulo = JSON.parse(await ler("module.json"));
@@ -51,6 +52,39 @@ test("arte do cabeçalho usa multiply no fundo claro", () => {
     assert.match(light,
         /\.t20a-lm\.t20a-player-sheet \.sheet-header::before\s*\{[^}]*mix-blend-mode:\s*multiply/s);
     assert.doesNotMatch(light, /mix-blend-mode:\s*screen/);
+});
+
+test("barra de título do Light Mode é quase opaca e com botões escuros", () => {
+    assert.match(light,
+        /\.t20a-lm \.window-header\s*\{[^}]*background:\s*var\(--t20lm-bg-surface\)/s);
+    assert.match(light,
+        /\.t20a-lm \.window-header a\.header-control\s*\{[^}]*color:\s*var\(--t20lm-text-primary\)/s);
+});
+
+test("navbar sobre a arte no Light Mode é vidro transparente, como no Dark Mode", () => {
+    const regra = light.match(/form\.base\s*>\s*\.sheet-tabs\s*\{([^}]*)\}/)?.[1] ?? "";
+    assert.match(regra, /background:\s*color-mix\(in srgb, var\(--t20lm-bg-deep\) 42%, transparent\)/);
+    assert.match(regra, /backdrop-filter:\s*blur\(14px\)/);
+    assert.match(regra, /text-shadow:/);
+});
+
+test("caixa de treinamento das perícias é um quadrado nos dois temas modernos", () => {
+    for (const [css, prefixo] of [[dark, "\\.t20a-dm"], [light, "\\.t20a-lm"]]) {
+        const regra = css.match(new RegExp(`${prefixo} \\.skills-list \\.skill \\.item-image\\s*\\{([^}]*)\\}`))?.[1] ?? "";
+        assert.match(regra, /width:\s*14px/);
+        assert.match(regra, /height:\s*14px/);
+        assert.match(regra, /flex:\s*0 0 14px/);
+    }
+});
+
+test("ícones de vestimentas mantêm proporção compacta no Light Mode", () => {
+    const regra = compartilhado.match(
+        /body\.t20a-theme-lightmode #context-menu \.context-item img\s*\{([^}]*)\}/
+    )?.[1] ?? "";
+    assert.match(regra, /flex:\s*0 0 auto\s*!important/);
+    assert.match(regra, /width:\s*20px\s*!important/);
+    assert.match(regra, /height:\s*20px\s*!important/);
+    assert.match(regra, /object-fit:\s*contain/);
 });
 
 test("tema claro registrado no JS, na tradução e no manifesto", () => {

@@ -122,24 +122,27 @@
        ========================================================================== */
     .t20a-lm,
     body.t20a-theme-lightmode {
-        /* ----- Backgrounds (vidro claro; "deep" = cartões sobre a superfície) */
-        --t20lm-bg-primary:     rgba(250, 248, 244, 0.92);
-        --t20lm-bg-surface:     rgba(241, 238, 232, 0.90);
-        --t20lm-bg-elevated:    rgba(255, 255, 255, 0.92);
-        --t20lm-bg-deep:        rgba(255, 255, 255, 0.55);
-        --t20lm-bg-input:       rgba(255, 255, 255, 0.70);
-        --t20lm-bg-input-hover: rgba(255, 255, 255, 0.95);
+        /* ----- Backgrounds: linho/marfim quente, nunca branco puro. O salto de
+           claridade entre fundo e cartões é pequeno, para não ofuscar. -------- */
+        --t20lm-bg-primary:     rgba(236, 231, 222, 0.94);
+        --t20lm-bg-surface:     rgba(226, 220, 210, 0.92);
+        --t20lm-bg-elevated:    rgba(242, 238, 230, 0.90);
+        --t20lm-bg-deep:        rgba(244, 240, 232, 0.45);
+        --t20lm-bg-input:       rgba(246, 243, 236, 0.55);
+        --t20lm-bg-input-hover: rgba(248, 245, 239, 0.80);
 
-        /* ----- Bordas -------------------------------------------------------- */
-        --t20lm-border-soft:   rgba(40, 30, 20, 0.08);
-        --t20lm-border:        rgba(40, 30, 20, 0.16);
-        --t20lm-border-strong: rgba(40, 30, 20, 0.30);
+        /* ----- Bordas (um pouco mais firmes: com menos contraste entre os
+           fundos, são elas que separam os blocos) ------------------------------ */
+        --t20lm-border-soft:   rgba(40, 30, 20, 0.10);
+        --t20lm-border:        rgba(40, 30, 20, 0.18);
+        --t20lm-border-strong: rgba(40, 30, 20, 0.32);
 
-        /* ----- Texto (tons quentes escuros, espelho da paleta do darkMode) -- */
+        /* ----- Texto (tons quentes escuros, espelho da paleta do darkMode).
+           muted escurecido para manter ~4.5:1 sobre o fundo mais escuro. ----- */
         --t20lm-text-primary:   #2b2620;
-        --t20lm-text-secondary: #51483f;
-        --t20lm-text-muted:     #766b5f;
-        --t20lm-text-faint:     #a09486;
+        --t20lm-text-secondary: #4f463d;
+        --t20lm-text-muted:     #5e5348;
+        --t20lm-text-faint:     #978b7e;
 
         /* ----- Acento: cor do jogador. "acento-claro" é a variação usada em   */
         /* TEXTO e links: no escuro ela clareia, aqui escurece para contraste. */
@@ -155,7 +158,7 @@
             "Segoe UI", Roboto, sans-serif;
 
         /* ----- Efeitos / layout ---------------------------------------------- */
-        --t20lm-shadow-block: 0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 3px 10px rgba(40, 30, 20, 0.10);
+        --t20lm-shadow-block: 0 1px 0 rgba(255, 252, 245, 0.35) inset, 0 3px 10px rgba(40, 30, 20, 0.10);
         --t20lm-radius:    8px;
         --t20lm-radius-sm: 6px;
     }

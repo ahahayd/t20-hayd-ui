@@ -33,20 +33,6 @@ test("Diário e Efeitos da ficha padrão começam abaixo da navbar", () => {
         /form\.base > \.sheet-body > \.tab:not\(\.attributes\)\s*\{[^}]*padding-top:\s*calc\(var\(--t20a-navbar-height/s);
 });
 
-test("editor ativo do Diário ganha área de digitação ampla em todos os temas", () => {
-    for (const [tema, classe, folha] of temasDialog) {
-        assert.match(folha,
-            new RegExp(`\\.${classe}\\.t20a-player-sheet \\.tab\\.journal article:has\\(> prose-mirror\\.active\\)\\s*\\{[^}]*flex:\\s*0 0 25rem[^}]*min-height:\\s*25rem`, "s"),
-            `${tema} deve expandir o article do campo ativo`);
-        assert.match(folha,
-            new RegExp(`\\.${classe}\\.t20a-player-sheet \\.tab\\.journal prose-mirror\\.active\\s*\\{[^}]*height:\\s*22rem[^}]*min-height:\\s*22rem`, "s"),
-            `${tema} deve reservar altura para o editor aberto`);
-        assert.match(folha,
-            new RegExp(`\\.${classe}\\.t20a-player-sheet \\.tab\\.journal prose-mirror\\.active \\.editor-container\\s*\\{[^}]*min-height:\\s*14rem`, "s"),
-            `${tema} deve manter ampla a área abaixo da barra de ferramentas`);
-    }
-});
-
 test("janela de uso recupera a altura automática em todos os temas", () => {
     for (const [tema, classe, folha] of temasDialog) {
         assert.match(folha,
@@ -61,13 +47,28 @@ test("janela de uso recupera a altura automática em todos os temas", () => {
     }
 });
 
-test("logo da ficha em abas flutua sobre o retrato sem empurrar Detalhes", () => {
-    assert.match(main,
+test("logo da ficha em abas fica na faixa das abas, com espaço reservado", () => {
+    const logo = main.slice(
+        main.indexOf("function injetarLogo"),
+        main.indexOf("Header button (Cor da Ficha)")
+    );
+    assert.match(logo,
         /const ehFichaEmAbas = formulario\?\.classList\.contains\("tabbed"\)/);
-    assert.match(main,
-        /if \(ehFichaEmAbas\) tabs\.style\.removeProperty\("padding-left"\)/);
-    assert.match(main,
-        /const retrato = ehFichaEmAbas \? formulario\.querySelector\("\.sheet-header img\.profile"\) : null/);
-    assert.match(main,
-        /if \(!ehFichaEmAbas && img\.naturalWidth && img\.naturalHeight\)/);
+    // Posicionar pelo retrato fazia o logo cobrir a arte do personagem
+    assert.doesNotMatch(logo, /img\.profile/);
+    assert.doesNotMatch(logo, /retratoRect/);
+    assert.doesNotMatch(logo, /removeProperty\("padding-left"\)/);
+    // Altura própria (constante ajustável) e centralizado na barra de abas
+    assert.match(main, /const LOGO_ALTURA_ABAS = \d+;/);
+    assert.match(logo, /\? LOGO_ALTURA_ABAS/);
+    assert.match(logo, /\(logoHeight - tabsRect\.height\) \/ 2/);
+    // top/height precisam vencer o !important do CSS de cada tema
+    assert.match(logo, /escrever\("top", novoTop\)/);
+    assert.match(logo, /escrever\("height", novaAltura\)/);
+    assert.match(logo, /img\.style\.setProperty\(prop, valor, "important"\)/);
+    // Espaço reservado na navbar nas duas fichas; folga própria na de abas
+    assert.match(logo, /if \(img\.naturalWidth && img\.naturalHeight\) \{/);
+    assert.match(main, /const LOGO_FOLGA_ABAS = -?\d+;/);
+    assert.match(logo, /const folga\s*= ehFichaEmAbas \? LOGO_FOLGA_ABAS : 6;/);
+    assert.match(logo, /logoRight - tabsLeft \+ folga/);
 });

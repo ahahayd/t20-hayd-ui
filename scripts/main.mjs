@@ -216,6 +216,7 @@ Hooks.on("renderActorSheet",  (app, html) => aplicarTema(app, html));
 Hooks.on("renderItemSheet",   (app, html) => aplicarTema(app, html));
 Hooks.on("renderChatMessage", (message, html) => aplicarTemaChatMsg(message, html));
 Hooks.on("renderApplication", (app, html) => aplicarTemaDialog(app, html));
+Hooks.on("closeActorSheet",   (app) => encerrarDiarioResponsivo(app));
 
 function aplicarTemaDialog(_app, html) {
     if (!estiloInterfaceAtivo()) return;
@@ -303,6 +304,7 @@ function aplicarTema(app, html) {
         // Forçar tamanho mínimo apenas no primeiro render de fichas de personagem jogador
         if (ehFichaJogador) {
             forcarTamanhoMinimo(app);
+            prepararDiarioResponsivo(app, root);
         }
 
         // Logo: apenas para fichas de personagem jogador, se habilitado
@@ -591,6 +593,8 @@ function razaoContrasteRGB(a, b) {
 const _fichasDimensionadas = new WeakSet();
 const MIN_LARGURA = 920;
 const MIN_ALTURA  = 780;
+const JOURNAL_COMPACT_BREAKPOINT = 768;
+const _observadoresDiario = new WeakMap();
 
 function forcarTamanhoMinimo(app) {
     if (_fichasDimensionadas.has(app)) return;
@@ -605,6 +609,46 @@ function forcarTamanhoMinimo(app) {
     } catch (err) {
         console.warn(`${MODULE_ID} | falha ao forçar tamanho:`, err);
     }
+}
+
+/**
+ * Alterna o Diário entre duas colunas e fluxo vertical pela largura interna
+ * efetivamente disponível. Observar somente o corpo da ficha evita polling e
+ * também funciona quando a aba Diário ainda está oculta durante o render.
+ */
+function prepararDiarioResponsivo(app, root) {
+    encerrarDiarioResponsivo(app);
+
+    const diario = root.querySelector?.(".tab.journal");
+    if (!diario) return;
+
+    const areaUtil = diario.parentElement ?? root;
+    const atualizar = (largura) => {
+        if (!diario.isConnected || !Number.isFinite(largura) || largura <= 0) return;
+        const compacta = largura <= JOURNAL_COMPACT_BREAKPOINT;
+        if (diario.classList.contains("t20a-journal-compact") !== compacta) {
+            diario.classList.toggle("t20a-journal-compact", compacta);
+        }
+    };
+
+    requestAnimationFrame(() => {
+        if (areaUtil.isConnected) atualizar(areaUtil.getBoundingClientRect().width);
+    });
+
+    if (typeof ResizeObserver !== "function") return;
+    const observador = new ResizeObserver((entradas) => {
+        const entrada = entradas.at(-1);
+        atualizar(entrada?.contentRect?.width ?? areaUtil.getBoundingClientRect().width);
+    });
+    observador.observe(areaUtil);
+    _observadoresDiario.set(app, observador);
+}
+
+function encerrarDiarioResponsivo(app) {
+    const observador = _observadoresDiario.get(app);
+    if (!observador) return;
+    observador.disconnect();
+    _observadoresDiario.delete(app);
 }
 
 /** Mede a navbar; a arte continua sendo controlada exclusivamente pelo CSS do header. */
@@ -625,11 +669,21 @@ function medirNavbarDaFicha(windowApp, root) {
 
 /**
  * Injeta o logo como filho direto do .window-app (fora do fluxo flex),
- * posicionado absolutamente. Na ficha padrão ele compõe a barra de abas; na
- * ficha em abas fica sobre o retrato, sem alterar o espaço da navegação.
+ * posicionado absolutamente e saindo pela borda esquerda da janela. Nas duas
+ * fichas ele compõe a barra de abas, que reserva o espaço ocupado por ele.
+ * Na ficha em abas a navbar fica logo abaixo do retrato, então ali o logo
+ * cabe na própria faixa das abas em vez de subir sobre a foto.
  */
 const LOGO_LIFT = 5;   // px que o logo sobe acima da barra de abas
 const LOGO_LEFT = -15; // deve bater com "left" no CSS (.t20a-brand-logo / .t20a-dm .t20a-brand-logo)
+/** Altura do logo na FICHA EM ABAS, em px (na ficha padrão quem manda é o CSS
+ *  de cada tema). Ele fica centralizado na barra de abas: com a barra de ~38px
+ *  e 8px de folga até o retrato, acima de ~54px começa a encostar na foto. */
+const LOGO_ALTURA_ABAS = 50;
+/** Folga entre a borda direita do logo e a primeira aba na FICHA EM ABAS, em
+ *  px (na ficha padrão é 6). Negativo aproxima a aba do logo — a imagem tem
+ *  margem transparente à direita, então dá para encostar sem sobrepor. */
+const LOGO_FOLGA_ABAS = -8;
 
 function injetarLogo(windowApp, root) {
     if (!windowApp || !root) return;
@@ -640,11 +694,6 @@ function injetarLogo(windowApp, root) {
         ? root
         : root.querySelector?.("form.tormenta20");
     const ehFichaEmAbas = formulario?.classList.contains("tabbed");
-    const retrato = ehFichaEmAbas ? formulario.querySelector(".sheet-header img.profile") : null;
-
-    /* Na ficha em abas o logo flutua sobre o retrato e não participa da
-     * navbar. Limpa inclusive um padding inline deixado por render anterior. */
-    if (ehFichaEmAbas) tabs.style.removeProperty("padding-left");
 
     /* Reusa o <img> existente: a ficha (AppV1) re-renderiza a CADA update
      * do ator; recriar o elemento custava DOM churn + decode + reflow
@@ -664,18 +713,18 @@ function injetarLogo(windowApp, root) {
         const tabsRect = tabs.getBoundingClientRect();
         if (!tabsRect.height) return; // ainda não renderizado
 
-        const retratoRect = retrato?.getBoundingClientRect();
-        if (ehFichaEmAbas && !retratoRect?.height) return;
-
+        // Ficha padrão: base do logo alinhada à base da navbar, subindo acima
+        // dela (efeito de selo). Ficha em abas: a navbar fica colada sob o
+        // retrato, então o logo é centralizado na faixa das abas — o excesso
+        // se divide entre acima e abaixo e não alcança a foto.
         const logoHeight = ehFichaEmAbas
-            ? Math.round(Math.min(55, retratoRect.height * 0.55))
+            ? LOGO_ALTURA_ABAS
             : Math.round((tabsRect.height + LOGO_LIFT) * 1.2);
         const top = ehFichaEmAbas
-            ? retratoRect.top - appRect.top - LOGO_LIFT
+            ? Math.round(tabsRect.top - appRect.top - (logoHeight - tabsRect.height) / 2)
             : tabsRect.top - appRect.top - (logoHeight - tabsRect.height);
-        const left = ehFichaEmAbas
-            ? retratoRect.left - appRect.left + LOGO_LEFT
-            : LOGO_LEFT;
+        // Nas duas fichas o logo sai pela borda esquerda da janela.
+        const left = LOGO_LEFT;
 
         /* Só escreve quando o valor mudou de fato: a ficha re-renderiza a cada
          * update do ator e, na maioria das vezes, a geometria é idêntica —
@@ -683,17 +732,32 @@ function injetarLogo(windowApp, root) {
         const novoTop    = `${top}px`;
         const novoLeft   = `${left}px`;
         const novaAltura = `${logoHeight}px`;
-        if (img.style.top    !== novoTop)    img.style.top    = novoTop;
-        if (img.style.left   !== novoLeft)   img.style.left   = novoLeft;
-        if (img.style.height !== novaAltura) img.style.height = novaAltura;
+        if (img.style.left !== novoLeft) img.style.left = novoLeft;
+        if (ehFichaEmAbas) {
+            /* O CSS de cada tema fixa top/height do logo com !important (valores
+             * ajustados para a ficha padrão). Inline com !important vence essa
+             * regra — e só é escrito aqui, então a ficha padrão não muda. */
+            const escrever = (prop, valor) => {
+                if (img.style.getPropertyValue(prop) !== valor
+                    || img.style.getPropertyPriority(prop) !== "important") {
+                    img.style.setProperty(prop, valor, "important");
+                }
+            };
+            escrever("top", novoTop);
+            escrever("height", novaAltura);
+        } else {
+            if (img.style.top    !== novoTop)    img.style.top    = novoTop;
+            if (img.style.height !== novaAltura) img.style.height = novaAltura;
+        }
 
-        // Na ficha padrão, onde logo e navbar compõem a mesma faixa, reserva
+        // Logo e navbar compõem a mesma faixa nas duas fichas: reserva no nav
         // somente a área realmente ocupada pela imagem.
-        if (!ehFichaEmAbas && img.naturalWidth && img.naturalHeight) {
+        if (img.naturalWidth && img.naturalHeight) {
             const logoWidth = Math.round(img.naturalWidth / img.naturalHeight * logoHeight);
             const logoRight = LOGO_LEFT + logoWidth;          // relativo à borda de windowApp
             const tabsLeft  = tabsRect.left - appRect.left;   // relativo à borda de windowApp
-            const novoPad   = `${Math.max(0, logoRight - tabsLeft + 6)}px`;
+            const folga     = ehFichaEmAbas ? LOGO_FOLGA_ABAS : 6;
+            const novoPad   = `${Math.max(0, logoRight - tabsLeft + folga)}px`;
             if (tabs.style.paddingLeft !== novoPad) tabs.style.paddingLeft = novoPad;
         }
     };

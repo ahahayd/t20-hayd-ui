@@ -20,8 +20,10 @@
     overflow: visible;
 }
 
+/* Barra de título quase opaca: translúcida (como no darkMode) ela virava um
+   cinza médio sobre o mapa escuro e apagava título e botões. */
 .t20a-lm .window-header {
-    background: var(--t20lm-bg-deep);
+    background: var(--t20lm-bg-surface);
     color: var(--t20lm-text-primary);
     border-bottom: 1px solid var(--t20lm-border);
 }
@@ -35,17 +37,17 @@
 .t20a-lm .window-header a,
 .t20a-lm .window-header .header-button,
 .t20a-lm .window-header a.header-control {
-    color: var(--t20lm-text-secondary);
+    color: var(--t20lm-text-primary);
     transition: color 120ms ease;
 }
 
 .t20a-lm .window-header a:hover,
 .t20a-lm .window-header .header-button:hover {
-    color: var(--t20lm-text-primary);
+    color: var(--t20lm-acento-claro);
 }
 
 .t20a-lm .window-header .t20a-config i {
-    color: var(--t20lm-text-secondary);
+    color: var(--t20lm-text-primary);
 }
 
 /* Conteúdo da janela: vidro translúcido neutro com desfoque discreto */
@@ -65,7 +67,7 @@
 
 .t20a-lm.window-app>.t20a-brand-logo {
     position: absolute;
-    top: 25px !important;
+    top: 18px !important;
     left: -15px;
     height: 55px !important;
     width: auto;
@@ -239,9 +241,14 @@
     position: absolute;
     inset: 0 0 auto;
     z-index: 20;
-    background: color-mix(in srgb, var(--t20lm-bg-elevated) 72%, transparent);
+    /* Mesmo vidro do darkMode: transparente com desfoque. Como aqui o texto
+       é escuro e a arte atrás dele também, as abas ganham um halo claro
+       (text-shadow é herdado) e as inativas usam o texto principal. */
+    background: color-mix(in srgb, var(--t20lm-bg-deep) 42%, transparent);
     -webkit-backdrop-filter: blur(14px) saturate(0.75);
     backdrop-filter: blur(14px) saturate(0.75);
+    --t20lm-text-muted: var(--t20lm-text-primary);
+    text-shadow: 0 0 4px rgba(244, 240, 232, 0.9), 0 0 1px rgba(244, 240, 232, 0.9);
 }
 
 /* Na ficha em abas o header e a navbar são vizinhos no fluxo. A margem
@@ -304,6 +311,13 @@
     padding-top: 0;
     padding-left: 0;
     height: 100% !important;
+}
+
+/* Sem o recuo do body, Outras Características, Proficiências e a caixa de
+   texto encostavam na borda. Devolve a eles o recuo original do body. */
+.t20a-lm.t20a-player-sheet-base form.base>.sheet-body .traits {
+    box-sizing: border-box;
+    padding-left: 14px;
 }
 
 /* Na aba de atributos, reserva a altura da navbar dentro do header: a arte
@@ -379,7 +393,7 @@
 }
 
 .t20a-lm option {
-    background: #fbfaf7;
+    background: #efeae1;
     color: var(--t20lm-text-primary);
 }
 
@@ -712,6 +726,21 @@
     font-weight: 600;
 }
 
+/* Caixa de treinamento das perícias: o sistema a define com 10px de largura
+   e altura livre (a da linha); com a borda e o raio do tema virava uma
+   pílula. Quadrado fixo, centrado, com o ícone de treino no meio. */
+.t20a-lm .skills-list .skill .item-image {
+    flex: 0 0 14px !important;
+    width: 14px !important;
+    height: 14px !important;
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    line-height: 1;
+}
+
 .t20a-lm .item-image {
     border: 1px solid var(--t20lm-border);
     border-radius: var(--t20lm-radius-sm);
@@ -842,7 +871,7 @@
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.04em;
-    text-shadow: 0 0 3px rgba(255, 255, 255, 0.9);
+    text-shadow: 0 0 3px rgba(244, 240, 232, 0.9);
 }
 
 .t20a-lm .encumbrance-breakpoint {
@@ -895,24 +924,6 @@
     padding: 6px 10px;
     border: none;
     background: transparent;
-}
-
-/* No Diário, somente o campo aberto para edição deve crescer. O sistema
-   divide a coluna entre vários articles; sem reservar espaço no article e no
-   prose-mirror ativo, a barra de ferramentas comprime a área de digitação. */
-.t20a-lm.t20a-player-sheet .tab.journal article:has(> prose-mirror.active) {
-    flex: 0 0 25rem !important;
-    min-height: 25rem !important;
-}
-
-.t20a-lm.t20a-player-sheet .tab.journal prose-mirror.active {
-    flex: 0 0 22rem !important;
-    height: 22rem !important;
-    min-height: 22rem !important;
-}
-
-.t20a-lm.t20a-player-sheet .tab.journal prose-mirror.active .editor-container {
-    min-height: 14rem !important;
 }
 
 .t20a-lm .editor-edit {
@@ -1250,12 +1261,12 @@ body.t20a-theme-lightmode #context-menu {
     color: var(--t20lm-text-primary) !important;
     background:
         linear-gradient(180deg,
-            rgba(255, 254, 251, 0.97) 0%,
-            rgba(243, 240, 234, 0.97) 100%) !important;
+            rgba(242, 238, 230, 0.97) 0%,
+            rgba(230, 224, 214, 0.97) 100%) !important;
     border: 1px solid var(--t20lm-border-strong) !important;
     border-radius: var(--t20lm-radius) !important;
     box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.7) inset,
+        0 1px 0 rgba(255, 252, 245, 0.4) inset,
         0 12px 32px rgba(40, 30, 20, 0.22) !important;
     padding: 5px !important;
     font-family: var(--t20lm-font);
@@ -1299,7 +1310,7 @@ body.t20a-theme-lightmode #context-menu .context-item:focus-visible {
     background:
         color-mix(in srgb,
             var(--t20a-context-accent, #3f6aa0) 16%,
-            rgb(250, 248, 244)) !important;
+            rgb(238, 233, 224)) !important;
     border-color:
         color-mix(in srgb,
             var(--t20a-context-accent, #3f6aa0) 70%,
@@ -1375,7 +1386,7 @@ body.t20a-theme-lightmode #context-menu .context-group:first-child {
 }
 
 .tormenta20.window-app.dialog.t20a-lm .window-header {
-    background: var(--t20lm-bg-deep) !important;
+    background: var(--t20lm-bg-surface) !important;
     border-bottom: 1px solid var(--t20lm-border) !important;
     color: var(--t20lm-text-primary) !important;
 }
@@ -1387,7 +1398,7 @@ body.t20a-theme-lightmode #context-menu .context-group:first-child {
 
 .tormenta20.window-app.dialog.t20a-lm .window-header a,
 .tormenta20.window-app.dialog.t20a-lm .window-header .header-button {
-    color: var(--t20lm-text-secondary) !important;
+    color: var(--t20lm-text-primary) !important;
 }
 
 .tormenta20.window-app.dialog.t20a-lm .window-header a:hover {
@@ -1460,13 +1471,13 @@ body.t20a-theme-lightmode #context-menu .context-group:first-child {
 }
 
 .tormenta20.window-app.dialog.t20a-lm select {
-    background: #fbfaf7 !important;
+    background: #efeae1 !important;
     color: var(--t20lm-text-primary) !important;
     border: 1px solid var(--t20lm-border) !important;
 }
 
 .tormenta20.window-app.dialog.t20a-lm option {
-    background: #fbfaf7 !important;
+    background: #efeae1 !important;
     color: var(--t20lm-text-primary) !important;
 }
 
@@ -1593,7 +1604,7 @@ body.t20a-theme-lightmode #context-menu .context-group:first-child {
 .tormenta20.window-app.dialog.t20a-lm .dialog-buttons {
     border-top: 1px solid var(--t20lm-border) !important;
     padding-top: 8px !important;
-    background: rgba(244, 241, 236, 0.95) !important;
+    background: rgba(228, 222, 212, 0.95) !important;
     display: flex !important;
     gap: 6px !important;
     position: sticky !important;
