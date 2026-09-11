@@ -1747,9 +1747,18 @@ body.t20a-ui #context-menu[popover] {
     min-height: 40px !important;
     max-height: 40px !important;
     aspect-ratio: 1 / 1 !important;
-    object-fit: cover !important;
+    /* contain: a arte inteira cabe no quadrado (retratos verticais não
+       perdem topo e base); a sobra fica transparente nas laterais. */
+    object-fit: contain !important;
+    object-position: center !important;
     border-radius: 0 !important;
-    border: 2px solid rgba(255,255,255,0.3) !important;
+    /* Sem contorno: em avatares com fundo transparente a borda cortava a
+       figura. A sombra vem de drop-shadow, que segue o canal alfa da imagem
+       (acompanha o recorte do personagem), ao contrário de box-shadow. */
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6)) !important;
     flex-shrink: 0;
     display: block;
 }
