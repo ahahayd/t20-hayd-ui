@@ -126,6 +126,17 @@
     z-index: 0;
 }
 
+/* Opção "manter cores originais" (diálogo Cor da Ficha): só a arte. */
+.t20a-dm.t20a-player-sheet.t20a-arte-original .sheet-header::before {
+    background-image: url("../assets/header-tormenta.webp");
+    background-blend-mode: normal;
+}
+
+/* Opção "ocultar a arte" (diálogo Cor da Ficha). */
+.t20a-dm.t20a-player-sheet.t20a-sem-arte .sheet-header::before {
+    content: none;
+}
+
 /* Conteúdo do header sempre acima da arte. */
 .t20a-dm.t20a-player-sheet .sheet-header > * {
     position: relative;
@@ -217,20 +228,25 @@
     overflow: visible;
 }
 
-/* A navbar sai do fluxo e permanece congelada no topo. O header começa por
-   baixo dela; backdrop-filter desfoca o trecho da arte/conteúdo que passar
-   atrás da barra, sem aplicar nem movimentar uma imagem na própria navbar. */
-.t20a-dm.t20a-player-sheet .window-content form {
+/* Somente na ficha padrão a navbar integra a arte do cabeçalho. A ficha em
+   abas mantém a ordem nativa: header, navbar e body, todos no fluxo normal. */
+.t20a-dm.t20a-player-sheet-base .window-content form.base {
     position: relative;
 }
 
-.t20a-dm.t20a-player-sheet .window-content form > .sheet-tabs {
+.t20a-dm.t20a-player-sheet-base .window-content form.base > .sheet-tabs {
     position: absolute;
     inset: 0 0 auto;
     z-index: 20;
     background: color-mix(in srgb, var(--t20dm-bg-deep) 42%, transparent);
     -webkit-backdrop-filter: blur(14px) saturate(0.75);
     backdrop-filter: blur(14px) saturate(0.75);
+}
+
+/* Na ficha em abas o header e a navbar são vizinhos no fluxo. A margem
+   inferior genérica do header criava uma faixa vazia entre os dois. */
+.t20a-dm.t20a-player-sheet .window-content form.tabbed > .sheet-header {
+    margin-bottom: 0;
 }
 
 .t20a-dm .sheet-tabs label,
@@ -281,25 +297,25 @@
     padding: 12px 0 12px 14px;
 }
 
-/* Nos layouts base/simples/NPC, a navbar vem imediatamente antes do body e o
-   header fica dentro dele. O padding superior do body aparecia como uma faixa
-   vazia; zerá-lo faz a arte começar exatamente na borda inferior das abas. */
-.t20a-dm.t20a-player-sheet .sheet-tabs + .sheet-body {
+/* Na ficha padrão a navbar vem antes do body e o header fica dentro da aba de
+   atributos. O body começa no topo para a arte alcançar a borda da ficha. */
+.t20a-dm.t20a-player-sheet-base form.base > .sheet-tabs + .sheet-body {
     padding-top: 0;
     padding-left: 0;
-}
-
-/* Com a navbar fora do fluxo, o body ocupa o espaço completo e começa no
-   topo, por trás dela. A altura da barra vira padding INTERNO do header: isso
-   mantém nome/retrato no lugar e faz somente o fundo do header alcançar o topo.
-   O limite inferior e o fade continuam pertencendo ao próprio header. */
-.t20a-dm.t20a-player-sheet .window-content form:not(.tabbed) > .sheet-tabs + .sheet-body {
     height: 100% !important;
 }
 
-.t20a-dm.t20a-player-sheet .window-content form > .sheet-header,
-.t20a-dm.t20a-player-sheet .window-content form:not(.tabbed) > .sheet-tabs + .sheet-body .sheet-header {
+/* Na aba de atributos, reserva a altura da navbar dentro do header: a arte
+   continua encostada no topo, enquanto retrato e nome ficam abaixo da barra. */
+.t20a-dm.t20a-player-sheet-base form.base > .sheet-body > .tab.attributes .sheet-header {
     padding-top: calc(12px + var(--t20a-navbar-height, 38px));
+}
+
+/* As demais abas não têm header. Reserva nelas o mesmo espaço para que Diário,
+   Modificadores e Efeitos nunca comecem escondidos atrás da navbar. */
+.t20a-dm.t20a-player-sheet-base form.base > .sheet-body > .tab:not(.attributes) {
+    box-sizing: border-box;
+    padding-top: calc(var(--t20a-navbar-height, 38px) + 12px);
 }
 
 /* Compatibilidade ficha normal x ficha em abas: o sistema fixa .sheet-body em
@@ -880,6 +896,24 @@
     background: transparent;
 }
 
+/* No Diário, somente o campo aberto para edição deve crescer. O sistema
+   divide a coluna entre vários articles; sem reservar espaço no article e no
+   prose-mirror ativo, a barra de ferramentas comprime a área de digitação. */
+.t20a-dm.t20a-player-sheet .tab.journal article:has(> prose-mirror.active) {
+    flex: 0 0 25rem !important;
+    min-height: 25rem !important;
+}
+
+.t20a-dm.t20a-player-sheet .tab.journal prose-mirror.active {
+    flex: 0 0 22rem !important;
+    height: 22rem !important;
+    min-height: 22rem !important;
+}
+
+.t20a-dm.t20a-player-sheet .tab.journal prose-mirror.active .editor-container {
+    min-height: 14rem !important;
+}
+
 .t20a-dm .editor-edit {
     color: var(--t20dm-acento-claro);
 }
@@ -1167,9 +1201,9 @@
     margin-top: 8px;
 }
 
-.t20a-dm .sheet-header+*,
-.t20a-dm .sheet-header+section,
-.t20a-dm .sheet-header+div {
+.t20a-dm .sheet-header + :not(.sheet-tabs),
+.t20a-dm .sheet-header + section:not(.sheet-tabs),
+.t20a-dm .sheet-header + div:not(.sheet-tabs) {
     margin-top: 12px !important;
 }
 
@@ -1325,6 +1359,19 @@ body.t20a-theme-darkmode #context-menu .context-group:first-child {
     max-height: 90vh !important;
     display: flex !important;
     flex-direction: column !important;
+}
+
+/* A janela nativa de uso calcula a altura pelo conteúdo. O flex: 1 genérico
+   do tema trocava essa base por zero e comprimia a janela quando não havia
+   lista de aprimoramentos. Nesta janela, restaura o fluxo automático; o
+   max-height do diálogo continua criando rolagem apenas se passar da tela. */
+.tormenta20.window-app.dialog.ability-use-form.t20a-dm {
+    min-width: min(600px, calc(100vw - 32px)) !important;
+    height: auto !important;
+}
+
+.tormenta20.window-app.dialog.ability-use-form.t20a-dm .window-content {
+    flex: 0 1 auto !important;
 }
 
 .tormenta20.window-app.dialog.t20a-dm .window-header {

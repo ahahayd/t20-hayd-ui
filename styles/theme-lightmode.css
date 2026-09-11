@@ -1,0 +1,1650 @@
+/* ==========================================================================
+   Tormenta20 – Arcano • Tema "lightMode"
+   Contraparte clara do darkMode: mesma estrutura, mesmas janelas e mesmas
+   regras de layout (fichas de ator/item — normal e em abas — e os diálogos
+   de uso do sistema), só com a paleta invertida. Sem tocar no chat.
+   Derivado de theme-darkmode.css: ao mudar layout lá, espelhar aqui.
+   Todos os seletores são prefixados com .t20a-lm para isolar do resto do app.
+   ========================================================================== */
+
+/* ===== Janela / Wrapper ================================================== */
+
+.t20a-lm.window-app {
+    color: var(--t20lm-text-primary);
+    font-family: var(--t20lm-font);
+    border: 1px solid var(--t20lm-border);
+    border-radius: var(--t20lm-radius);
+    box-shadow:
+        0 0 0 1px rgba(40, 30, 20, 0.14),
+        0 16px 44px rgba(40, 30, 20, 0.22);
+    overflow: visible;
+}
+
+.t20a-lm .window-header {
+    background: var(--t20lm-bg-deep);
+    color: var(--t20lm-text-primary);
+    border-bottom: 1px solid var(--t20lm-border);
+}
+
+.t20a-lm .window-header .window-title {
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--t20lm-text-primary);
+}
+
+.t20a-lm .window-header a,
+.t20a-lm .window-header .header-button,
+.t20a-lm .window-header a.header-control {
+    color: var(--t20lm-text-secondary);
+    transition: color 120ms ease;
+}
+
+.t20a-lm .window-header a:hover,
+.t20a-lm .window-header .header-button:hover {
+    color: var(--t20lm-text-primary);
+}
+
+.t20a-lm .window-header .t20a-config i {
+    color: var(--t20lm-text-secondary);
+}
+
+/* Conteúdo da janela: vidro translúcido neutro com desfoque discreto */
+.t20a-lm .window-content {
+    background:
+        linear-gradient(180deg,
+            var(--t20lm-bg-primary) 0%,
+            var(--t20lm-bg-surface) 100%);
+    color: var(--t20lm-text-primary);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 0;
+    overflow: hidden;
+}
+
+/* ===== Logo do Tormenta 20 (posicionamento igual ao darkNeon, via JS) ==== */
+
+.t20a-lm.window-app>.t20a-brand-logo {
+    position: absolute;
+    top: 25px !important;
+    left: -15px;
+    height: 55px !important;
+    width: auto;
+    z-index: 100;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    filter: drop-shadow(0 2px 6px rgba(40, 30, 20, 0.35));
+}
+
+/* ===== Sheet Header (imagem + nome + sumário) ============================ */
+
+.t20a-lm .sheet-header {
+    background: transparent;
+    border-bottom: 1px solid var(--t20lm-border);
+    padding: 12px 14px 8px;
+    margin: 0 0 12px;
+    position: relative;
+    overflow: visible;
+}
+
+/* --- Arte de fundo do header (fichas de ator) ---------------------------- */
+/* A imagem pertence somente ao header e desaparece no fade inferior. A
+   navbar é sobreposta ao topo deste elemento, mas não recebe imagem própria. */
+.t20a-lm.t20a-player-sheet .sheet-header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    /* Duas camadas no mesmo elemento: um preenchimento chapado com a cor do
+       jogador por cima da arte. Com background-blend-mode: color, o resultado
+       toma o matiz e a saturação da cor de destaque e mantém a luminosidade
+       da arte — ou seja, recolore o desenho inteiro em vez de aproximar com
+       hue-rotate. Acompanha --t20a-cor-destaque sozinho, sem JS. */
+    background-image:
+        linear-gradient(var(--t20a-cor-destaque, #960505),
+            var(--t20a-cor-destaque, #960505)),
+        url("../assets/header-tormenta.webp");
+    background-position: center 45%;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-blend-mode: color;
+    /* No fundo claro a arte entra por multiply (screen a faria sumir) e
+       com opacidade menor, para nome e retrato seguirem legíveis. */
+    filter: saturate(0.9);
+    opacity: 0.6;
+    mix-blend-mode: multiply;
+    -webkit-mask-image: linear-gradient(to bottom,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 0.6) 45%,
+            rgba(0, 0, 0, 0) 100%);
+    mask-image: linear-gradient(to bottom,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 0.6) 45%,
+            rgba(0, 0, 0, 0) 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Opção "manter cores originais" (diálogo Cor da Ficha): só a arte. */
+.t20a-lm.t20a-player-sheet.t20a-arte-original .sheet-header::before {
+    background-image: url("../assets/header-tormenta.webp");
+    background-blend-mode: normal;
+}
+
+/* Opção "ocultar a arte" (diálogo Cor da Ficha). */
+.t20a-lm.t20a-player-sheet.t20a-sem-arte .sheet-header::before {
+    content: none;
+}
+
+/* Conteúdo do header sempre acima da arte. */
+.t20a-lm.t20a-player-sheet .sheet-header>* {
+    position: relative;
+    z-index: 1;
+}
+
+.t20a-lm .sheet-header h1 {
+    border: none;
+    margin: 0;
+}
+
+.t20a-lm .sheet-header h1 input,
+.t20a-lm .sheet-header input[name="name"] {
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--t20lm-text-primary);
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed transparent;
+    height: auto;
+    padding: 2px 4px;
+    box-shadow: none;
+    transition: border-color 140ms ease;
+}
+
+.t20a-lm .sheet-header h1 input:hover,
+.t20a-lm .sheet-header h1 input:focus {
+    border-bottom-color: var(--t20lm-border-strong);
+}
+
+.t20a-lm .sheet-header img.profile,
+.t20a-lm .sheet-header .profile,
+.t20a-lm .sheet-header .profile-img {
+    border: 1px solid var(--t20lm-border-strong);
+    border-radius: var(--t20lm-radius-sm);
+    box-shadow: 0 3px 10px rgba(40, 30, 20, 0.20);
+    background: var(--t20lm-bg-deep);
+}
+
+.t20a-lm .sheet-header .summary {
+    background: transparent;
+    border: none;
+    margin-top: 6px;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    list-style: none;
+}
+
+.t20a-lm .sheet-header .summary li {
+    background: var(--t20lm-bg-elevated);
+    color: var(--t20lm-text-secondary);
+    border: 1px solid var(--t20lm-border);
+    border-radius: var(--t20lm-radius-sm);
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.6;
+    margin: 0;
+    float: none;
+}
+
+.t20a-lm .sheet-header .summary li>input {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: var(--t20lm-text-secondary) !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    padding: 0 !important;
+    height: auto !important;
+    width: 100%;
+    line-height: 1.6;
+}
+
+/* ===== Abas / Tabs ======================================================= */
+
+.t20a-lm .sheet-tabs {
+    display: flex;
+    align-items: stretch;
+    gap: 2px;
+    background: var(--t20lm-bg-deep);
+    border-top: none;
+    border-bottom: 1px solid var(--t20lm-border);
+    padding: 0 8px;
+    margin: 0;
+    overflow: visible;
+}
+
+/* Somente na ficha padrão a navbar integra a arte do cabeçalho. A ficha em
+   abas mantém a ordem nativa: header, navbar e body, todos no fluxo normal. */
+.t20a-lm.t20a-player-sheet-base .window-content form.base {
+    position: relative;
+}
+
+.t20a-lm.t20a-player-sheet-base .window-content form.base>.sheet-tabs {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 20;
+    background: color-mix(in srgb, var(--t20lm-bg-elevated) 72%, transparent);
+    -webkit-backdrop-filter: blur(14px) saturate(0.75);
+    backdrop-filter: blur(14px) saturate(0.75);
+}
+
+/* Na ficha em abas o header e a navbar são vizinhos no fluxo. A margem
+   inferior genérica do header criava uma faixa vazia entre os dois. */
+.t20a-lm.t20a-player-sheet .window-content form.tabbed>.sheet-header {
+    margin-bottom: 0;
+}
+
+.t20a-lm .sheet-tabs label,
+.t20a-lm .sheet-tabs>* {
+    background: transparent;
+}
+
+.t20a-lm .sheet-tabs a.item,
+.t20a-lm .tabs>a.item {
+    position: relative;
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--t20lm-text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 12px 14px;
+    line-height: 1;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 140ms ease, background 140ms ease, border-color 140ms ease;
+}
+
+.t20a-lm .sheet-tabs a.item:hover,
+.t20a-lm .tabs>a.item:hover {
+    color: var(--t20lm-text-primary);
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.t20a-lm .sheet-tabs a.item.active,
+.t20a-lm .tabs>a.item.active {
+    color: var(--t20lm-text-primary);
+    background: var(--t20lm-acento-suave);
+    border-bottom-color: var(--t20lm-acento);
+}
+
+.t20a-lm .sheet-tabs label i,
+.t20a-lm .sheet-tabs i.fas {
+    color: inherit;
+    margin-right: 4px;
+}
+
+/* ===== Sheet body ========================================================= */
+
+.t20a-lm .sheet-body {
+    padding: 12px 0 12px 14px;
+}
+
+/* Na ficha padrão a navbar vem antes do body e o header fica dentro da aba de
+   atributos. O body começa no topo para a arte alcançar a borda da ficha. */
+.t20a-lm.t20a-player-sheet-base form.base>.sheet-tabs+.sheet-body {
+    padding-top: 0;
+    padding-left: 0;
+    height: 100% !important;
+}
+
+/* Na aba de atributos, reserva a altura da navbar dentro do header: a arte
+   continua encostada no topo, enquanto retrato e nome ficam abaixo da barra. */
+.t20a-lm.t20a-player-sheet-base form.base>.sheet-body>.tab.attributes .sheet-header {
+    padding-top: calc(12px + var(--t20a-navbar-height, 38px));
+}
+
+/* As demais abas não têm header. Reserva nelas o mesmo espaço para que Diário,
+   Modificadores e Efeitos nunca comecem escondidos atrás da navbar. */
+.t20a-lm.t20a-player-sheet-base form.base>.sheet-body>.tab:not(.attributes) {
+    box-sizing: border-box;
+    padding-top: calc(var(--t20a-navbar-height, 38px) + 12px);
+}
+
+/* Compatibilidade ficha normal x ficha em abas: o sistema fixa .sheet-body em
+   calc(100% - 195px) na ficha tabbed, medida calibrada para o visual padrão.
+   Com o tema, cabeçalho e abas mudam de altura e o corpo estourava por baixo.
+   Layout em coluna flexível dispensa a constante mágica em ambos os casos. */
+.t20a-lm .window-content form.tabbed {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.t20a-lm .window-content form.tabbed>header,
+.t20a-lm .window-content form.tabbed>.sheet-header,
+.t20a-lm .window-content form.tabbed>nav,
+.t20a-lm .window-content form.tabbed>.sheet-tabs {
+    flex: 0 0 auto;
+}
+
+.t20a-lm .window-content form.tabbed .sheet-body {
+    flex: 1 1 auto;
+    height: auto !important;
+    min-height: 0;
+}
+
+/* ===== Tipografia geral ================================================== */
+
+.t20a-lm h1,
+.t20a-lm h2,
+.t20a-lm h3,
+.t20a-lm h4 {
+    color: var(--t20lm-text-primary);
+    margin: 0;
+}
+
+.t20a-lm a {
+    color: var(--t20lm-acento-claro);
+}
+
+.t20a-lm a:hover {
+    color: var(--t20lm-text-primary);
+    text-decoration: underline;
+}
+
+/* ===== Inputs ============================================================ */
+
+.t20a-lm input[type="text"],
+.t20a-lm input[type="number"],
+.t20a-lm input[type="password"],
+.t20a-lm input[type="search"],
+.t20a-lm textarea,
+.t20a-lm select {
+    background: var(--t20lm-bg-input);
+    color: var(--t20lm-text-primary);
+    border: 1px solid var(--t20lm-border);
+    border-radius: var(--t20lm-radius-sm);
+    font-family: var(--t20lm-font);
+    transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
+    box-shadow: none;
+}
+
+.t20a-lm option {
+    background: #fbfaf7;
+    color: var(--t20lm-text-primary);
+}
+
+.t20a-lm option:hover,
+.t20a-lm option:checked {
+    background: var(--t20lm-acento);
+    color: #ffffff;
+}
+
+.t20a-lm input::placeholder,
+.t20a-lm textarea::placeholder {
+    color: var(--t20lm-text-muted);
+    opacity: 1;
+}
+
+.t20a-lm input:hover,
+.t20a-lm textarea:hover,
+.t20a-lm select:hover {
+    border-color: var(--t20lm-border-strong);
+    background: var(--t20lm-bg-input-hover);
+}
+
+.t20a-lm input:focus,
+.t20a-lm textarea:focus,
+.t20a-lm select:focus {
+    border-color: var(--t20lm-acento);
+    background: var(--t20lm-bg-input-hover);
+    box-shadow: 0 0 0 2px var(--t20lm-acento-suave);
+    outline: none;
+}
+
+.t20a-lm input[disabled],
+.t20a-lm textarea[disabled],
+.t20a-lm select[disabled] {
+    color: var(--t20lm-text-muted);
+    background: rgba(0, 0, 0, 0.05);
+    border-color: var(--t20lm-border-soft);
+}
+
+/* Botões */
+.t20a-lm button,
+.t20a-lm .dialog-button {
+    background: var(--t20lm-bg-elevated);
+    color: var(--t20lm-text-primary);
+    border: 1px solid var(--t20lm-border);
+    border-radius: var(--t20lm-radius-sm);
+    font-weight: 600;
+    transition: background 140ms ease, border-color 140ms ease;
+    text-shadow: none;
+}
+
+.t20a-lm button:hover {
+    background: var(--t20lm-acento-suave);
+    border-color: var(--t20lm-acento-borda);
+}
+
+/* ===== Títulos de seção (.box-title, .attribute-name) =================== */
+
+.t20a-lm .box-title,
+.t20a-lm .attribute-name,
+.t20a-lm .poderes-title {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--t20lm-text-secondary);
+    border-bottom: 1px solid var(--t20lm-border);
+    padding: 4px 6px;
+    margin: 0 0 2px !important;
+    text-align: center;
+    background: transparent;
+}
+
+/* ===== Atributos (FOR/DES/CON/INT/SAB/CAR) ============================== */
+
+.t20a-lm .attributes-body {
+    padding: 0;
+}
+
+.t20a-lm .ability-scores {
+    border: 1px solid var(--t20lm-border);
+    background: var(--t20lm-bg-deep);
+    border-radius: var(--t20lm-radius);
+    box-shadow: var(--t20lm-shadow-block);
+    overflow: hidden;
+    margin: 0 0 10px;
+}
+
+.t20a-lm .ability-scores .ability {
+    border-right: 1px solid var(--t20lm-border-soft) !important;
+    padding: 0 0 6px;
+    transition: background 150ms ease;
+    position: relative;
+}
+
+.t20a-lm .ability-scores .ability:hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.t20a-lm .ability-scores .ability:last-child {
+    border-right: none !important;
+}
+
+.t20a-lm .ability-scores .ability .ability-name {
+    background: transparent;
+    color: var(--t20lm-text-secondary);
+    border-bottom: 1px solid var(--t20lm-border) !important;
+    margin: 0 0 2px !important;
+    padding: 4px 0;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.t20a-lm .ability-scores .ability h1 {
+    color: var(--t20lm-text-primary);
+    font-size: 26px;
+    font-weight: 600;
+    margin: 8px 0 4px;
+    border: 0 !important;
+    text-align: center;
+    line-height: 1;
+}
+
+.t20a-lm .ability-scores .ability:hover h1 {
+    color: var(--t20lm-acento-claro);
+}
+
+.t20a-lm .atributo-rollable {
+    cursor: pointer;
+}
+
+.t20a-lm .ability footer input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px dotted var(--t20lm-border-strong);
+    color: var(--t20lm-text-secondary);
+    text-align: center;
+    font-size: 12px;
+    padding: 1px 2px;
+}
+
+.t20a-lm .ability footer input:hover,
+.t20a-lm .ability footer input:focus {
+    border-bottom-color: var(--t20lm-acento);
+    color: var(--t20lm-text-primary);
+}
+
+/* ===== Recursos (PV / PM) =============================================== */
+
+.t20a-lm .recursos {
+    margin: 10px 0;
+}
+
+.t20a-lm .attributes.flexrow {
+    gap: 10px;
+}
+
+.t20a-lm .attribute.health,
+.t20a-lm .attribute.mana {
+    border: 1px solid var(--t20lm-border);
+    background: var(--t20lm-bg-deep);
+    border-radius: var(--t20lm-radius);
+    padding: 0 6px 8px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--t20lm-shadow-block);
+}
+
+.t20a-lm .attribute.health::before,
+.t20a-lm .attribute.mana::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    background: var(--t20lm-acento);
+}
+
+.t20a-lm .attribute.health .attribute-name,
+.t20a-lm .attribute.mana .attribute-name,
+.t20a-lm .attribute.defense .attribute-name {
+    background: transparent;
+    border: none !important;
+    color: var(--t20lm-text-secondary);
+    text-align: center;
+    padding: 6px 0 0;
+    margin-bottom: 2px !important;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+}
+
+.t20a-lm .attribute-value {
+    text-align: center;
+}
+
+.t20a-lm .attribute-value input {
+    font-size: 22px;
+    font-weight: 600;
+    text-align: center;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--t20lm-border-strong);
+    color: var(--t20lm-text-primary);
+    width: 45%;
+    box-shadow: none;
+    padding: 2px 0;
+}
+
+.t20a-lm .attribute-value input:focus {
+    border-bottom-color: var(--t20lm-acento);
+}
+
+.t20a-lm .attribute-value .sep {
+    color: var(--t20lm-text-muted);
+    margin: 0 6px;
+    font-size: 16px;
+}
+
+.t20a-lm .attribute-footer {
+    margin-top: 2px;
+}
+
+.t20a-lm .attribute-footer input,
+.t20a-lm .attribute-footer input.temphealth {
+    background: var(--t20lm-bg-input);
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    text-align: center;
+    color: var(--t20lm-text-secondary);
+    font-size: 11px;
+    border-radius: var(--t20lm-radius-sm);
+}
+
+/* ===== Defesa / Conditions ============================================== */
+
+.t20a-lm .defesa,
+.t20a-lm .conditions {
+    background: var(--t20lm-bg-deep);
+    border: 1px solid var(--t20lm-border);
+    border-left: 3px solid var(--t20lm-acento);
+    border-radius: var(--t20lm-radius);
+    padding: 8px 10px;
+    margin: 10px 0;
+    box-shadow: var(--t20lm-shadow-block);
+}
+
+/* Seletores mais genéricos (pegam variações de nome do sistema, incluindo o
+   <li class="attribute defense"> da barra PV/PM/Defesa) — só cor e borda,
+   SEM padding/margin: esse <li> é irmão de flexrow de .attribute.health/.mana
+   e qualquer espaçamento extra aqui desalinha o topo dos três na fileira. */
+.t20a-lm .defesa,
+.t20a-lm .defesas,
+.t20a-lm .defense,
+.t20a-lm .defenses,
+.t20a-lm [class*="defesa"]:not([class*="rolavel"]):not(.ability),
+.t20a-lm [class*="defense"] {
+    background: var(--t20lm-bg-deep) !important;
+    border: 1px solid var(--t20lm-border) !important;
+    border-left: 3px solid var(--t20lm-acento) !important;
+    color: var(--t20lm-text-primary);
+}
+
+/* ===== Listas de itens (ataques, magias, equipamento, talentos) ========= */
+
+.t20a-lm .item-list,
+.t20a-lm ol.item-list,
+.t20a-lm ul.item-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--t20lm-border);
+    border-radius: var(--t20lm-radius);
+    overflow: visible;
+    background: var(--t20lm-bg-deep);
+}
+
+.t20a-lm .ataques,
+.t20a-lm .conditions,
+.t20a-lm .defesa {
+    margin: 10px 0;
+}
+
+.t20a-lm .item-header,
+.t20a-lm .item-list .item-header,
+.t20a-lm .items-header {
+    background: var(--t20lm-bg-elevated);
+    color: var(--t20lm-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 11px;
+    font-weight: 700;
+    border: none;
+    border-bottom: 1px solid var(--t20lm-border);
+    padding: 6px 10px;
+}
+
+.t20a-lm .item-list .item {
+    border-bottom: 1px solid var(--t20lm-border-soft);
+    padding: 6px 10px;
+    transition: background 120ms ease, border-color 120ms ease;
+    color: var(--t20lm-text-primary);
+    background: transparent;
+}
+
+.t20a-lm .item-list .item:last-child {
+    border-bottom: none;
+}
+
+.t20a-lm .item-list .item:nth-child(even) {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.t20a-lm .item-list .item:hover {
+    background: var(--t20lm-acento-hover) !important;
+    border-bottom-color: var(--t20lm-acento-borda);
+}
+
+.t20a-lm .item-list .item h4 {
+    margin: 0;
+    font-size: 13px;
+    color: var(--t20lm-text-primary);
+    border: none;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 600;
+}
+
+.t20a-lm .item-image {
+    border: 1px solid var(--t20lm-border);
+    border-radius: var(--t20lm-radius-sm);
+    background-size: cover;
+    background-position: center;
+}
+
+.t20a-lm .item-list .item .item-qty,
+.t20a-lm .item-list .item .item-weight {
+    border-left: 1px solid var(--t20lm-border-soft);
+    border-right: 1px solid var(--t20lm-border-soft);
+}
+
+/* ===== Controles de item ================================================ */
+
+.t20a-lm .item-controls,
+.t20a-lm .item-control {
+    color: var(--t20lm-text-muted);
+    transition: color 120ms ease;
+}
+
+.t20a-lm .item-control:hover,
+.t20a-lm .item-controls a:hover {
+    color: var(--t20lm-acento-claro);
+}
+
+.t20a-lm .item-create {
+    color: var(--t20lm-acento-claro);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.t20a-lm .item-create:hover {
+    color: var(--t20lm-text-primary);
+}
+
+/* ===== Item summary (descrição expansível) ============================== */
+
+.t20a-lm .item-summary,
+.t20a-lm .item-summary p,
+.t20a-lm .item-summary span {
+    color: var(--t20lm-text-primary) !important;
+    background-color: transparent !important;
+}
+
+.t20a-lm .item-summary .content-link {
+    background: var(--t20lm-bg-elevated) !important;
+    color: var(--t20lm-acento-claro) !important;
+    border: 1px solid var(--t20lm-border) !important;
+    border-radius: 3px;
+    padding: 0 3px;
+}
+
+.t20a-lm .item-summary .content-link:hover {
+    background: var(--t20lm-acento-suave) !important;
+    border-color: var(--t20lm-acento-borda) !important;
+}
+
+/* ===== Currency (TO/TP/TC) ============================================== */
+
+.t20a-lm .currency {
+    background: var(--t20lm-bg-deep);
+    border: 1px solid var(--t20lm-border);
+    border-radius: var(--t20lm-radius);
+    padding: 6px 10px;
+    box-shadow: var(--t20lm-shadow-block);
+}
+
+.t20a-lm .currency-header {
+    color: var(--t20lm-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 11px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--t20lm-border);
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+}
+
+.t20a-lm .currency-item {
+    background: var(--t20lm-bg-deep) !important;
+    border: 1px solid var(--t20lm-border) !important;
+    border-radius: var(--t20lm-radius-sm) !important;
+    color: var(--t20lm-text-primary);
+}
+
+.t20a-lm .currency-item .denomination {
+    color: var(--t20lm-text-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.t20a-lm .currency-item input {
+    background: var(--t20lm-bg-input);
+    border: 1px solid var(--t20lm-border);
+    text-align: center;
+    color: var(--t20lm-text-primary);
+}
+
+/* ===== Carga / Encumbrance ============================================== */
+
+.t20a-lm .encumbrance {
+    background: var(--t20lm-bg-deep);
+    border: 1px solid var(--t20lm-border);
+    border-radius: var(--t20lm-radius-sm);
+    overflow: hidden;
+    position: relative;
+    height: 14px;
+    margin: 6px 0;
+    /* Na ficha de abas o inventário é flex com a lista em basis 100%; sem
+       impedir o encolhimento a barra some. Fica sempre visível no rodapé. */
+    flex: 0 0 auto;
+    min-height: 14px;
+}
+
+.t20a-lm .encumbrance-bar {
+    background: var(--t20lm-acento);
+    height: 100%;
+}
+
+.t20a-lm .encumbrance-label {
+    position: relative;
+    z-index: 2;
+    color: var(--t20lm-text-primary);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-shadow: 0 0 3px rgba(255, 255, 255, 0.9);
+}
+
+.t20a-lm .encumbrance-breakpoint {
+    border-color: var(--t20lm-border-strong);
+}
+
+/* ===== Editor de descrição (ProseMirror / TinyMCE) ====================== */
+
+.t20a-lm .editor,
+.t20a-lm .editor-content {
+    background: var(--t20lm-bg-input);
+    border: 1px solid var(--t20lm-border);
+    border-radius: var(--t20lm-radius-sm);
+    color: var(--t20lm-text-primary);
+    font-family: var(--t20lm-font);
+    padding: 6px 10px;
+    min-height: 80px;
+}
+
+.t20a-lm .editor.prosemirror .editor-menu {
+    background: var(--t20lm-bg-elevated);
+    border-bottom: 1px solid var(--t20lm-border);
+    color: var(--t20lm-text-primary);
+    flex: 0 0 auto;
+}
+
+.t20a-lm .editor.prosemirror {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    min-height: 18em !important;
+    padding: 0 !important;
+}
+
+.t20a-lm .editor.prosemirror .editor-container {
+    flex: 1 1 auto !important;
+    position: relative !important;
+    min-height: 12em !important;
+    overflow: hidden !important;
+    border: none;
+    background: transparent;
+}
+
+.t20a-lm .editor.prosemirror .editor-content {
+    position: absolute !important;
+    inset: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: hidden auto !important;
+    padding: 6px 10px;
+    border: none;
+    background: transparent;
+}
+
+/* No Diário, somente o campo aberto para edição deve crescer. O sistema
+   divide a coluna entre vários articles; sem reservar espaço no article e no
+   prose-mirror ativo, a barra de ferramentas comprime a área de digitação. */
+.t20a-lm.t20a-player-sheet .tab.journal article:has(> prose-mirror.active) {
+    flex: 0 0 25rem !important;
+    min-height: 25rem !important;
+}
+
+.t20a-lm.t20a-player-sheet .tab.journal prose-mirror.active {
+    flex: 0 0 22rem !important;
+    height: 22rem !important;
+    min-height: 22rem !important;
+}
+
+.t20a-lm.t20a-player-sheet .tab.journal prose-mirror.active .editor-container {
+    min-height: 14rem !important;
+}
+
+.t20a-lm .editor-edit {
+    color: var(--t20lm-acento-claro);
+}
+
+.t20a-lm .editor-content p,
+.t20a-lm .editor-content span,
+.t20a-lm .editor-content li {
+    color: var(--t20lm-text-primary);
+}
+
+/* ===== Itens (ItemSheet) ================================================ */
+
+.t20a-lm.sheet.item .sheet-header,
+.t20a-lm .sheet.item .sheet-header {
+    border-bottom: 1px solid var(--t20lm-border);
+    padding: 10px 14px;
+}
+
+.t20a-lm.sheet.item .sheet-body,
+.t20a-lm .sheet.item .sheet-body {
+    padding: 12px 14px;
+}
+
+.t20a-lm .item-detail {
+    background: var(--t20lm-bg-deep);
+    border: 1px solid var(--t20lm-border);
+    border-radius: var(--t20lm-radius-sm);
+    padding: 6px 10px;
+    margin: 6px 0;
+}
+
+.t20a-lm .item-detail label,
+.t20a-lm .form-group>label,
+.t20a-lm label {
+    color: var(--t20lm-text-secondary);
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    font-weight: 700;
+}
+
+/* ===== NPC Sheet específicos ============================================ */
+
+.t20a-lm .npc-tasks,
+.t20a-lm .npc-stats {
+    background: var(--t20lm-bg-deep);
+    border: 1px solid var(--t20lm-border);
+    border-left: 3px solid var(--t20lm-acento);
+    border-radius: var(--t20lm-radius);
+    padding: 8px 10px;
+    margin: 8px 0;
+}
+
+/* ===== Lista de perícias — zebra sutil e alinhada ao core =============== */
+
+.t20a-lm .skills-list {
+    border: 1px solid var(--t20lm-border);
+    border-radius: var(--t20lm-radius-sm);
+    box-shadow: var(--t20lm-shadow-block);
+}
+
+.t20a-lm .skills-list .skill {
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+.t20a-lm .skills-list .skill:not(.item-header):not(.create-skill):nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.035) !important;
+}
+
+.t20a-lm .skills-list .skill:not(.item-header):not(.create-skill):hover {
+    background-color: var(--t20lm-acento-hover) !important;
+}
+
+.t20a-lm li.pericia,
+.t20a-lm li.pericias-row,
+.t20a-lm li[class*="pericia"],
+.t20a-lm ol[class*="pericia"]>li,
+.t20a-lm ul[class*="pericia"]>li,
+.t20a-lm ol.pericias>li,
+.t20a-lm ul.pericias>li,
+.t20a-lm .pericias>li,
+.t20a-lm .lista-pericias>li,
+.t20a-lm .item-list li,
+.t20a-lm table.pericias>tbody>tr {
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+.t20a-lm li.pericia:nth-child(even),
+.t20a-lm li[class*="pericia"]:nth-child(even),
+.t20a-lm ol[class*="pericia"]>li:nth-child(even),
+.t20a-lm ul[class*="pericia"]>li:nth-child(even),
+.t20a-lm ol.pericias>li:nth-child(even),
+.t20a-lm ul.pericias>li:nth-child(even),
+.t20a-lm .pericias>li:nth-child(even),
+.t20a-lm .lista-pericias>li:nth-child(even),
+.t20a-lm .item-list li:nth-child(even),
+.t20a-lm table.pericias>tbody>tr:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+.t20a-lm li.pericia:hover,
+.t20a-lm li[class*="pericia"]:hover,
+.t20a-lm ol[class*="pericia"]>li:hover,
+.t20a-lm ul[class*="pericia"]>li:hover,
+.t20a-lm ol.pericias>li:hover,
+.t20a-lm ul.pericias>li:hover,
+.t20a-lm .pericias>li:hover,
+.t20a-lm table.pericias>tbody>tr:hover {
+    background-color: var(--t20lm-acento-hover) !important;
+}
+
+/* ===== Efeitos: cores e bordas no tema =================================== */
+
+.t20a-lm .effects-list {
+    color: var(--t20lm-text-primary) !important;
+    background-color: transparent !important;
+}
+
+.t20a-lm .effects-list .items-header {
+    border: none !important;
+    border-bottom: 1px solid var(--t20lm-border) !important;
+    background: var(--t20lm-bg-elevated) !important;
+    color: var(--t20lm-text-primary) !important;
+}
+
+.t20a-lm .effects-list .items-header h3,
+.t20a-lm .effects-list .items-header h4 {
+    color: var(--t20lm-text-secondary) !important;
+}
+
+.t20a-lm .effects-list .item {
+    border-bottom: 1px solid var(--t20lm-border) !important;
+    color: var(--t20lm-text-primary) !important;
+}
+
+.t20a-lm .effects-list .item .item-name,
+.t20a-lm .effects-list .item .item-name h3,
+.t20a-lm .effects-list .item .item-name h4,
+.t20a-lm .effects-list .item .effect-source,
+.t20a-lm .effects-list .item .effect-duration {
+    color: var(--t20lm-text-primary) !important;
+}
+
+.t20a-lm .effects-list .item-controls a {
+    color: var(--t20lm-text-secondary) !important;
+}
+
+.t20a-lm .effects-list .item-controls a:hover {
+    color: var(--t20lm-acento-claro) !important;
+}
+
+/* ===== Nível / XP — barra sempre verde, como no darkNeon ================ */
+
+.t20a-lm .nivel,
+.t20a-lm .level,
+.t20a-lm .character-level,
+.t20a-lm .xp,
+.t20a-lm .exp,
+.t20a-lm .experience,
+.t20a-lm .experiencia,
+.t20a-lm [class*="nivel"]:not(.ability),
+.t20a-lm [class*="experienc"]:not(.ability),
+.t20a-lm [class*="-xp"]:not(.ability) {
+    background: var(--t20lm-bg-deep) !important;
+    border: 1px solid var(--t20lm-border) !important;
+    border-radius: var(--t20lm-radius-sm);
+    color: var(--t20lm-text-primary);
+}
+
+.t20a-lm .nivel input,
+.t20a-lm .level input,
+.t20a-lm [class*="nivel"] input,
+.t20a-lm [class*="experienc"] input {
+    color: var(--t20lm-text-primary);
+    background: transparent;
+    border: none;
+    text-align: center;
+    font-weight: 600;
+}
+
+.t20a-lm .xp-bar,
+.t20a-lm .xpbar,
+.t20a-lm .exp-bar,
+.t20a-lm .experiencia-bar,
+.t20a-lm .progress,
+.t20a-lm [class*="xp-bar"],
+.t20a-lm [class*="experience-bar"],
+.t20a-lm progress,
+.t20a-lm meter {
+    background: var(--t20lm-bg-deep) !important;
+    border: 1px solid var(--t20lm-border) !important;
+    border-radius: var(--t20lm-radius-sm) !important;
+    overflow: hidden;
+    height: 10px;
+}
+
+.t20a-lm .xp-bar>*,
+.t20a-lm .xpbar>*,
+.t20a-lm .exp-bar>*,
+.t20a-lm .experiencia-bar>*,
+.t20a-lm [class*="xp-bar"]>div,
+.t20a-lm [class*="xp-bar"]>span,
+.t20a-lm [class*="xp"] .bar,
+.t20a-lm [class*="xp"] .fill,
+.t20a-lm [class*="xp"] .progress-fill,
+.t20a-lm [class*="experience"] .bar,
+.t20a-lm [class*="experience"] .fill {
+    background: linear-gradient(180deg, #6ee087 0%, #16a34a 100%) !important;
+    border-radius: var(--t20lm-radius-sm) !important;
+}
+
+.t20a-lm progress::-webkit-progress-bar {
+    background: var(--t20lm-bg-deep);
+}
+
+.t20a-lm progress::-webkit-progress-value,
+.t20a-lm meter::-webkit-meter-optimum-value {
+    background: linear-gradient(180deg, #6ee087, #16a34a) !important;
+}
+
+.t20a-lm progress::-moz-progress-bar,
+.t20a-lm meter::-moz-meter-bar {
+    background: linear-gradient(180deg, #6ee087, #16a34a) !important;
+}
+
+/* ===== Headers de seção do Diário (e gerais no sheet-body) -------------- */
+
+.t20a-lm .sheet-body h2,
+.t20a-lm .sheet-body h3,
+.t20a-lm .sheet-body h4,
+.t20a-lm .sheet-body .section-title,
+.t20a-lm .sheet-body .section-header,
+.t20a-lm .sheet-body fieldset>legend,
+.t20a-lm [class*="diario"] h2,
+.t20a-lm [class*="diario"] h3,
+.t20a-lm [class*="diari"] .label,
+.t20a-lm .biografia h2,
+.t20a-lm .biografia h3,
+.t20a-lm .pessoas h2,
+.t20a-lm .pessoas h3,
+.t20a-lm .locais h2,
+.t20a-lm .locais h3,
+.t20a-lm .missoes h2,
+.t20a-lm .missoes h3,
+.t20a-lm [class*="entrada"] h3,
+.t20a-lm [class*="bio"] h2,
+.t20a-lm [class*="bio"] h3 {
+    color: var(--t20lm-text-secondary) !important;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 12px;
+    border-bottom: 1px solid var(--t20lm-border) !important;
+    padding-bottom: 4px;
+    margin: 8px 0 6px;
+    background: transparent;
+}
+
+.t20a-lm hr,
+.t20a-lm .separator {
+    border: none !important;
+    border-top: 1px solid var(--t20lm-border) !important;
+    background: transparent !important;
+    height: 0;
+    margin: 8px 0;
+}
+
+.t20a-lm .section-titles {
+    border-bottom: 1px solid var(--t20lm-border) !important;
+}
+
+/* ===== Margem entre containers (raça/origem/classe vs PV/PM/defesa) ------ */
+
+.t20a-lm .sheet-body>*+*,
+.t20a-lm form.sheet>*+* {
+    margin-top: 10px;
+}
+
+.t20a-lm .sheet-header .flexrow+.flexrow,
+.t20a-lm .sheet-header .flex-row+.flex-row,
+.t20a-lm .sheet-header .form-fields+.form-fields,
+.t20a-lm .sheet-header>div+div {
+    margin-top: 8px;
+}
+
+.t20a-lm .sheet-header+ :not(.sheet-tabs),
+.t20a-lm .sheet-header+section:not(.sheet-tabs),
+.t20a-lm .sheet-header+div:not(.sheet-tabs) {
+    margin-top: 12px !important;
+}
+
+/* ===== Scrollbars ======================================================== */
+
+.t20a-lm ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.t20a-lm ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 4px;
+}
+
+.t20a-lm ::-webkit-scrollbar-thumb {
+    background: var(--t20lm-border-strong);
+    border-radius: 4px;
+}
+
+.t20a-lm ::-webkit-scrollbar-thumb:hover {
+    background: var(--t20lm-acento);
+}
+
+.t20a-lm {
+    scrollbar-width: thin;
+    scrollbar-color: var(--t20lm-border-strong) rgba(0, 0, 0, 0.06);
+}
+
+/* ===== Foco de acessibilidade ============================================ */
+/* Contorno bem visível — é o único elemento "chamativo" do tema, de propósito. */
+
+.t20a-lm *:focus-visible {
+    outline: 2px solid var(--t20lm-acento);
+    outline-offset: 1px;
+}
+
+/* ===== Menu de contexto (botão direito) ================================= */
+/* O core move o popover para o body, fora da ficha. As variáveis do tema    */
+/* também são expostas no gate global para manter a mesma paleta nesse caso. */
+
+body.t20a-theme-lightmode #context-menu {
+    color: var(--t20lm-text-primary) !important;
+    background:
+        linear-gradient(180deg,
+            rgba(255, 254, 251, 0.97) 0%,
+            rgba(243, 240, 234, 0.97) 100%) !important;
+    border: 1px solid var(--t20lm-border-strong) !important;
+    border-radius: var(--t20lm-radius) !important;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.7) inset,
+        0 12px 32px rgba(40, 30, 20, 0.22) !important;
+    padding: 5px !important;
+    font-family: var(--t20lm-font);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+body.t20a-theme-lightmode #context-menu .context-items,
+body.t20a-theme-lightmode #context-menu .context-group ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+body.t20a-theme-lightmode #context-menu .context-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 30px;
+    padding: 5px 9px;
+    color: var(--t20lm-text-secondary) !important;
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    border-radius: var(--t20lm-radius-sm);
+    font-size: 13px;
+    cursor: pointer;
+    transition:
+        background 120ms ease,
+        border-color 120ms ease,
+        box-shadow 120ms ease,
+        color 120ms ease;
+}
+
+body.t20a-theme-lightmode #context-menu .context-item:hover,
+body.t20a-theme-lightmode #context-menu .context-item:focus-visible {
+    color: var(--t20lm-text-primary) !important;
+    background:
+        color-mix(in srgb,
+            var(--t20a-context-accent, #3f6aa0) 16%,
+            rgb(250, 248, 244)) !important;
+    border-color:
+        color-mix(in srgb,
+            var(--t20a-context-accent, #3f6aa0) 70%,
+            black) !important;
+    box-shadow:
+        3px 0 0 color-mix(in srgb,
+            var(--t20a-context-accent, #3f6aa0) 70%,
+            black) inset;
+    outline: none;
+}
+
+body.t20a-theme-lightmode #context-menu .context-item i {
+    flex: 0 0 16px;
+    width: 16px;
+    color: var(--t20lm-text-muted);
+    text-align: center;
+    transition: color 120ms ease;
+}
+
+body.t20a-theme-lightmode #context-menu .context-item:hover i,
+body.t20a-theme-lightmode #context-menu .context-item:focus-visible i {
+    color:
+        color-mix(in srgb,
+            var(--t20a-context-accent, #3f6aa0) 70%,
+            black);
+}
+
+body.t20a-theme-lightmode #context-menu .context-item img {
+    border-radius: 4px !important;
+}
+
+body.t20a-theme-lightmode #context-menu .context-group {
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px solid var(--t20lm-border-soft);
+}
+
+body.t20a-theme-lightmode #context-menu .context-group:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+}
+
+/* ==========================================================================
+   DIALOGS do sistema Tormenta20 — tema lightMode (ability-use, item-use, etc.)
+   Escopo: .tormenta20.window-app.dialog.t20a-lm — mesma classe posta pelo JS
+   nas janelas de ator/item, aqui também na janela de diálogo quando o tema
+   lightMode está selecionado.
+   ========================================================================== */
+
+.tormenta20.window-app.dialog.t20a-lm {
+    color: var(--t20lm-text-primary) !important;
+    font-family: var(--t20lm-font) !important;
+    border: 1px solid var(--t20lm-border) !important;
+    border-radius: var(--t20lm-radius) !important;
+    box-shadow: 0 0 0 1px rgba(40, 30, 20, 0.14), 0 16px 44px rgba(40, 30, 20, 0.22) !important;
+    max-height: 90vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* A janela nativa de uso calcula a altura pelo conteúdo. O flex: 1 genérico
+   do tema trocava essa base por zero e comprimia a janela quando não havia
+   lista de aprimoramentos. Nesta janela, restaura o fluxo automático; o
+   max-height do diálogo continua criando rolagem apenas se passar da tela. */
+.tormenta20.window-app.dialog.ability-use-form.t20a-lm {
+    min-width: min(600px, calc(100vw - 32px)) !important;
+    height: auto !important;
+}
+
+.tormenta20.window-app.dialog.ability-use-form.t20a-lm .window-content {
+    flex: 0 1 auto !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .window-header {
+    background: var(--t20lm-bg-deep) !important;
+    border-bottom: 1px solid var(--t20lm-border) !important;
+    color: var(--t20lm-text-primary) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .window-header .window-title {
+    font-weight: 600 !important;
+    color: var(--t20lm-text-primary) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .window-header a,
+.tormenta20.window-app.dialog.t20a-lm .window-header .header-button {
+    color: var(--t20lm-text-secondary) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .window-header a:hover {
+    color: var(--t20lm-text-primary) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .window-content {
+    background:
+        linear-gradient(180deg,
+            var(--t20lm-bg-primary) 0%,
+            var(--t20lm-bg-surface) 100%) !important;
+    color: var(--t20lm-text-primary) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    padding: 12px !important;
+    overflow-y: auto !important;
+    flex: 1 !important;
+    min-height: 0 !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .window-content,
+.tormenta20.window-app.dialog.t20a-lm .dialog-content,
+.tormenta20.window-app.dialog.t20a-lm form,
+.tormenta20.window-app.dialog.t20a-lm p,
+.tormenta20.window-app.dialog.t20a-lm h1,
+.tormenta20.window-app.dialog.t20a-lm h2,
+.tormenta20.window-app.dialog.t20a-lm h3,
+.tormenta20.window-app.dialog.t20a-lm h4,
+.tormenta20.window-app.dialog.t20a-lm h5,
+.tormenta20.window-app.dialog.t20a-lm span:not([class*="fa"]),
+.tormenta20.window-app.dialog.t20a-lm div {
+    color: var(--t20lm-text-primary) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .form-group {
+    border-bottom: 1px solid var(--t20lm-border-soft) !important;
+    padding: 6px 0 !important;
+    color: var(--t20lm-text-primary) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .form-group:last-child {
+    border-bottom: none !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm label {
+    color: var(--t20lm-text-secondary) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]) {
+    background: var(--t20lm-bg-input) !important;
+    border: 1px solid var(--t20lm-border) !important;
+    color: var(--t20lm-text-primary) !important;
+    box-shadow: none !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm input:focus:not([type="checkbox"]):not([type="radio"]) {
+    border-color: var(--t20lm-acento) !important;
+    box-shadow: 0 0 0 2px var(--t20lm-acento-suave) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm input:disabled {
+    opacity: 0.55 !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm input[type="checkbox"] {
+    accent-color: var(--t20lm-acento) !important;
+    width: 14px !important;
+    height: 14px !important;
+    cursor: pointer !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm select {
+    background: #fbfaf7 !important;
+    color: var(--t20lm-text-primary) !important;
+    border: 1px solid var(--t20lm-border) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm option {
+    background: #fbfaf7 !important;
+    color: var(--t20lm-text-primary) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .item-list {
+    border: 1px solid var(--t20lm-border) !important;
+    border-radius: var(--t20lm-radius-sm) !important;
+    overflow: hidden !important;
+    margin-bottom: 4px !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .items-header {
+    background: var(--t20lm-bg-elevated) !important;
+    border: none !important;
+    border-bottom: 1px solid var(--t20lm-border) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .items-header h3,
+.tormenta20.window-app.dialog.t20a-lm .items-header h4 {
+    color: var(--t20lm-text-secondary) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    font-size: 11px !important;
+    border: none !important;
+    margin: 0 !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .item-list .item {
+    background: var(--t20lm-bg-elevated) !important;
+    border-bottom: 1px solid var(--t20lm-border-soft) !important;
+    color: var(--t20lm-text-primary) !important;
+    padding: 5px 8px !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .item-list .item:last-child {
+    border-bottom: none !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .item-list .item,
+.tormenta20.window-app.dialog.t20a-lm .item-list .item h3,
+.tormenta20.window-app.dialog.t20a-lm .item-list .item h4,
+.tormenta20.window-app.dialog.t20a-lm .item-list .item label,
+.tormenta20.window-app.dialog.t20a-lm .item-list .item span,
+.tormenta20.window-app.dialog.t20a-lm .item-list .item div,
+.tormenta20.window-app.dialog.t20a-lm .item-list .item .item-name,
+.tormenta20.window-app.dialog.t20a-lm .item-list h4.item-name {
+    color: var(--t20lm-text-primary) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .item-cost label {
+    color: var(--t20lm-text-muted) !important;
+    font-size: 11px !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .form-group.total-cost {
+    border-bottom: none !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .total-cost {
+    border: 1px solid var(--t20lm-acento-borda) !important;
+    border-radius: var(--t20lm-radius-sm) !important;
+    padding: 4px 8px !important;
+    background: var(--t20lm-acento-suave) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .total-cost label {
+    color: var(--t20lm-text-secondary) !important;
+    font-weight: 600 !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .total-cost input {
+    font-weight: 700 !important;
+    text-align: center !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    color: var(--t20lm-text-primary) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .dialog-buttons button.use,
+.tormenta20.window-app.dialog.t20a-lm .dialog-buttons button.default,
+.tormenta20.window-app.dialog.t20a-lm .dialog-buttons button.bright {
+    background: var(--t20lm-acento) !important;
+    border-color: var(--t20lm-acento) !important;
+    color: #ffffff !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .dialog-buttons button.use:hover,
+.tormenta20.window-app.dialog.t20a-lm .dialog-buttons button.default:hover,
+.tormenta20.window-app.dialog.t20a-lm .dialog-buttons button.bright:hover {
+    background: var(--t20lm-acento-claro) !important;
+    border-color: var(--t20lm-acento-claro) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .numCtrl {
+    background: var(--t20lm-bg-elevated) !important;
+    border: 1px solid var(--t20lm-border) !important;
+    color: var(--t20lm-text-primary) !important;
+    font-size: 0.85em !important;
+    padding: 1px 4px !important;
+    line-height: 1.2 !important;
+    min-width: 0 !important;
+    height: auto !important;
+    border-radius: var(--t20lm-radius-sm) !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
+    transition: background 100ms ease, border-color 100ms ease !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .numCtrl:hover {
+    background: var(--t20lm-bg-deep) !important;
+    border-color: var(--t20lm-acento) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm input.numInp {
+    background: var(--t20lm-bg-input) !important;
+    border: 1px solid var(--t20lm-border) !important;
+    color: var(--t20lm-text-primary) !important;
+    text-align: center !important;
+    border-radius: var(--t20lm-radius-sm) !important;
+    box-shadow: none !important;
+    padding: 1px 2px !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .dialog-buttons {
+    border-top: 1px solid var(--t20lm-border) !important;
+    padding-top: 8px !important;
+    background: rgba(244, 241, 236, 0.95) !important;
+    display: flex !important;
+    gap: 6px !important;
+    position: sticky !important;
+    bottom: -12px !important;
+    margin: 0 -12px -12px !important;
+    padding: 8px 12px 12px !important;
+    z-index: 1 !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .dialog-buttons button {
+    background: var(--t20lm-bg-elevated) !important;
+    border: 1px solid var(--t20lm-border) !important;
+    color: var(--t20lm-text-primary) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    padding: 6px 14px !important;
+    border-radius: var(--t20lm-radius-sm) !important;
+    cursor: pointer !important;
+    transition: background 120ms ease, border-color 120ms ease !important;
+    box-shadow: none !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm .dialog-buttons button:hover {
+    background: var(--t20lm-acento-suave) !important;
+    border-color: var(--t20lm-acento-borda) !important;
+}
+
+/* ── Legibilidade: elementos de texto não cobertos pelas regras acima ───── */
+.tormenta20.window-app.dialog.t20a-lm small,
+.tormenta20.window-app.dialog.t20a-lm b,
+.tormenta20.window-app.dialog.t20a-lm strong,
+.tormenta20.window-app.dialog.t20a-lm em,
+.tormenta20.window-app.dialog.t20a-lm li,
+.tormenta20.window-app.dialog.t20a-lm td,
+.tormenta20.window-app.dialog.t20a-lm th,
+.tormenta20.window-app.dialog.t20a-lm .item-name,
+.tormenta20.window-app.dialog.t20a-lm .item-name *,
+.tormenta20.window-app.dialog.t20a-lm .effects-list,
+.tormenta20.window-app.dialog.t20a-lm .effects-list *:not(i):not([class*="fa"]) {
+    color: var(--t20lm-text-primary) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm a:not(.header-button):not(.header-control),
+.tormenta20.window-app.dialog.t20a-lm .content-link {
+    color: var(--t20lm-acento-claro) !important;
+}
+
+.tormenta20.window-app.dialog.t20a-lm input::placeholder,
+.tormenta20.window-app.dialog.t20a-lm textarea::placeholder {
+    color: var(--t20lm-text-muted) !important;
+    opacity: 1;
+}

@@ -1,7 +1,7 @@
 {
   "id": "t20-hayd-ui",
   "title": "T20 Hayd UI",
-  "description": "<p>Tema visual moderno e sombrio para as fichas de personagem, NPC e itens do sistema Tormenta20. A cor de destaque é herdada automaticamente da cor do jogador dono da ficha, e cada jogador pode personalizar a cor da sua ficha nas configurações do cabeçalho.</p>",
+  "description": "<p>Temas visuais modernos (Dark Mode, Light Mode e Dark Neon) para as fichas de personagem, NPC e itens do sistema Tormenta20. A cor de destaque é herdada automaticamente da cor do jogador dono da ficha, e cada jogador pode personalizar a cor da sua ficha nas configurações do cabeçalho.</p>",
   "version": "1.6.2",
   "compatibility": {
     "minimum": "13",
@@ -22,7 +22,8 @@
       "layer": "variables"
     },
     "styles/theme.css",
-    "styles/theme-darkmode.css"
+    "styles/theme-darkmode.css",
+    "styles/theme-lightmode.css"
   ],
   "languages": [
     {

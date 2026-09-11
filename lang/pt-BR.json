@@ -6,9 +6,10 @@
             "EstiloInterfaceName": "Estilizar fichas e janelas",
             "EstiloInterfaceHint": "Aplica o tema escuro às fichas de personagem/NPC/itens e às janelas de uso (usar/conjurar, aprimoramentos etc.). Desative para manter apenas as personalizações das mensagens de chat. Recarrega a página ao alterar.",
             "TemaName": "Tema visual",
-            "TemaHint": "Dark Mode (padrão): visual escuro vanilla do Foundry, mais neutro e transparente, com a cor de destaque usada só como um leve acento. Dark Neon: visual escuro moderno com cor de destaque bem presente (gradientes, brilho). Recarrega a página ao alterar.",
+            "TemaHint": "Dark Mode (padrão): visual escuro vanilla do Foundry, mais neutro e transparente, com a cor de destaque usada só como um leve acento. Light Mode: a mesma proposta do Dark Mode, em versão clara. Dark Neon: visual escuro moderno com cor de destaque bem presente (gradientes, brilho). Recarrega a página ao alterar.",
             "TemaDarkNeon": "Dark Neon",
             "TemaDarkMode": "Dark Mode",
+            "TemaLightMode": "Light Mode",
             "CorPadraoName": "Cor de destaque padrão",
             "CorPadraoHint": "Cor (hex, ex.: #960505) usada quando a ficha está em modo 'padrão' ou não tem nenhum jogador como dono.",
             "MostrarLogoName": "Mostrar logo do Tormenta 20",
@@ -33,7 +34,11 @@
             "ModeCustom": "Cor personalizada",
             "ModeCustomHint": "Escolha qualquer cor para esta ficha, independente da cor do jogador:",
             "ModePadrao": "Cor padrão",
-            "ModePadraoHint": "Sempre usar a cor padrão do módulo:"
+            "ModePadraoHint": "Sempre usar a cor padrão do módulo:",
+            "SemArte": "Ocultar a arte do cabeçalho",
+            "SemArteHint": "O topo da ficha fica sem a imagem de fundo.",
+            "ArteOriginal": "Manter as cores originais da arte do cabeçalho",
+            "ArteOriginalHint": "A arte no topo da ficha deixa de mudar de cor junto com a cor de destaque."
         },
         "Confirm": "Aplicar",
         "Cancel": "Cancelar"

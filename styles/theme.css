@@ -290,6 +290,91 @@
     min-height: 0;
 }
 
+/* ===== Arte do cabeçalho + navbar integrada (fichas de personagem) ======= */
+/* Mesma composição do darkMode: a arte pertence ao header e some no fade
+   inferior; na ficha padrão a navbar flutua sobre o topo da arte. */
+.t20a.t20a-player-sheet .sheet-header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    /* Preenchimento chapado com a cor do jogador sobre a arte: com
+       background-blend-mode: color, a arte toma o matiz da cor de destaque
+       e mantém a própria luminosidade. */
+    background-image:
+        linear-gradient(var(--t20a-cor-destaque, #960505),
+            var(--t20a-cor-destaque, #960505)),
+        url("../assets/header-tormenta.webp");
+    background-position: center 45%;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-blend-mode: color;
+    filter: saturate(0.95);
+    opacity: 0.55;
+    mix-blend-mode: screen;
+    -webkit-mask-image: linear-gradient(to bottom,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 0.6) 45%,
+            rgba(0, 0, 0, 0) 100%);
+    mask-image: linear-gradient(to bottom,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 0.6) 45%,
+            rgba(0, 0, 0, 0) 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Opção "manter cores originais" (diálogo Cor da Ficha): só a arte. */
+.t20a.t20a-player-sheet.t20a-arte-original .sheet-header::before {
+    background-image: url("../assets/header-tormenta.webp");
+    background-blend-mode: normal;
+}
+
+/* Opção "ocultar a arte" (diálogo Cor da Ficha). */
+.t20a.t20a-player-sheet.t20a-sem-arte .sheet-header::before {
+    content: none;
+}
+
+.t20a.t20a-player-sheet .sheet-header > * {
+    position: relative;
+    z-index: 1;
+}
+
+.t20a.t20a-player-sheet-base .window-content form.base {
+    position: relative;
+}
+
+.t20a.t20a-player-sheet-base .window-content form.base > .sheet-tabs {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 20;
+    background: color-mix(in srgb, var(--t20a-bg-deep) 42%, transparent);
+    -webkit-backdrop-filter: blur(14px) saturate(0.75);
+    backdrop-filter: blur(14px) saturate(0.75);
+}
+
+/* Ficha em abas: header e navbar vizinhos no fluxo, sem faixa vazia. */
+.t20a.t20a-player-sheet .window-content form.tabbed > .sheet-header {
+    margin-bottom: 0;
+}
+
+/* Ficha padrão: o body começa no topo para a arte alcançar a borda. */
+.t20a.t20a-player-sheet-base form.base > .sheet-tabs + .sheet-body {
+    padding-top: 0;
+    padding-left: 0;
+    height: 100% !important;
+}
+
+/* Retrato e nome ficam abaixo da navbar; a arte continua no topo. */
+.t20a.t20a-player-sheet-base form.base > .sheet-body > .tab.attributes .sheet-header {
+    padding-top: calc(12px + var(--t20a-navbar-height, 38px));
+}
+
+/* Abas sem header nunca começam escondidas atrás da navbar. */
+.t20a.t20a-player-sheet-base form.base > .sheet-body > .tab:not(.attributes) {
+    box-sizing: border-box;
+    padding-top: calc(var(--t20a-navbar-height, 38px) + 12px);
+}
+
 /* ===== Tipografia geral ================================================== */
 
 .t20a h1, .t20a h2, .t20a h3, .t20a h4 {
@@ -873,6 +958,24 @@
     background: transparent;
 }
 
+/* No Diário, somente o campo aberto para edição deve crescer. O sistema
+   divide a coluna entre vários articles; sem reservar espaço no article e no
+   prose-mirror ativo, a barra de ferramentas comprime a área de digitação. */
+.t20a.t20a-player-sheet .tab.journal article:has(> prose-mirror.active) {
+    flex: 0 0 25rem !important;
+    min-height: 25rem !important;
+}
+
+.t20a.t20a-player-sheet .tab.journal prose-mirror.active {
+    flex: 0 0 22rem !important;
+    height: 22rem !important;
+    min-height: 22rem !important;
+}
+
+.t20a.t20a-player-sheet .tab.journal prose-mirror.active .editor-container {
+    min-height: 14rem !important;
+}
+
 .t20a .editor-edit {
     color: var(--t20a-destaque-claro);
 }
@@ -1006,6 +1109,31 @@
     font-style: normal;
     font-size: 11px;
     color: #b4b1c4;
+}
+
+.t20a-color-dialog .t20a-dialog-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    cursor: pointer;
+    padding: 10px 2px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.t20a-color-dialog .t20a-dialog-check input[type="checkbox"] {
+    margin-top: 3px;
+    accent-color: #4c4ab7;
+}
+
+/* Opções da arte ficam agrupadas sob um único separador. */
+.t20a-color-dialog .t20a-dialog-check + .t20a-dialog-check {
+    padding-top: 0;
+    border-top: none;
+}
+
+.t20a-color-dialog .t20a-dialog-check.is-disabled {
+    opacity: 0.45;
+    cursor: default;
 }
 
 .t20a-color-dialog .t20a-dialog-select {
@@ -1389,9 +1517,9 @@
 }
 
 /* Espaço entre as linhas do header (Raça/Origem/Classe) e o corpo abaixo */
-.t20a .sheet-header + *,
-.t20a .sheet-header + section,
-.t20a .sheet-header + div {
+.t20a .sheet-header + :not(.sheet-tabs),
+.t20a .sheet-header + section:not(.sheet-tabs),
+.t20a .sheet-header + div:not(.sheet-tabs) {
     margin-top: 12px !important;
 }
 
@@ -1876,6 +2004,20 @@ body.t20a-ui #context-menu[popover] {
     max-height: 90vh !important;
     display: flex !important;
     flex-direction: column !important;
+}
+
+/* A janela nativa de uso calcula a altura pelo conteúdo. O flex: 1 genérico
+   do tema trocava essa base por zero e mantinha a altura calculada antes da
+   estilização, escondendo os últimos campos atrás de uma rolagem interna.
+   Restaura o fluxo automático; o max-height acima ainda limita a janela e
+   cria rolagem quando o conteúdo realmente ultrapassar a tela. */
+.tormenta20.window-app.dialog.ability-use-form.t20a {
+    min-width: min(600px, calc(100vw - 32px)) !important;
+    height: auto !important;
+}
+
+.tormenta20.window-app.dialog.ability-use-form.t20a .window-content {
+    flex: 0 1 auto !important;
 }
 
 /* ── Cabeçalho da janela ────────────────────────────────────────────────── */

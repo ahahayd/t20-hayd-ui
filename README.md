@@ -21,16 +21,17 @@ https://github.com/ahahayd/t20-hayd-ui/releases/latest/download/module.json
 
 ### Tema das fichas
 
-Ative o módulo e pronto: fichas de personagem, NPC e itens passam para o visual escuro, com a cor de destaque aplicada em cabeçalhos, abas, atributos, barras de PV/PM, listas e scrollbars. Itens abertos a partir de um ator herdam a cor do ator, e as janelas de uso do sistema (usar/conjurar, editor de efeitos etc.) recebem o mesmo tratamento. Cada usuário pode desligar o tema só para si nas configurações.
+Ative o módulo e pronto: fichas de personagem, NPC e itens passam para o tema escolhido (escuro ou claro), com a cor de destaque aplicada em cabeçalhos, abas, atributos, barras de PV/PM, listas e scrollbars. Itens abertos a partir de um ator herdam a cor do ator, e as janelas de uso do sistema (usar/conjurar, editor de efeitos etc.) recebem o mesmo tratamento. Cada usuário pode desligar o tema só para si nas configurações.
 
-Dois temas visuais à escolha, por usuário:
+Três temas visuais à escolha, por usuário:
 
 - **Dark Mode** (padrão): visual vanilla do Foundry moderno — painéis translúcidos com desfoque, paleta neutra, cantos suaves e a cor de destaque usada só como um leve acento (aba ativa, foco, links, botão principal). Cobre exatamente as mesmas fichas e janelas de uso que o Dark Neon, com bom contraste garantido tanto na ficha normal quanto na ficha em abas.
+- **Light Mode**: a versão clara do Dark Mode — mesmo layout, mesma arte do cabeçalho e as mesmas fichas e janelas cobertas, com fundo claro e texto escuro.
 - **Dark Neon**: visual escuro com a cor de destaque bem presente — gradientes, brilho, cantos quadrados.
 
 ### Cor da ficha
 
-Clique em **"Cor da Ficha"** no cabeçalho da ficha (donos e Mestre) e escolha entre a cor **automática** do jogador dono, a cor **padrão** do mundo ou uma **cor personalizada** pelo seletor de cores. O texto se ajusta sozinho para manter contraste legível sobre qualquer cor escolhida.
+Clique em **"Cor da Ficha"** no cabeçalho da ficha (donos e Mestre) e escolha entre a cor **automática** do jogador dono, a cor **padrão** do mundo ou uma **cor personalizada** pelo seletor de cores. O texto se ajusta sozinho para manter contraste legível sobre qualquer cor escolhida. Nas fichas de personagem, a arte do cabeçalho acompanha a cor de destaque; marque **"Manter as cores originais da arte do cabeçalho"** no mesmo diálogo para exibi-la sem recolorir, ou **"Ocultar a arte do cabeçalho"** para deixar o topo da ficha sem imagem.
 
 ### Chat
 
@@ -42,7 +43,7 @@ Opção por usuário que exibe um pequeno selo antes do ícone de cada poder na 
 
 ### Configurações
 
-Em *Configurar → Configurações → T20 Hayd UI*: ativar/desativar o tema (por usuário), **estilizar fichas e janelas** (desligue para manter só as personalizações do chat), **tema visual** (Dark Neon ou Dark Mode), cor de destaque padrão do mundo, mostrar o logo do Tormenta 20 nas fichas de personagem e o selo de nível dos poderes.
+Em *Configurar → Configurações → T20 Hayd UI*: ativar/desativar o tema (por usuário), **estilizar fichas e janelas** (desligue para manter só as personalizações do chat), **tema visual** (Dark Mode, Light Mode ou Dark Neon), cor de destaque padrão do mundo, mostrar o logo do Tormenta 20 nas fichas de personagem e o selo de nível dos poderes.
 
 ## Detalhes adicionais
 

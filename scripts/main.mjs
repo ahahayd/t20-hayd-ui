@@ -8,13 +8,16 @@
 const MODULE_ID = "t20-hayd-ui";
 const SYSTEM_ID = "tormenta20";
 const FLAG_COR = "configCor";
+const FLAG_ARTE_ORIGINAL = "arteOriginal"; // arte do cabeçalho sem recolorir pela cor de destaque
+const FLAG_SEM_ARTE = "semArte";           // ficha sem a arte do cabeçalho
 const LOGO_PATH = `modules/${MODULE_ID}/assets/logo-tormenta20.webp`;
 const COR_PADRAO = "#960505"; // vermelho-sangue arcano (default)
 
-/** Classe de janela por tema visual e cor clara de fallback usada no sweep de contraste. */
+/** Classe de janela por tema visual e cor de texto de fallback usada no sweep de contraste. */
 const TEMAS = {
-    darkNeon: { classe: "t20a", corTexto: "#eceaf2" },
-    darkMode: { classe: "t20a-dm", corTexto: "#efe6d8" }
+    darkNeon:  { classe: "t20a",    corTexto: "#eceaf2" },
+    darkMode:  { classe: "t20a-dm", corTexto: "#efe6d8" },
+    lightMode: { classe: "t20a-lm", corTexto: "#2b2620" }
 };
 const TEMA_PADRAO = "darkMode";
 
@@ -51,6 +54,7 @@ Hooks.once("init", () => {
         type: String,
         choices: {
             darkMode: "T20A.Settings.TemaDarkMode",
+            lightMode: "T20A.Settings.TemaLightMode",
             darkNeon: "T20A.Settings.TemaDarkNeon"
         },
         default: TEMA_PADRAO,
@@ -135,7 +139,7 @@ function estiloInterfaceAtivo() {
     catch (_) { return true; }
 }
 
-/** Chave do tema visual escolhido pelo usuário ("darkNeon" | "darkMode"). */
+/** Chave do tema visual escolhido pelo usuário ("darkNeon" | "darkMode" | "lightMode"). */
 function temaAtual() {
     try {
         const t = game.settings.get(MODULE_ID, "tema");
@@ -172,6 +176,7 @@ function aplicarClasseCorpo() {
     document.body?.classList.toggle("t20a-ui", ativo);
     document.body?.classList.toggle("t20a-theme-darkneon", ativo && tema === "darkNeon");
     document.body?.classList.toggle("t20a-theme-darkmode", ativo && tema === "darkMode");
+    document.body?.classList.toggle("t20a-theme-lightmode", ativo && tema === "lightMode");
 }
 
 Hooks.once("setup", () => {
@@ -261,7 +266,16 @@ function aplicarTema(app, html) {
         const windowApp = root.closest?.(".window-app") ?? root;
         aplicarClasseTema(windowApp);
         const ehFichaJogador = doc?.documentName === "Actor" && doc.type === "character";
+        const formulario = root.matches?.("form.tormenta20")
+            ? root
+            : root.querySelector?.("form.tormenta20");
+        const ehFichaBase = ehFichaJogador && formulario?.classList.contains("base");
         windowApp.classList.toggle("t20a-player-sheet", ehFichaJogador);
+        windowApp.classList.toggle("t20a-player-sheet-base", ehFichaBase);
+        windowApp.classList.toggle("t20a-arte-original",
+            ehFichaJogador && doc.getFlag(MODULE_ID, FLAG_ARTE_ORIGINAL) === true);
+        windowApp.classList.toggle("t20a-sem-arte",
+            ehFichaJogador && doc.getFlag(MODULE_ID, FLAG_SEM_ARTE) === true);
 
         let cor;
         try {
@@ -278,9 +292,12 @@ function aplicarTema(app, html) {
             windowApp.style.setProperty("--t20a-cor-destaque", cor);
         }
 
-        // Mede somente o espaço ocupado pela navbar sobreposta ao header.
-        if (ehFichaJogador) {
+        // Só a ficha padrão sobrepõe a navbar à arte do cabeçalho. Na ficha
+        // em abas ela continua no fluxo normal, entre o header e o body.
+        if (ehFichaBase) {
             medirNavbarDaFicha(windowApp, root);
+        } else {
+            windowApp.style.removeProperty("--t20a-navbar-height");
         }
 
         // Forçar tamanho mínimo apenas no primeiro render de fichas de personagem jogador
@@ -608,9 +625,8 @@ function medirNavbarDaFicha(windowApp, root) {
 
 /**
  * Injeta o logo como filho direto do .window-app (fora do fluxo flex),
- * posicionado absolutamente para se alinhar com o .sheet-tabs.
- * O logo fica LIFT px acima da barra de abas (efeito 3D).
- * O padding-left do nav é ajustado para reservar o espaço visual do logo.
+ * posicionado absolutamente. Na ficha padrão ele compõe a barra de abas; na
+ * ficha em abas fica sobre o retrato, sem alterar o espaço da navegação.
  */
 const LOGO_LIFT = 5;   // px que o logo sobe acima da barra de abas
 const LOGO_LEFT = -15; // deve bater com "left" no CSS (.t20a-brand-logo / .t20a-dm .t20a-brand-logo)
@@ -620,6 +636,15 @@ function injetarLogo(windowApp, root) {
 
     const tabs = root.querySelector?.(".sheet-tabs");
     if (!tabs) return;
+    const formulario = root.matches?.("form.tormenta20")
+        ? root
+        : root.querySelector?.("form.tormenta20");
+    const ehFichaEmAbas = formulario?.classList.contains("tabbed");
+    const retrato = ehFichaEmAbas ? formulario.querySelector(".sheet-header img.profile") : null;
+
+    /* Na ficha em abas o logo flutua sobre o retrato e não participa da
+     * navbar. Limpa inclusive um padding inline deixado por render anterior. */
+    if (ehFichaEmAbas) tabs.style.removeProperty("padding-left");
 
     /* Reusa o <img> existente: a ficha (AppV1) re-renderiza a CADA update
      * do ator; recriar o elemento custava DOM churn + decode + reflow
@@ -639,23 +664,32 @@ function injetarLogo(windowApp, root) {
         const tabsRect = tabs.getBoundingClientRect();
         if (!tabsRect.height) return; // ainda não renderizado
 
-        const logoHeight = Math.round((tabsRect.height + LOGO_LIFT) * 1.2);
-        const top        = tabsRect.top - appRect.top - (logoHeight - tabsRect.height);
+        const retratoRect = retrato?.getBoundingClientRect();
+        if (ehFichaEmAbas && !retratoRect?.height) return;
+
+        const logoHeight = ehFichaEmAbas
+            ? Math.round(Math.min(55, retratoRect.height * 0.55))
+            : Math.round((tabsRect.height + LOGO_LIFT) * 1.2);
+        const top = ehFichaEmAbas
+            ? retratoRect.top - appRect.top - LOGO_LIFT
+            : tabsRect.top - appRect.top - (logoHeight - tabsRect.height);
+        const left = ehFichaEmAbas
+            ? retratoRect.left - appRect.left + LOGO_LEFT
+            : LOGO_LEFT;
 
         /* Só escreve quando o valor mudou de fato: a ficha re-renderiza a cada
          * update do ator e, na maioria das vezes, a geometria é idêntica —
          * reescrever sujaria o layout de graça em todo render. */
         const novoTop    = `${top}px`;
+        const novoLeft   = `${left}px`;
         const novaAltura = `${logoHeight}px`;
         if (img.style.top    !== novoTop)    img.style.top    = novoTop;
+        if (img.style.left   !== novoLeft)   img.style.left   = novoLeft;
         if (img.style.height !== novaAltura) img.style.height = novaAltura;
 
-        // Reserva no nav exatamente até onde a borda direita do logo cai,
-        // medindo as posições reais (não um deslocamento fixo): o nav não
-        // começa sempre no mesmo x relativo à janela — na ficha normal o
-        // nav é o primeiro filho do form, na de abas vem depois do header,
-        // e um valor fixo deixava um vão vazio antes da 1ª aba num dos dois.
-        if (img.naturalWidth && img.naturalHeight) {
+        // Na ficha padrão, onde logo e navbar compõem a mesma faixa, reserva
+        // somente a área realmente ocupada pela imagem.
+        if (!ehFichaEmAbas && img.naturalWidth && img.naturalHeight) {
             const logoWidth = Math.round(img.naturalWidth / img.naturalHeight * logoHeight);
             const logoRight = LOGO_LEFT + logoWidth;          // relativo à borda de windowApp
             const tabsLeft  = tabsRect.left - appRect.left;   // relativo à borda de windowApp
@@ -706,6 +740,10 @@ async function abrirDialogoCor(doc) {
     const corCustomAtual = lerCorPersonalizada(doc) ?? corPadraoAtual;
     const checked = (m) => modo === m ? "checked" : "";
     const ativa = (m) => modo === m ? "is-active" : "";
+    // A arte do cabeçalho só existe na ficha de personagem jogador
+    const ehPersonagem = doc.type === "character";
+    const arteOriginal = doc.getFlag?.(MODULE_ID, FLAG_ARTE_ORIGINAL) === true;
+    const semArte = doc.getFlag?.(MODULE_ID, FLAG_SEM_ARTE) === true;
 
     const content = `
         <div class="t20a-color-dialog">
@@ -748,6 +786,21 @@ async function abrirDialogoCor(doc) {
                     </span>
                 </label>
             </div>
+            ${ehPersonagem ? `
+            <label class="t20a-dialog-check">
+                <input type="checkbox" name="semArte" ${semArte ? "checked" : ""} />
+                <span class="t20a-radio-label">
+                    <strong>${game.i18n.localize("T20A.Dialog.SemArte")}</strong>
+                    <em>${game.i18n.localize("T20A.Dialog.SemArteHint")}</em>
+                </span>
+            </label>
+            <label class="t20a-dialog-check">
+                <input type="checkbox" name="arteOriginal" ${arteOriginal ? "checked" : ""} />
+                <span class="t20a-radio-label">
+                    <strong>${game.i18n.localize("T20A.Dialog.ArteOriginal")}</strong>
+                    <em>${game.i18n.localize("T20A.Dialog.ArteOriginalHint")}</em>
+                </span>
+            </label>` : ""}
         </div>
     `;
 
@@ -765,6 +818,18 @@ async function abrirDialogoCor(doc) {
                 const picker = el.querySelector('[name="corCustom"]');
                 const hexInput = el.querySelector('[name="corCustomHex"]');
                 const radioCustom = el.querySelector('input[name="mode"][value="custom"]');
+                // Sem arte, "manter cores originais" não tem efeito: fica
+                // desabilitada (o valor marcado é preservado e salvo igual).
+                const inputSemArte = el.querySelector('[name="semArte"]');
+                const inputArteOriginal = el.querySelector('[name="arteOriginal"]');
+                const sincronizarArte = () => {
+                    if (!inputSemArte || !inputArteOriginal) return;
+                    inputArteOriginal.disabled = inputSemArte.checked;
+                    inputArteOriginal.closest(".t20a-dialog-check")
+                        ?.classList.toggle("is-disabled", inputSemArte.checked);
+                };
+                inputSemArte?.addEventListener("change", sincronizarArte);
+                sincronizarArte();
                 // Picker e campo hex andam juntos; mexer neles seleciona o modo
                 picker?.addEventListener("input", () => {
                     hexInput.value = picker.value;
@@ -784,10 +849,15 @@ async function abrirDialogoCor(doc) {
                 callback: (_event, button) => {
                     const form = button.form;
                     const mode = form?.elements?.mode?.value;
+                    // null = ficha sem as checkboxes (não-personagem): não mexe nas flags
+                    const arte = {
+                        arteOriginal: form?.elements?.arteOriginal?.checked ?? null,
+                        semArte: form?.elements?.semArte?.checked ?? null
+                    };
                     if (mode === "custom") {
-                        return { mode: "custom", cor: form?.elements?.corCustom?.value };
+                        return { mode: "custom", cor: form?.elements?.corCustom?.value, ...arte };
                     }
-                    return { mode: mode === "padrao" ? "padrao" : "auto" };
+                    return { mode: mode === "padrao" ? "padrao" : "auto", ...arte };
                 }
             },
             rejectClose: false,
@@ -795,7 +865,7 @@ async function abrirDialogoCor(doc) {
         });
 
         if (result?.mode) {
-            await salvarModoCor(doc, result.mode, result.cor ?? null);
+            await salvarModoCor(doc, result.mode, result.cor ?? null, result);
         }
     } catch (err) {
         console.warn(`${MODULE_ID} | dialog erro:`, err);
@@ -892,14 +962,19 @@ function lerCorPersonalizada(doc) {
     return null;
 }
 
-async function salvarModoCor(doc, modo, cor = null) {
-    if (modo === "custom") {
-        const hex = normalizarHex(cor) ?? corPadraoConfigurada();
-        await doc.setFlag(MODULE_ID, FLAG_COR, { mode: "custom", cor: hex });
-        return;
+/** Grava modo de cor e (se informadas) as opções da arte num único update — um só re-render. */
+async function salvarModoCor(doc, modo, cor = null, { arteOriginal = null, semArte = null } = {}) {
+    const valor = (modo === "custom")
+        ? { mode: "custom", cor: normalizarHex(cor) ?? corPadraoConfigurada() }
+        : ((modo === "padrao") ? "padrao" : "auto");
+    const update = { [`flags.${MODULE_ID}.${FLAG_COR}`]: valor };
+    if (typeof arteOriginal === "boolean") {
+        update[`flags.${MODULE_ID}.${FLAG_ARTE_ORIGINAL}`] = arteOriginal;
     }
-    const valido = (modo === "padrao") ? "padrao" : "auto";
-    await doc.setFlag(MODULE_ID, FLAG_COR, valido);
+    if (typeof semArte === "boolean") {
+        update[`flags.${MODULE_ID}.${FLAG_SEM_ARTE}`] = semArte;
+    }
+    await doc.update(update);
 }
 
 /* -------------------------------------------------------------------------- */

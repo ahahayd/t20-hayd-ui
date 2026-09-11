@@ -115,4 +115,48 @@
         --t20dm-radius:    8px;
         --t20dm-radius-sm: 6px;
     }
+
+    /* ==========================================================================
+       Tema "lightMode" — contraparte clara do darkMode: vidro claro neutro,
+       texto escuro quente e o mesmo acento (cor do jogador).
+       ========================================================================== */
+    .t20a-lm,
+    body.t20a-theme-lightmode {
+        /* ----- Backgrounds (vidro claro; "deep" = cartões sobre a superfície) */
+        --t20lm-bg-primary:     rgba(250, 248, 244, 0.92);
+        --t20lm-bg-surface:     rgba(241, 238, 232, 0.90);
+        --t20lm-bg-elevated:    rgba(255, 255, 255, 0.92);
+        --t20lm-bg-deep:        rgba(255, 255, 255, 0.55);
+        --t20lm-bg-input:       rgba(255, 255, 255, 0.70);
+        --t20lm-bg-input-hover: rgba(255, 255, 255, 0.95);
+
+        /* ----- Bordas -------------------------------------------------------- */
+        --t20lm-border-soft:   rgba(40, 30, 20, 0.08);
+        --t20lm-border:        rgba(40, 30, 20, 0.16);
+        --t20lm-border-strong: rgba(40, 30, 20, 0.30);
+
+        /* ----- Texto (tons quentes escuros, espelho da paleta do darkMode) -- */
+        --t20lm-text-primary:   #2b2620;
+        --t20lm-text-secondary: #51483f;
+        --t20lm-text-muted:     #766b5f;
+        --t20lm-text-faint:     #a09486;
+
+        /* ----- Acento: cor do jogador. "acento-claro" é a variação usada em   */
+        /* TEXTO e links: no escuro ela clareia, aqui escurece para contraste. */
+        --t20lm-acento:        var(--t20a-cor-destaque, #3f6aa0);
+        --t20lm-acento-claro:  color-mix(in srgb, var(--t20lm-acento) 70%, black);
+        --t20lm-acento-suave:  color-mix(in srgb, var(--t20lm-acento) 14%, transparent);
+        --t20lm-acento-borda:  color-mix(in srgb, var(--t20lm-acento) 55%, transparent);
+        --t20lm-acento-hover:  color-mix(in srgb, var(--t20lm-acento) 18%, transparent);
+
+        /* ----- Tipografia: fonte padrão do próprio Foundry ------------------ */
+        --t20lm-font:
+            "Signika", "Inter", system-ui, -apple-system,
+            "Segoe UI", Roboto, sans-serif;
+
+        /* ----- Efeitos / layout ---------------------------------------------- */
+        --t20lm-shadow-block: 0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 3px 10px rgba(40, 30, 20, 0.10);
+        --t20lm-radius:    8px;
+        --t20lm-radius-sm: 6px;
+    }
 }
