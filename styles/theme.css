@@ -165,6 +165,12 @@
     list-style: none;
 }
 
+/* Todos os temas. Personagem do Mestre: numa coluna, o flex 0 0 100% do sistema esticava PV/PM/Defesa por cima dos poderes. */
+.t20a-any.simple .sheet-header .flexcol > .summary {
+    flex: 0 0 auto;
+    height: auto;
+}
+
 .t20a .sheet-header .summary li {
     background: var(--t20a-destaque-bg);
     color: var(--t20a-on-destaque);
