@@ -6,7 +6,7 @@ Tema visual moderno e sombrio para o sistema **Tormenta20** no FoundryVTT: ficha
 
 ## Requisitos
 
-- FoundryVTT **v13**
+- FoundryVTT **v13** ou **v14**
 - Sistema **Tormenta20**
 
 ## Instalação

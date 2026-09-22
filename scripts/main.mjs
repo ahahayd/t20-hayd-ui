@@ -218,6 +218,62 @@ Hooks.on("renderChatMessage", (message, html) => aplicarTemaChatMsg(message, htm
 Hooks.on("renderApplication", (app, html) => aplicarTemaDialog(app, html));
 Hooks.on("closeActorSheet",   (app) => encerrarDiarioResponsivo(app));
 
+/* Correção dos ícones dos botões de efeito: no hook atual do v13, que sai nos
+   dois caminhos de renderização de mensagem. */
+Hooks.on("renderChatMessageHTML", (message, html) => {
+    if (game.system.id !== SYSTEM_ID) return;
+    const root = html?.querySelector ? html : (html?.[0] ?? null);
+    if (root) corrigirIconesDeEfeito(message, root);
+});
+
+/**
+ * Arte de um efeito guardado na mensagem, aceitando os dois nomes de campo.
+ *
+ * O Foundry v13 renomeou `icon` para `img` nos efeitos ativos e não deixou
+ * getter de compatibilidade; efeitos criados antes disso (e o catálogo de
+ * condições do sistema) ainda trazem `icon`.
+ */
+function arteDoEfeito(dados) {
+    const alvo = Array.isArray(dados) ? dados[0] : dados;
+    return alvo?.img || alvo?.icon || "";
+}
+
+/** Arte da condição pelo nome, quando a mensagem não guardou os dados. */
+function arteDaCondicao(nome) {
+    const procurado = String(nome ?? "").trim().toLowerCase();
+    if (!procurado) return "";
+    const condicoes = Object.values(game.tormenta20?.conditions ?? {});
+    return arteDoEfeito(condicoes.find(
+        c => String(c?.name ?? "").trim().toLowerCase() === procurado
+    ));
+}
+
+/**
+ * Devolve a imagem aos botões de aplicar condição/efeito do cartão de chat.
+ *
+ * O template do sistema monta `<img src="{{ef.icon}}">`, campo que não existe
+ * mais no v13: o que vai para o chat é um `<img src="">`, sem imagem nenhuma,
+ * para quem envia e para quem lê. A arte é recuperada aqui dos dados que a
+ * própria mensagem guarda (`flags.tormenta20.effects`), na mesma ordem em que
+ * o template numerou os botões.
+ */
+function corrigirIconesDeEfeito(message, root) {
+    const botoes = root.querySelectorAll("button.chat-apply-ae");
+    if (!botoes.length) return;
+    const efeitos = message.flags?.tormenta20?.effects ?? [];
+
+    for (const botao of botoes) {
+        const img = botao.querySelector("img");
+        if (!img || img.getAttribute("src")) continue;
+
+        const src = arteDoEfeito(efeitos[Number(botao.dataset.effectIndex)])
+            || arteDaCondicao(botao.textContent);
+        // Sem arte conhecida, o quadrado quebrado incomoda mais que a ausência.
+        if (src) img.src = src;
+        else img.remove();
+    }
+}
+
 function aplicarTemaDialog(_app, html) {
     if (!estiloInterfaceAtivo()) return;
 
