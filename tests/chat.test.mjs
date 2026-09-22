@@ -17,14 +17,28 @@ test("speakerActor resolve também o ator sintético do token", () => {
 test("mensagem enviada por jogador sempre usa o fundo claro", () => {
     assert.match(chat, /\(!!autor && !autor\.isGM\) \|\| donosJogadores\.length > 0/);
     assert.match(chat,
-        /classList\.toggle\("t20a-chat-player", ehMensagemDeJogador\)/);
+        /classList\.toggle\("t20a-chat-player", fundoClaro\)/);
+    assert.match(chat, /: ehMensagemDeJogador;/);
 });
 
 test("ator pertencente a jogador usa fundo claro mesmo quando o Mestre rola", () => {
     assert.match(chat, /const donosJogadores = actor \? listarDonosJogadores\(actor\) : \[\]/);
     assert.match(chat, /\|\| donosJogadores\.length > 0/);
     assert.match(chat,
-        /classList\.toggle\("t20a-chat-npc", !ehMensagemDeJogador\)/);
+        /classList\.toggle\("t20a-chat-npc", !fundoClaro\)/);
+});
+
+test("opção de fundo pode forçar todas as mensagens claras ou escuras", () => {
+    assert.match(main, /register\(MODULE_ID, "chatFundo"/);
+    assert.match(chat, /game\.settings\.get\(MODULE_ID, "chatFundo"\)/);
+    assert.match(chat, /fundo === "claro" \? true/);
+    assert.match(chat, /fundo === "escuro" \? false/);
+});
+
+test("moedas da Loja ganham contraste no fundo claro", async () => {
+    const css = await readFile(new URL("styles/theme.css", raiz), "utf8");
+    for (const moeda of ["tl", "to", "tp", "tc"])
+        assert.match(css, new RegExp(`\\.t20a-chat-player \\.t20l-coin\\.t20l-${moeda} \\{`));
 });
 
 test("a lista de donos é calculada uma vez e reaproveitada para a cor", () => {

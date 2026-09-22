@@ -2389,3 +2389,15 @@ a.t20a-pn-badge.t20a-pn-bonus:hover {
     background: #a8894a;
     color: #fff;
 }
+
+/* ===== Moedas do t20-hayd-loja em mensagens de fundo claro ==============
+   As cores da Loja foram pensadas para fundo escuro e somem no pergaminho
+   claro: aqui ficam mais escuras e o chip ganha um fundo mais forte. */
+.t20a-chat-player .t20l-coin { font-weight: 700; }
+.t20a-chat-player .t20l-coin.t20l-tl { background: rgba(70, 140, 165, 0.18); border-color: rgba(45, 110, 135, 0.7); color: #1f5f75; }
+.t20a-chat-player .t20l-coin.t20l-to { background: rgba(190, 145, 20, 0.2);  border-color: rgba(150, 110, 10, 0.75); color: #7a5600; }
+.t20a-chat-player .t20l-coin.t20l-tp { background: rgba(110, 115, 125, 0.18); border-color: rgba(85, 90, 100, 0.7); color: #3d4250; }
+.t20a-chat-player .t20l-coin.t20l-tc { background: rgba(170, 95, 35, 0.18);  border-color: rgba(135, 70, 20, 0.7); color: #7a3c0c; }
+.t20a-chat-player .t20l-coin i { opacity: 0.85; }
+.t20a-chat-player .t20l-coin.t20l-pos { color: #1e7a2a; }
+.t20a-chat-player .t20l-coin.t20l-neg { color: #b3261e; }

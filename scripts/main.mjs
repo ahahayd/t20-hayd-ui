@@ -105,6 +105,21 @@ Hooks.once("init", () => {
         onChange: () => ui.chat?.render(true)
     });
 
+    game.settings.register(MODULE_ID, "chatFundo", {
+        name: "T20A.Settings.ChatFundoName",
+        hint: "T20A.Settings.ChatFundoHint",
+        scope: "client",
+        config: true,
+        type: String,
+        choices: {
+            padrao: "T20A.Settings.ChatFundoPadrao",
+            escuro: "T20A.Settings.ChatFundoEscuro",
+            claro: "T20A.Settings.ChatFundoClaro"
+        },
+        default: "padrao",
+        onChange: () => ui.chat?.render(true)
+    });
+
     game.settings.register(MODULE_ID, "chatRetratoSemAtor", {
         name: "T20A.Settings.ChatRetratoSemAtorName",
         hint: "T20A.Settings.ChatRetratoSemAtorHint",
@@ -509,9 +524,15 @@ function aplicarTemaChatMsg(message, html) {
     // uma mensagem de NPC só porque não havia ator para resolver.
     const ehMensagemDeJogador = (!!autor && !autor.isGM) || donosJogadores.length > 0;
 
+    // Preferência do usuário: força todas as mensagens claras ou escuras.
+    const fundo = game.settings.get(MODULE_ID, "chatFundo");
+    const fundoClaro = fundo === "claro" ? true
+        : fundo === "escuro" ? false
+        : ehMensagemDeJogador;
+
     root.classList.add("t20a-chat-msg");
-    root.classList.toggle("t20a-chat-player", ehMensagemDeJogador);
-    root.classList.toggle("t20a-chat-npc", !ehMensagemDeJogador);
+    root.classList.toggle("t20a-chat-player", fundoClaro);
+    root.classList.toggle("t20a-chat-npc", !fundoClaro);
     root.style.setProperty("--t20a-chat-cor", cor);
 
     /* Texto do header sempre legível: preto ou branco conforme a
@@ -543,7 +564,7 @@ function aplicarTemaChatMsg(message, html) {
         sender.appendChild(span);
     }
 
-    if (!ehMensagemDeJogador) agendarCorrecaoContrasteChat(root);
+    if (!fundoClaro) agendarCorrecaoContrasteChat(root);
 }
 
 /**
