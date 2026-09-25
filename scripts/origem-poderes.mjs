@@ -56,8 +56,9 @@ export function registrarConfiguracoes(reRender) {
         onChange: reRender
     });
 
-    // Opção antiga (liga/desliga do selo). Fica registrada, fora do menu, só
-    // para quem já a tinha ligado continuar no selo sem precisar mexer.
+    // Opção antiga (liga/desliga do selo), sem uso: fica registrada fora do
+    // menu só para o valor já salvo não ficar órfão. O selo agora é escolha
+    // explícita em "origemPoderes".
     game.settings.register(MODULE_ID, "poderesPorNivel", {
         scope: "client",
         config: false,
@@ -69,12 +70,6 @@ export function registrarConfiguracoes(reRender) {
 /** "organizador" | "legado" | "desligado" para o usuário atual. */
 export function modoOrigemPoderes() {
     if (!game.settings.get(MODULE_ID, "origemPoderesMundo")) return "desligado";
-    let escolheu = true;
-    try {
-        escolheu = game.settings.storage.get("client")
-            ?.getItem(`${MODULE_ID}.origemPoderes`) != null;
-    } catch (_) { /* armazenamento indisponível: vale o valor lido abaixo */ }
-    if (!escolheu && game.settings.get(MODULE_ID, "poderesPorNivel")) return "legado";
     const modo = game.settings.get(MODULE_ID, "origemPoderes");
     return ["organizador", "legado", "desligado"].includes(modo) ? modo : "organizador";
 }

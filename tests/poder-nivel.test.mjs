@@ -49,11 +49,10 @@ test("anotação lê o formato do selo antigo", async () => {
     assert.equal(origemDoItem(itemFalso({ origemPoder: null, nivelObtido: null })), null);
 });
 
-test("Mestre desliga para o mundo; quem tinha o selo antigo ligado continua nele", async () => {
+test("Mestre desliga para o mundo; organizador é o padrão mesmo para quem usava o selo", async () => {
     assert.equal((await carregar({ mundo: false })).modoOrigemPoderes(), "desligado");
-    assert.equal((await carregar({ escolheu: false, legadoLigado: true })).modoOrigemPoderes(), "legado");
-    assert.equal((await carregar({ escolheu: false })).modoOrigemPoderes(), "organizador");
-    assert.equal((await carregar({ modo: "desligado", legadoLigado: true })).modoOrigemPoderes(), "desligado");
+    assert.equal((await carregar({ legadoLigado: true })).modoOrigemPoderes(), "organizador");
+    assert.equal((await carregar({ modo: "legado" })).modoOrigemPoderes(), "legado");
 });
 
 test("cliques rápidos no selo legado contam um a um", async () => {
