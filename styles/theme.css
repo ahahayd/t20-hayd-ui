@@ -2682,3 +2682,12 @@ a.t20a-pn-badge.t20a-pn-bonus:hover {
 .t20a-any ul.currency :is(li.thm-send, li.t20-loja-atalho) {
     margin-left: 6px !important;
 }
+/* Light Mode: fundo claro não segura um tom claro de acento (amarelo sobre
+   amarelo-pálido some). Em repouso o botão acompanha os campos de moeda ao
+   lado e o acento vai bem escurecido para o ícone e a borda; o hover
+   continua preenchido com a cor real. */
+.t20a-lm ul.currency :is(.thm-send-money-btn, .t20-loja-atalho > a):not(:hover, :focus-visible) {
+    background: var(--t20lm-bg-input, rgba(255, 255, 255, 0.6)) !important;
+    border-color: color-mix(in srgb, var(--t20a-cor-destaque, #960505) 50%, black) !important;
+    color: color-mix(in srgb, var(--t20a-cor-destaque, #960505) 45%, black) !important;
+}
