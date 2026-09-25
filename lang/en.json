@@ -79,7 +79,13 @@
                 "bonus": "Bônus"
             },
             "AbaPoderes": "Poderes",
-            "AbaMagias": "Magias"
+            "AbaMagias": "Magias",
+            "Aviso": {
+                "Texto": "Essa feature serve exclusivamente para jogadores/mestres que gostam de deixar rastreado quando pegou cada poder/magia e suas fontes. Recomendável para campanhas longas.",
+                "Nota": "(Pode ser reativado novamente nas configurações do T20 Hayd UI)",
+                "Desativar": "Desativar",
+                "Manter": "Manter ativado"
+            }
         }
     }
 }

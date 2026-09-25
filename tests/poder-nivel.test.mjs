@@ -81,9 +81,10 @@ test("organizador: todas as chaves de tradução usadas existem", async () => {
     const en = JSON.parse(await readFile(new URL("lang/en.json", raiz), "utf8"));
     const usadas = [...origem.matchAll(/"T20A\.(OrigemPoderes|Settings)\.([A-Za-z]+)"/g)];
     usadas.push(...[...origem.matchAll(/i18n\("([A-Za-z]+)"\)/g)].map(m => [0, "OrigemPoderes", m[1]]));
+    const existe = (j, grupo, chave) => j.T20A[grupo][chave] ?? j.T20A[grupo].Aviso?.[chave];
     for (const [, grupo, chave] of usadas) {
-        assert.ok(pt.T20A[grupo][chave], `pt-BR: ${grupo}.${chave}`);
-        assert.ok(en.T20A[grupo][chave], `en: ${grupo}.${chave}`);
+        assert.ok(existe(pt, grupo, chave), `pt-BR: ${grupo}.${chave}`);
+        assert.ok(existe(en, grupo, chave), `en: ${grupo}.${chave}`);
     }
     for (const c of ["raca", "nivel", "origem", "devocao", "complicacao", "bonus"]) {
         assert.ok(pt.T20A.OrigemPoderes.Categorias[c]);
@@ -114,4 +115,14 @@ test("organizador separa poderes e magias em abas, gravadas juntas", () => {
     assert.match(origem, /aria-selected=/);
     // Painel oculto continua no formulário (hidden, não removido do DOM).
     assert.match(origem, /painel\.hidden = painel\.dataset\.aba !== tipo/);
+});
+
+test("botão pulsa até o primeiro clique, que abre o aviso por cima do organizador", () => {
+    assert.ok(origem.includes('register(MODULE_ID, "origemPoderesVisto"'));
+    assert.ok(origem.includes('classList.toggle("t20a-po-novo", primeiroUso)'));
+    assert.ok(origem.includes("aoAbrir: mostrarAviso ? avisarPrimeiroUso : null"));
+    // Desativar fecha só o organizador e desliga a opção deste usuário.
+    const aviso = origem.slice(origem.indexOf("async function avisarPrimeiroUso"), origem.indexOf("export async function abrirOrganizador"));
+    assert.ok(aviso.includes("await organizador?.close()"));
+    assert.ok(aviso.includes('set(MODULE_ID, "origemPoderes", "desligado")'));
 });

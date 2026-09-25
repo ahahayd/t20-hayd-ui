@@ -2455,6 +2455,39 @@ a.t20a-pn-badge.t20a-pn-bonus:hover {
     outline-offset: 1px;
 }
 
+/* Até o primeiro clique o botão pulsa na cor de destaque, como o "Definir
+   Atributos" do gmtools; depois volta ao estado discreto. */
+@keyframes t20a-po-pulso {
+    0%, 100% {
+        filter: drop-shadow(0 0 0 transparent);
+        color: inherit;
+    }
+    50% {
+        filter: drop-shadow(0 0 6px var(--t20a-cor-destaque, #c0392b));
+        color: var(--t20a-cor-destaque, #e74c3c);
+    }
+}
+.t20a-po-abrir.t20a-po-novo {
+    opacity: 1;
+    animation: t20a-po-pulso 1.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+    .t20a-po-abrir.t20a-po-novo {
+        animation: none;
+        color: var(--t20a-cor-destaque, #e74c3c);
+        filter: drop-shadow(0 0 4px var(--t20a-cor-destaque, #c0392b));
+    }
+}
+
+.t20a-po-aviso p {
+    margin: 0 0 8px;
+    line-height: 1.5;
+}
+.t20a-po-aviso .t20a-po-aviso-nota {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
 /* Tela de anotação: visual nativo do Foundry, só com o acento da ficha. */
 .t20a-po-dialog {
     --t20a-po-acento: var(--color-warm-2, #c9593f);

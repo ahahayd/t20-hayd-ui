@@ -56,6 +56,15 @@ export function registrarConfiguracoes(reRender) {
         onChange: reRender
     });
 
+    // Já abriu o organizador ao menos uma vez neste navegador: o botão para
+    // de pulsar e o aviso de primeiro uso não volta.
+    game.settings.register(MODULE_ID, "origemPoderesVisto", {
+        scope: "client",
+        config: false,
+        type: Boolean,
+        default: false
+    });
+
     // Opção antiga (liga/desliga do selo), sem uso: fica registrada fora do
     // menu só para o valor já salvo não ficar órfão. O selo agora é escolha
     // explícita em "origemPoderes".
@@ -187,11 +196,21 @@ function marcarOrganizador(actor, root) {
     botao.setAttribute("aria-label", rotulo);
     botao.setAttribute("role", "button");
     botao.tabIndex = 0;
+    // Até o primeiro clique o botão pulsa: sozinho ele é discreto demais
+    // para ser descoberto.
+    const primeiroUso = !game.settings.get(MODULE_ID, "origemPoderesVisto");
+    botao.classList.toggle("t20a-po-novo", primeiroUso);
     const abrir = ev => {
         ev.preventDefault();
         ev.stopPropagation();
         const janela = root.closest(".window-app") ?? root;
-        abrirOrganizador(actor, janela);
+        const mostrarAviso = !game.settings.get(MODULE_ID, "origemPoderesVisto");
+        if (mostrarAviso) {
+            document.querySelectorAll(".t20a-po-abrir.t20a-po-novo")
+                .forEach(b => b.classList.remove("t20a-po-novo"));
+            game.settings.set(MODULE_ID, "origemPoderesVisto", true);
+        }
+        abrirOrganizador(actor, janela, { aoAbrir: mostrarAviso ? avisarPrimeiroUso : null });
     };
     botao.addEventListener("click", abrir);
     botao.addEventListener("keydown", ev => {
@@ -220,7 +239,30 @@ function subtituloDoItem(item) {
 /** Última aba usada na tela (Poderes ou Magias), só durante a sessão. */
 let _ultimaAba = "poder";
 
-export async function abrirOrganizador(actor, janela) {
+/**
+ * Aviso do primeiro uso, por cima do organizador já aberto. "Desativar"
+ * desliga a opção só para este usuário e fecha apenas o organizador.
+ */
+async function avisarPrimeiroUso(organizador) {
+    const i18n = k => game.i18n.localize(`T20A.OrigemPoderes.Aviso.${k}`);
+    const escolha = await foundry.applications.api.DialogV2.wait({
+        window: { title: game.i18n.localize("T20A.OrigemPoderes.Botao"), icon: "fa-solid fa-timeline" },
+        position: { width: 420 },
+        classes: ["t20a-po-aviso"],
+        content: `<p>${escapar(i18n("Texto"))}</p><p class="t20a-po-aviso-nota">${escapar(i18n("Nota"))}</p>`,
+        buttons: [
+            { action: "desativar", label: i18n("Desativar"), icon: "fa-solid fa-eye-slash" },
+            { action: "manter", label: i18n("Manter"), icon: "fa-solid fa-check", default: true }
+        ],
+        rejectClose: false,
+        modal: true
+    });
+    if (escolha !== "desativar") return;
+    await organizador?.close();
+    await game.settings.set(MODULE_ID, "origemPoderes", "desligado");
+}
+
+export async function abrirOrganizador(actor, janela, { aoAbrir = null } = {}) {
     const itens = actor.items.filter(i => TIPOS_ANOTAVEIS.has(i.type));
     if (!itens.length) {
         ui.notifications.info(game.i18n.localize("T20A.OrigemPoderes.Vazio"));
@@ -350,6 +392,7 @@ export async function abrirOrganizador(actor, janela) {
         render: (_event, dialog) => {
             const el = dialog.element;
             if (acento) el.style.setProperty("--t20a-po-acento", acento);
+            if (aoAbrir) setTimeout(() => aoAbrir(dialog), 0);
 
             // Abas Poderes/Magias: os painéis ocultos continuam no formulário,
             // então Aplicar grava as duas de uma vez.
