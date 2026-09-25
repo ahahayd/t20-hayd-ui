@@ -2374,6 +2374,17 @@ a.t20a-pn-badge {
     cursor: pointer;
     user-select: none;
     transition: background 100ms ease, color 100ms ease;
+    position: relative;
+}
+/* Alvo de clique maior que o selo de 15px, sem mudar o desenho da linha. */
+a.t20a-pn-badge::after {
+    content: "";
+    position: absolute;
+    inset: -4px -2px;
+}
+a.t20a-pn-badge:focus-visible {
+    outline: 2px solid var(--t20a-cor-destaque, #960505);
+    outline-offset: 1px;
 }
 a.t20a-pn-badge:hover {
     background: var(--t20a-cor-destaque, #960505);

@@ -46,6 +46,11 @@
             "ArteOriginalHint": "A arte no topo da ficha deixa de mudar de cor junto com a cor de destaque."
         },
         "Confirm": "Aplicar",
-        "Cancel": "Cancelar"
+        "Cancel": "Cancelar",
+        "PoderNivel": {
+            "Bonus": "Obtido como Bônus (fora de nível)",
+            "Nivel": "Obtido no nível {nivel}",
+            "Uso": "clique ou ↑: +1 · clique direito ou ↓: −1"
+        }
     }
 }

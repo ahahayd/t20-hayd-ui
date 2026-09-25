@@ -422,13 +422,26 @@ function nivelDoPoder(item) {
     return (Number.isInteger(n) && n >= 1) ? n : "bonus";
 }
 
-async function ajustarNivelDoPoder(item, delta) {
-    const max = Number(item.parent?.system?.attributes?.nivel?.value) || 20;
-    const atual = nivelDoPoder(item);
-    let novo;
-    if (delta > 0) novo = (atual === "bonus") ? 1 : (atual >= max ? "bonus" : atual + 1);
-    else novo = (atual === "bonus") ? max : (atual <= 1 ? "bonus" : atual - 1);
-    await item.setFlag(MODULE_ID, FLAG_NIVEL_PODER, novo);
+/** Ajuste em andamento por poder: cliques rápidos esperam o anterior gravar,
+ *  senão todos leriam a mesma flag antiga e contariam como um só. */
+const _ajustesDeNivel = new Map();
+/** Poder cujo selo foi usado pelo teclado: devolve o foco após o re-render. */
+let _seloComFoco = null;
+
+function ajustarNivelDoPoder(item, delta) {
+    const anterior = _ajustesDeNivel.get(item.uuid) ?? Promise.resolve();
+    const proximo = anterior.then(() => {
+        const max = Number(item.parent?.system?.attributes?.nivel?.value) || 20;
+        const atual = nivelDoPoder(item);
+        let novo;
+        if (delta > 0) novo = (atual === "bonus") ? 1 : (atual >= max ? "bonus" : atual + 1);
+        else novo = (atual === "bonus") ? max : (atual <= 1 ? "bonus" : atual - 1);
+        return item.setFlag(MODULE_ID, FLAG_NIVEL_PODER, novo);
+    }).catch(err => console.error(`${MODULE_ID} | falha ao ajustar nível do poder:`, err))
+      .finally(() => {
+          if (_ajustesDeNivel.get(item.uuid) === proximo) _ajustesDeNivel.delete(item.uuid);
+      });
+    _ajustesDeNivel.set(item.uuid, proximo);
 }
 
 function marcarPoderesComNivel(actor, root) {
@@ -444,17 +457,27 @@ function marcarPoderesComNivel(actor, root) {
         const badge = document.createElement("a");
         badge.className = `t20a-pn-badge${bonus ? " t20a-pn-bonus" : ""}`;
         badge.textContent = bonus ? "B" : String(nivel);
-        badge.dataset.tooltip = `${bonus ? "Obtido como Bônus (fora de nível)" : `Obtido no nível ${nivel}`} — clique: +1 · clique direito: −1`;
+        const estado = bonus
+            ? game.i18n.localize("T20A.PoderNivel.Bonus")
+            : game.i18n.format("T20A.PoderNivel.Nivel", { nivel });
+        badge.dataset.tooltip = `${estado} — ${game.i18n.localize("T20A.PoderNivel.Uso")}`;
+        badge.setAttribute("role", "button");
+        badge.setAttribute("aria-label", `${item.name}: ${estado}`);
+        badge.tabIndex = 0;
 
-        badge.addEventListener("click", ev => {
+        const ajustar = (ev, delta) => {
             ev.preventDefault();
             ev.stopPropagation();
-            ajustarNivelDoPoder(item, +1);
-        });
-        badge.addEventListener("contextmenu", ev => {
-            ev.preventDefault();
-            ev.stopPropagation();
-            ajustarNivelDoPoder(item, -1);
+            ajustarNivelDoPoder(item, delta);
+        };
+        badge.addEventListener("click", ev => ajustar(ev, +1));
+        badge.addEventListener("contextmenu", ev => ajustar(ev, -1));
+        badge.addEventListener("keydown", ev => {
+            const delta = { Enter: +1, " ": +1, ArrowUp: +1, ArrowRight: +1,
+                            ArrowDown: -1, ArrowLeft: -1 }[ev.key];
+            if (!delta) return;
+            _seloComFoco = item.uuid;
+            ajustar(ev, delta);
         });
 
         // Antes do ícone do poder; sem ícone, no início da linha
@@ -462,6 +485,13 @@ function marcarPoderesComNivel(actor, root) {
         const img = nome.querySelector(".item-image");
         if (img) img.before(badge);
         else nome.prepend(badge);
+
+        // A ficha foi redesenhada pelo ajuste feito no teclado: o foco volta
+        // ao selo em vez de cair no início do documento.
+        if (_seloComFoco === item.uuid) {
+            _seloComFoco = null;
+            badge.focus({ preventScroll: true });
+        }
     }
 }
 
