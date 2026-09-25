@@ -37,15 +37,17 @@ Clique em **"Cor da Ficha"** no cabeçalho da ficha (donos e Mestre) e escolha e
 
 As mensagens viram cards temáticos: fundo claro para mensagens enviadas por jogadores e por atores pertencentes a eles; fundo escuro para NPCs, mensagens do Mestre sem ator e mensagens de sistema. O card também mostra o retrato do ator no cabeçalho, o nome do jogador abaixo do personagem e botões de ação (Aplicar Dano, Gastar Mana…) na cor de destaque.
 
+Cada usuário pode trocar o padrão de fundo só para si: deixar todas as mensagens escuras ou todas claras. Também dá para escolher se o retrato vem da arte do personagem ou do token e, em mensagens sem personagem, mostrar o avatar do jogador ou nenhum retrato.
+
 ### Origem dos poderes
 
 Para lembrar em que nível e de onde veio cada poder e magia do personagem. Um ícone discreto ao lado do título **Poderes** abre uma tela com tudo agrupado por nível: em cada linha, uma **categoria** (Raça, Origem, Complicação, Devoção, Nível, Bônus ou qualquer outra que você digitar, como uma regra da sua mesa) e o **nível** em que foi obtido. Poderes que o sistema já marca como raciais, de origem, de complicação ou concedidos chegam com uma sugestão preenchida. Na ficha, cada poder anotado ganha só uma legenda pequena abaixo do nome (ex.: "Nv 1 · Origem").
 
-É só organização: nada muda nas regras, nas rolagens nem na ordem da lista. Cada usuário escolhe entre o organizador, o **selo legado** (o selo clicável antes do ícone de cada poder) ou nada; o Mestre pode desligar para o mundo inteiro. As anotações feitas com o selo antigo continuam valendo.
+É só organização: nada muda nas regras, nas rolagens nem na ordem da lista. Cada usuário escolhe entre o organizador, o **selo legado** (o selo clicável antes do ícone de cada poder) ou nada; o Mestre pode desligar para o mundo inteiro. Desligar, em qualquer um dos dois, só esconde o botão, as etiquetas e o selo: as anotações continuam guardadas. As anotações feitas com o selo antigo continuam valendo.
 
 ### Configurações
 
-Em *Configurar → Configurações → T20 Hayd UI*: ativar/desativar o tema (por usuário), **estilizar fichas e janelas** (desligue para manter só as personalizações do chat), **tema visual** (Dark Mode, Light Mode ou Dark Neon), cor de destaque padrão do mundo, mostrar o logo do Tormenta 20 nas fichas de personagem e a origem dos poderes (por usuário e para o mundo).
+Em *Configurar → Configurações → T20 Hayd UI*: ativar/desativar o tema (por usuário), **estilizar fichas e janelas** (desligue para manter só as personalizações do chat), **tema visual** (Dark Mode, Light Mode ou Dark Neon), cor de destaque padrão do mundo (usada em fichas sem jogador dono ou no modo padrão), mostrar o logo do Tormenta 20 nas fichas de personagem e a origem dos poderes (por usuário e para o mundo).
 
 ## Detalhes adicionais
 
