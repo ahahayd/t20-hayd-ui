@@ -52,3 +52,9 @@ test("chat usa só o hook atual do v13, sem os campos depreciados", () => {
     assert.doesNotMatch(main, /message\.user\b/);
     assert.doesNotMatch(main, /instanceof jQuery/);
 });
+
+test("mudança de cor/dono do ator atualiza as fichas de item abertas dele", () => {
+    const hook = main.slice(main.indexOf('Hooks.on("updateActor"'), main.indexOf("function reRenderTormentaSheets"));
+    assert.doesNotMatch(hook, /actor\.sheet/);
+    assert.match(hook, /doc\.parent === actor/);
+});

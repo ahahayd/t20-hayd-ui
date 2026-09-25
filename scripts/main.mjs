@@ -1036,9 +1036,13 @@ Hooks.on("updateUser", (_user, changes) => {
     reRenderTormentaSheets();
 });
 
+/* A ficha do próprio ator o Foundry já re-renderiza em todo update. Quem fica
+   para trás são as fichas de itens abertas desse ator: elas herdam a cor dele. */
 Hooks.on("updateActor", (actor, changes) => {
-    if (changes.ownership || changes.permission || changes.flags?.[MODULE_ID]) {
-        actor.sheet?.render(false);
+    if (!changes.ownership && !changes.flags?.[MODULE_ID]) return;
+    for (const app of Object.values(ui.windows ?? {})) {
+        const doc = documentoDoApp(app);
+        if (doc?.documentName === "Item" && doc.parent === actor) app.render(false);
     }
 });
 
