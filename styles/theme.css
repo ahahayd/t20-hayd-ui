@@ -1589,7 +1589,7 @@
 /* theme-darkmode.css; ambos cobrem o menu movido para o body.                */
 
 .t20a #context-menu,
-body.t20a-theme-darkneon #context-menu {
+body.t20a-theme-darkneon #context-menu.t20a-context-menu {
     position: absolute;
     z-index: 9999 !important;
     background: var(--t20a-bg-elevated, rgba(34, 37, 54, 0.97)) !important;
@@ -1600,7 +1600,7 @@ body.t20a-theme-darkneon #context-menu {
 }
 
 .t20a #context-menu .context-items,
-body.t20a-theme-darkneon #context-menu .context-items {
+body.t20a-theme-darkneon #context-menu.t20a-context-menu .context-items {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -1610,7 +1610,7 @@ body.t20a-theme-darkneon #context-menu .context-items {
 }
 
 .t20a #context-menu .context-item,
-body.t20a-theme-darkneon #context-menu .context-item {
+body.t20a-theme-darkneon #context-menu.t20a-context-menu .context-item {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -1624,20 +1624,20 @@ body.t20a-theme-darkneon #context-menu .context-item {
 }
 
 .t20a #context-menu .context-item:hover,
-body.t20a-theme-darkneon #context-menu .context-item:hover {
+body.t20a-theme-darkneon #context-menu.t20a-context-menu .context-item:hover {
     background: var(--t20a-destaque-hover, rgba(150,5,5,0.28)) !important;
     color: white !important;
 }
 
 .t20a #context-menu .context-item i,
-body.t20a-theme-darkneon #context-menu .context-item i {
+body.t20a-theme-darkneon #context-menu.t20a-context-menu .context-item i {
     color: var(--t20a-text-muted, #7b7889);
     width: 16px;
     text-align: center;
 }
 
 .t20a #context-menu .context-item:hover i,
-body.t20a-theme-darkneon #context-menu .context-item:hover i {
+body.t20a-theme-darkneon #context-menu.t20a-context-menu .context-item:hover i {
     color: var(--t20a-destaque-claro, #cc4444);
 }
 
@@ -1645,9 +1645,9 @@ body.t20a-theme-darkneon #context-menu .context-item:hover i {
 /* modo popover, então a regra do sistema não o alcança e a imagem estica.    */
 /* Recompomos o tamanho compacto nos três temas sem mudar o visual do menu.   */
 .t20a #context-menu .context-item img,
-body.t20a-theme-darkneon #context-menu .context-item img,
-body.t20a-theme-darkmode #context-menu .context-item img,
-body.t20a-theme-lightmode #context-menu .context-item img {
+body.t20a-theme-darkneon #context-menu.t20a-context-menu .context-item img,
+body.t20a-theme-darkmode #context-menu.t20a-context-menu .context-item img,
+body.t20a-theme-lightmode #context-menu.t20a-context-menu .context-item img {
     flex: 0 0 auto !important;
     width: 20px !important;
     height: 20px !important;
@@ -1658,14 +1658,14 @@ body.t20a-theme-lightmode #context-menu .context-item img {
 }
 
 .t20a #context-menu .context-group,
-body.t20a-theme-darkneon #context-menu .context-group {
+body.t20a-theme-darkneon #context-menu.t20a-context-menu .context-group {
     border-top: 1px solid var(--t20a-border, rgba(255,255,255,0.12));
     margin-top: 2px;
     padding-top: 2px;
 }
 
 .t20a #context-menu .context-group ol,
-body.t20a-theme-darkneon #context-menu .context-group ol {
+body.t20a-theme-darkneon #context-menu.t20a-context-menu .context-group ol {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -1674,7 +1674,7 @@ body.t20a-theme-darkneon #context-menu .context-group ol {
 
 /* Modo popover (fixado ao viewport via JS do módulo): o menu vive no       */
 /* document.body, fora da ficha — nunca é cortado pelo overflow da janela.  */
-body.t20a-ui #context-menu[popover] {
+body.t20a-ui #context-menu.t20a-context-menu[popover] {
     position: fixed;
     inset: unset;
     width: max-content;

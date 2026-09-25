@@ -205,8 +205,11 @@ Hooks.once("setup", () => {
     const original = CM.prototype._setPosition;
     CM.prototype._setPosition = function(menu, target, options = {}) {
         try {
-            const janelaTema = target?.closest?.(".t20a-any");
-            if (estiloInterfaceAtivo() && janelaTema) {
+            const janelaTema = estiloInterfaceAtivo() ? target?.closest?.(".t20a-any") : null;
+            // Marca o menu para o CSS: só menus abertos das janelas com tema
+            // são estilizados; os do core e de outros módulos ficam intactos.
+            menu.classList.toggle("t20a-context-menu", !!janelaTema);
+            if (janelaTema) {
                 // O popover será movido para o body e deixará de herdar as
                 // variáveis da ficha. Copia o acento da janela que o abriu.
                 const corDestaque = getComputedStyle(janelaTema)

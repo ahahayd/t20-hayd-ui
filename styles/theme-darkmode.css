@@ -1249,7 +1249,7 @@
 /* O core move o popover para o body, fora da ficha. As variáveis do tema    */
 /* também são expostas no gate global para manter a mesma paleta nesse caso. */
 
-body.t20a-theme-darkmode #context-menu {
+body.t20a-theme-darkmode #context-menu.t20a-context-menu {
     color: var(--t20dm-text-primary) !important;
     background:
         linear-gradient(180deg,
@@ -1267,8 +1267,8 @@ body.t20a-theme-darkmode #context-menu {
     -webkit-backdrop-filter: blur(10px);
 }
 
-body.t20a-theme-darkmode #context-menu .context-items,
-body.t20a-theme-darkmode #context-menu .context-group ol {
+body.t20a-theme-darkmode #context-menu.t20a-context-menu .context-items,
+body.t20a-theme-darkmode #context-menu.t20a-context-menu .context-group ol {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -1277,7 +1277,7 @@ body.t20a-theme-darkmode #context-menu .context-group ol {
     box-shadow: none !important;
 }
 
-body.t20a-theme-darkmode #context-menu .context-item {
+body.t20a-theme-darkmode #context-menu.t20a-context-menu .context-item {
     display: flex;
     align-items: center;
     gap: 7px;
@@ -1296,8 +1296,8 @@ body.t20a-theme-darkmode #context-menu .context-item {
         color 120ms ease;
 }
 
-body.t20a-theme-darkmode #context-menu .context-item:hover,
-body.t20a-theme-darkmode #context-menu .context-item:focus-visible {
+body.t20a-theme-darkmode #context-menu.t20a-context-menu .context-item:hover,
+body.t20a-theme-darkmode #context-menu.t20a-context-menu .context-item:focus-visible {
     color: var(--t20dm-text-primary) !important;
     background:
         color-mix(in srgb,
@@ -1315,7 +1315,7 @@ body.t20a-theme-darkmode #context-menu .context-item:focus-visible {
     outline: none;
 }
 
-body.t20a-theme-darkmode #context-menu .context-item i {
+body.t20a-theme-darkmode #context-menu.t20a-context-menu .context-item i {
     flex: 0 0 16px;
     width: 16px;
     color: var(--t20dm-text-muted);
@@ -1323,25 +1323,25 @@ body.t20a-theme-darkmode #context-menu .context-item i {
     transition: color 120ms ease;
 }
 
-body.t20a-theme-darkmode #context-menu .context-item:hover i,
-body.t20a-theme-darkmode #context-menu .context-item:focus-visible i {
+body.t20a-theme-darkmode #context-menu.t20a-context-menu .context-item:hover i,
+body.t20a-theme-darkmode #context-menu.t20a-context-menu .context-item:focus-visible i {
     color:
         color-mix(in srgb,
             var(--t20a-context-accent, #6a8fbf) 45%,
             white);
 }
 
-body.t20a-theme-darkmode #context-menu .context-item img {
+body.t20a-theme-darkmode #context-menu.t20a-context-menu .context-item img {
     border-radius: 4px !important;
 }
 
-body.t20a-theme-darkmode #context-menu .context-group {
+body.t20a-theme-darkmode #context-menu.t20a-context-menu .context-group {
     margin-top: 4px;
     padding-top: 4px;
     border-top: 1px solid var(--t20dm-border-soft);
 }
 
-body.t20a-theme-darkmode #context-menu .context-group:first-child {
+body.t20a-theme-darkmode #context-menu.t20a-context-menu .context-group:first-child {
     margin-top: 0;
     padding-top: 0;
     border-top: none;

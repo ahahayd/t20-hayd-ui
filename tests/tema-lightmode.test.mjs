@@ -79,7 +79,7 @@ test("caixa de treinamento das perícias é um quadrado nos dois temas modernos"
 
 test("ícones de vestimentas mantêm proporção compacta no Light Mode", () => {
     const regra = compartilhado.match(
-        /body\.t20a-theme-lightmode #context-menu \.context-item img\s*\{([^}]*)\}/
+        /body\.t20a-theme-lightmode #context-menu\.t20a-context-menu \.context-item img\s*\{([^}]*)\}/
     )?.[1] ?? "";
     assert.match(regra, /flex:\s*0 0 auto\s*!important/);
     assert.match(regra, /width:\s*20px\s*!important/);
