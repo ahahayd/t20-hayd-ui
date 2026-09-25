@@ -249,14 +249,25 @@ export async function abrirOrganizador(actor, janela) {
     }
 
     // Sugestões do campo: as de fábrica e as que o jogador já criou na ficha.
-    const criadas = new Set();
-    for (const item of actor.items) {
-        const c = TIPOS_ANOTAVEIS.has(item.type) ? origemDoItem(item)?.categoria : null;
-        if (c && !CATEGORIAS.includes(c)) criadas.add(c);
+    // Categorias criadas pelo jogador: as desta ficha primeiro (a grafia dela
+    // vence), depois as dos outros personagens que ele controla. Cresce com as
+    // digitadas nesta tela, para "regra da mesa" em duas linhas virar uma só.
+    const listaCriadas = [];
+    const lembrarCriada = (categoria) => {
+        if (!categoria || CATEGORIAS.includes(categoria)) return false;
+        const chave = chaveDeComparacao(categoria);
+        if (listaCriadas.some(c => chaveDeComparacao(c) === chave)) return false;
+        listaCriadas.push(categoria);
+        return true;
+    };
+    const atores = [actor, ...(game.actors?.filter(a => a !== actor && a.type === "character" && a.isOwner) ?? [])];
+    for (const ator of atores) {
+        for (const item of ator.items) {
+            if (TIPOS_ANOTAVEIS.has(item.type)) lembrarCriada(origemDoItem(item)?.categoria);
+        }
     }
-    const listaCriadas = [...criadas];
     const idLista = `t20a-po-categorias-${actor.id ?? "ator"}`;
-    const opcoes = [...CATEGORIAS.map(rotuloCategoria), ...[...criadas].sort(COLLATOR.compare)]
+    const opcoes = [...CATEGORIAS.map(rotuloCategoria), ...[...listaCriadas].sort(COLLATOR.compare)]
         .map(c => `<option value="${escapar(c)}"></option>`).join("");
 
     const i18n = k => game.i18n.localize(`T20A.OrigemPoderes.${k}`);
@@ -333,6 +344,12 @@ export async function abrirOrganizador(actor, janela) {
                 const categoria = categoriaDoTexto(campo.value, listaCriadas);
                 const grafia = categoria ? rotuloCategoria(categoria) : "";
                 if (campo.value !== grafia) campo.value = grafia;
+                // Categoria nova: vira sugestão e referência de grafia nas outras linhas.
+                if (lembrarCriada(categoria)) {
+                    const opcao = document.createElement("option");
+                    opcao.value = categoria;
+                    el.querySelector(`#${CSS.escape(idLista)}`)?.append(opcao);
+                }
             });
         },
         ok: {
@@ -340,11 +357,13 @@ export async function abrirOrganizador(actor, janela) {
             icon: "fa-solid fa-check",
             callback: (_event, button) => {
                 const campos = button.form.elements;
-                return linhas.map(({ item }) => ({
-                    item,
-                    categoria: categoriaDoTexto(campos[`categoria.${item.id}`]?.value, listaCriadas),
-                    nivel: nivelValido(campos[`nivel.${item.id}`]?.value)
-                }));
+                // Em ordem, lembrando as novas: a primeira grafia digitada vale
+                // para as outras linhas mesmo sem o campo ter perdido o foco.
+                return linhas.map(({ item }) => {
+                    const categoria = categoriaDoTexto(campos[`categoria.${item.id}`]?.value, listaCriadas);
+                    lembrarCriada(categoria);
+                    return { item, categoria, nivel: nivelValido(campos[`nivel.${item.id}`]?.value) };
+                });
             }
         },
         rejectClose: false,
