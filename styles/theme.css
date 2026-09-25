@@ -2652,3 +2652,33 @@ a.t20a-pn-badge.t20a-pn-bonus:hover {
 .t20a-chat-player .t20l-coin i { opacity: 0.85; }
 .t20a-chat-player .t20l-coin.t20l-pos { color: #1e7a2a; }
 .t20a-chat-player .t20l-coin.t20l-neg { color: #b3261e; }
+
+/* ===== Ações da fileira de moedas (módulos compatíveis) =================
+   "Loja" (t20-hayd-loja) e "Enviar dinheiro" (t20-hayd-gmtools) entram no
+   fim da fileira de moedas. Cada módulo tem um quadradinho neutro próprio;
+   com o tema, os dois viram o mesmo botão na cor de destaque da ficha:
+   leve em repouso, preenchido no hover. !important vence o dos módulos. */
+.t20a-any ul.currency :is(.thm-send-money-btn, .t20-loja-atalho > a) {
+    width: 26px !important;
+    height: 26px !important;
+    border: 1px solid color-mix(in srgb, var(--t20a-cor-destaque, #960505) 55%, transparent) !important;
+    border-radius: 5px !important;
+    background: color-mix(in srgb, var(--t20a-cor-destaque, #960505) 16%, transparent) !important;
+    color: var(--t20a-cor-destaque, #960505) !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+    transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+.t20a-any ul.currency :is(.thm-send-money-btn, .t20-loja-atalho > a):is(:hover, :focus-visible) {
+    border-color: var(--t20a-cor-destaque, #960505) !important;
+    background: var(--t20a-cor-destaque, #960505) !important;
+    color: var(--t20a-texto-sobre-destaque, #fff) !important;
+}
+.t20a-any ul.currency :is(.thm-send-money-btn, .t20-loja-atalho > a):focus-visible {
+    outline: 2px solid var(--t20a-cor-destaque, #960505);
+    outline-offset: 2px;
+}
+/* Os dois lado a lado: espaço igual entre eles e em relação às moedas. */
+.t20a-any ul.currency :is(li.thm-send, li.t20-loja-atalho) {
+    margin-left: 6px !important;
+}

@@ -373,6 +373,9 @@ function aplicarTema(app, html) {
          * caro num render que acontece a cada update do ator. */
         if (windowApp.style.getPropertyValue("--t20a-cor-destaque") !== cor) {
             windowApp.style.setProperty("--t20a-cor-destaque", cor);
+            // Texto/ícone legível SOBRE a cor de destaque (preto no amarelo,
+            // branco no vermelho escuro), para botões preenchidos com ela.
+            windowApp.style.setProperty("--t20a-texto-sobre-destaque", textoContrastante(cor).texto);
         }
 
         // Só a ficha padrão sobrepõe a navbar à arte do cabeçalho. Na ficha
