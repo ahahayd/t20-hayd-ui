@@ -5,6 +5,11 @@
  * com opção do jogador escolher dono específico ou cor personalizada.
  */
 
+import {
+    registrarConfiguracoes as registrarConfiguracoesPoderes,
+    decorarFicha as decorarFichaPoderes
+} from "./origem-poderes.mjs";
+
 const MODULE_ID = "t20-hayd-ui";
 const SYSTEM_ID = "tormenta20";
 const FLAG_COR = "configCor";
@@ -81,15 +86,7 @@ Hooks.once("init", () => {
         onChange: () => reRenderTormentaSheets()
     });
 
-    game.settings.register(MODULE_ID, "poderesPorNivel", {
-        name: "T20A.Settings.PoderesPorNivelName",
-        hint: "T20A.Settings.PoderesPorNivelHint",
-        scope: "client",
-        config: true,
-        type: Boolean,
-        default: false,
-        onChange: () => reRenderTormentaSheets()
-    });
+    registrarConfiguracoesPoderes(reRenderTormentaSheets);
 
     game.settings.register(MODULE_ID, "chatRetrato", {
         name: "T20A.Settings.ChatRetratoName",
@@ -398,100 +395,10 @@ function aplicarTema(app, html) {
         }
     }
 
-    // Selo de nível obtido nos poderes: opção independente, funciona mesmo sem o tema.
-    if (doc?.documentName === "Actor" && doc.type === "character"
-        && game.settings.get(MODULE_ID, "poderesPorNivel")) {
-        try { marcarPoderesComNivel(doc, root); }
-        catch (err) { console.warn(`${MODULE_ID} | falha ao marcar nível dos poderes:`, err); }
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/*  Nível obtido dos poderes                                                   */
-/*  Um selo compacto ANTES do ícone de cada poder mostra em que nível ele foi  */
-/*  obtido ("1".."20" ou "B" de Bônus). A ordenação da lista continua livre —  */
-/*  o jogador organiza como quiser e ainda rastreia quando pegou cada poder.   */
-/*  Clique no selo: +1 nível · clique direito: −1 · passa por Bônus no ciclo.  */
-/*  A classificação fica em flags.t20-hayd-ui.nivelObtido no próprio poder.    */
-/* -------------------------------------------------------------------------- */
-
-const FLAG_NIVEL_PODER = "nivelObtido";
-
-function nivelDoPoder(item) {
-    const n = Number(item.getFlag(MODULE_ID, FLAG_NIVEL_PODER));
-    return (Number.isInteger(n) && n >= 1) ? n : "bonus";
-}
-
-/** Ajuste em andamento por poder: cliques rápidos esperam o anterior gravar,
- *  senão todos leriam a mesma flag antiga e contariam como um só. */
-const _ajustesDeNivel = new Map();
-/** Poder cujo selo foi usado pelo teclado: devolve o foco após o re-render. */
-let _seloComFoco = null;
-
-function ajustarNivelDoPoder(item, delta) {
-    const anterior = _ajustesDeNivel.get(item.uuid) ?? Promise.resolve();
-    const proximo = anterior.then(() => {
-        const max = Number(item.parent?.system?.attributes?.nivel?.value) || 20;
-        const atual = nivelDoPoder(item);
-        let novo;
-        if (delta > 0) novo = (atual === "bonus") ? 1 : (atual >= max ? "bonus" : atual + 1);
-        else novo = (atual === "bonus") ? max : (atual <= 1 ? "bonus" : atual - 1);
-        return item.setFlag(MODULE_ID, FLAG_NIVEL_PODER, novo);
-    }).catch(err => console.error(`${MODULE_ID} | falha ao ajustar nível do poder:`, err))
-      .finally(() => {
-          if (_ajustesDeNivel.get(item.uuid) === proximo) _ajustesDeNivel.delete(item.uuid);
-      });
-    _ajustesDeNivel.set(item.uuid, proximo);
-}
-
-function marcarPoderesComNivel(actor, root) {
-    for (const li of root.querySelectorAll("li.item[data-item-id]")) {
-        if (li.classList.contains("item-header")) continue;
-        if (li.closest(".list-favorites, .favorites")) continue;
-        if (li.querySelector(".t20a-pn-badge")) continue;
-        const item = actor.items.get(li.dataset.itemId);
-        if (item?.type !== "poder") continue;
-
-        const nivel = nivelDoPoder(item);
-        const bonus = nivel === "bonus";
-        const badge = document.createElement("a");
-        badge.className = `t20a-pn-badge${bonus ? " t20a-pn-bonus" : ""}`;
-        badge.textContent = bonus ? "B" : String(nivel);
-        const estado = bonus
-            ? game.i18n.localize("T20A.PoderNivel.Bonus")
-            : game.i18n.format("T20A.PoderNivel.Nivel", { nivel });
-        badge.dataset.tooltip = `${estado} — ${game.i18n.localize("T20A.PoderNivel.Uso")}`;
-        badge.setAttribute("role", "button");
-        badge.setAttribute("aria-label", `${item.name}: ${estado}`);
-        badge.tabIndex = 0;
-
-        const ajustar = (ev, delta) => {
-            ev.preventDefault();
-            ev.stopPropagation();
-            ajustarNivelDoPoder(item, delta);
-        };
-        badge.addEventListener("click", ev => ajustar(ev, +1));
-        badge.addEventListener("contextmenu", ev => ajustar(ev, -1));
-        badge.addEventListener("keydown", ev => {
-            const delta = { Enter: +1, " ": +1, ArrowUp: +1, ArrowRight: +1,
-                            ArrowDown: -1, ArrowLeft: -1 }[ev.key];
-            if (!delta) return;
-            _seloComFoco = item.uuid;
-            ajustar(ev, delta);
-        });
-
-        // Antes do ícone do poder; sem ícone, no início da linha
-        const nome = li.querySelector(".item-name") ?? li;
-        const img = nome.querySelector(".item-image");
-        if (img) img.before(badge);
-        else nome.prepend(badge);
-
-        // A ficha foi redesenhada pelo ajuste feito no teclado: o foco volta
-        // ao selo em vez de cair no início do documento.
-        if (_seloComFoco === item.uuid) {
-            _seloComFoco = null;
-            badge.focus({ preventScroll: true });
-        }
+    // Origem dos poderes: opção independente, funciona mesmo sem o tema.
+    if (doc?.documentName === "Actor" && doc.type === "character") {
+        try { decorarFichaPoderes(doc, root); }
+        catch (err) { console.warn(`${MODULE_ID} | falha ao marcar a origem dos poderes:`, err); }
     }
 }
 

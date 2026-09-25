@@ -37,13 +37,15 @@ Clique em **"Cor da Ficha"** no cabeçalho da ficha (donos e Mestre) e escolha e
 
 As mensagens viram cards temáticos: fundo claro para mensagens enviadas por jogadores e por atores pertencentes a eles; fundo escuro para NPCs, mensagens do Mestre sem ator e mensagens de sistema. O card também mostra o retrato do ator no cabeçalho, o nome do jogador abaixo do personagem e botões de ação (Aplicar Dano, Gastar Mana…) na cor de destaque.
 
-### Nível obtido dos poderes
+### Origem dos poderes
 
-Opção por usuário que exibe um pequeno selo antes do ícone de cada poder na ficha, indicando em que nível ele foi obtido (ou "B" para poderes ganhos como bônus). Clique no selo para aumentar o nível e clique com o botão direito para diminuir — a ordem da lista continua livre para você organizar como preferir.
+Para lembrar em que nível e de onde veio cada poder e magia do personagem. Um ícone discreto ao lado do título **Poderes** abre uma tela com tudo agrupado por nível: em cada linha, uma **categoria** (Nível, Origem, Devoção, Complicação, Bônus ou qualquer outra que você digitar, como uma regra da sua mesa) e o **nível** em que foi obtido. Poderes que o sistema já marca como de origem, complicação ou concedidos chegam com uma sugestão preenchida. Na ficha, cada poder anotado ganha só uma legenda pequena abaixo do nome (ex.: "Nv 1 · Origem").
+
+É só organização: nada muda nas regras, nas rolagens nem na ordem da lista. Cada usuário escolhe entre o organizador, o **selo legado** (o selo clicável antes do ícone de cada poder) ou nada; o Mestre pode desligar para o mundo inteiro. As anotações feitas com o selo antigo continuam valendo.
 
 ### Configurações
 
-Em *Configurar → Configurações → T20 Hayd UI*: ativar/desativar o tema (por usuário), **estilizar fichas e janelas** (desligue para manter só as personalizações do chat), **tema visual** (Dark Mode, Light Mode ou Dark Neon), cor de destaque padrão do mundo, mostrar o logo do Tormenta 20 nas fichas de personagem e o selo de nível dos poderes.
+Em *Configurar → Configurações → T20 Hayd UI*: ativar/desativar o tema (por usuário), **estilizar fichas e janelas** (desligue para manter só as personalizações do chat), **tema visual** (Dark Mode, Light Mode ou Dark Neon), cor de destaque padrão do mundo, mostrar o logo do Tormenta 20 nas fichas de personagem e a origem dos poderes (por usuário e para o mundo).
 
 ## Detalhes adicionais
 

@@ -14,8 +14,13 @@
             "CorPadraoHint": "Cor (hex, ex.: #960505) usada quando a ficha está em modo 'padrão' ou não tem nenhum jogador como dono.",
             "MostrarLogoName": "Mostrar logo do Tormenta 20",
             "MostrarLogoHint": "Exibe o logo flutuante do Tormenta 20 sobre a foto do personagem.",
-            "PoderesPorNivelName": "Mostrar nível obtido nos poderes",
-            "PoderesPorNivelHint": "Exibe um pequeno selo antes do ícone de cada poder indicando em que nível ele foi obtido (ou \"B\" para poderes ganhos como bônus). Clique no selo para aumentar o nível; clique com o botão direito para diminuir. A ordem da lista continua livre — organize os poderes como preferir.",
+            "OrigemPoderesMundoName": "Origem dos poderes (para o mundo)",
+            "OrigemPoderesMundoHint": "Permite que os jogadores anotem em que nível e de onde veio cada poder e magia da ficha. Desligado, ninguém vê o botão, as etiquetas nem o selo, mas as anotações continuam guardadas.",
+            "OrigemPoderesName": "Origem dos poderes na ficha",
+            "OrigemPoderesHint": "Organizador: um botão discreto no cabeçalho de Poderes abre uma tela com tudo agrupado por nível, e cada poder anotado ganha uma etiqueta pequena. Selo legado: o selo clicável antigo antes do ícone de cada poder. Desligado: não mostra nada. As anotações ficam guardadas em qualquer opção. Vale só para você.",
+            "OrigemPoderesOrganizador": "Organizador (padrão)",
+            "OrigemPoderesLegado": "Selo legado",
+            "OrigemPoderesDesligado": "Desligado",
             "ChatRetratoName": "Retrato nas mensagens de chat",
             "ChatRetratoHint": "Qual arte usar como retrato no cabeçalho das mensagens: a arte do personagem (a da ficha) ou a arte do token que está falando.",
             "ChatRetratoPersonagem": "Arte do personagem (ficha)",
@@ -51,6 +56,27 @@
             "Bonus": "Obtido como Bônus (fora de nível)",
             "Nivel": "Obtido no nível {nivel}",
             "Uso": "clique ou ↑: +1 · clique direito ou ↓: −1"
+        },
+        "OrigemPoderes": {
+            "Botao": "Origem dos poderes",
+            "Titulo": "Origem dos poderes: {nome}",
+            "Intro": "Anote em que nível e de onde veio cada poder e magia. É só organização: nada muda nas regras nem na ordem da ficha. Você pode digitar uma categoria nova.",
+            "Sugestao": "Em itálico: sugestão pelo tipo do poder, salva ao aplicar.",
+            "Categoria": "Categoria",
+            "Nivel": "Nível",
+            "NivelN": "Nível {nivel}",
+            "NivelCurto": "Nv {nivel}",
+            "NivelPersonagem": "Personagem de nível {nivel}",
+            "SemNivel": "Sem nível anotado",
+            "Magia": "Magia de {circulo}º círculo",
+            "Vazio": "Esta ficha ainda não tem poderes nem magias.",
+            "Categorias": {
+                "nivel": "Nível",
+                "origem": "Origem",
+                "devocao": "Devoção",
+                "complicacao": "Complicação",
+                "bonus": "Bônus"
+            }
         }
     }
 }
