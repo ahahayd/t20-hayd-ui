@@ -107,3 +107,11 @@ test("categoria digitada sem acento ou em outra caixa vira a opção certa", asy
     assert.equal(categoriaDoTexto("Tesouro"), "Tesouro");
     assert.equal(categoriaDoTexto("   "), "");
 });
+
+test("organizador separa poderes e magias em abas, gravadas juntas", () => {
+    assert.match(origem, /\["poder", "magia"\]/);
+    assert.match(origem, /role="tablist"/);
+    assert.match(origem, /aria-selected=/);
+    // Painel oculto continua no formulário (hidden, não removido do DOM).
+    assert.match(origem, /painel\.hidden = painel\.dataset\.aba !== tipo/);
+});

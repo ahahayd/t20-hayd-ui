@@ -217,6 +217,9 @@ function subtituloDoItem(item) {
     return item.labels?.tipo ?? game.i18n.localize("TYPES.Item.poder");
 }
 
+/** Última aba usada na tela (Poderes ou Magias), só durante a sessão. */
+let _ultimaAba = "poder";
+
 export async function abrirOrganizador(actor, janela) {
     const itens = actor.items.filter(i => TIPOS_ANOTAVEIS.has(i.type));
     if (!itens.length) {
@@ -241,12 +244,21 @@ export async function abrirOrganizador(actor, janela) {
         || ordemCategoria(a.valor.categoria) - ordemCategoria(b.valor.categoria)
         || COLLATOR.compare(a.item.name, b.item.name)
     );
-    const grupos = new Map();
-    for (const linha of linhas) {
-        const chave = linha.valor.nivel ?? 0;
-        if (!grupos.has(chave)) grupos.set(chave, []);
-        grupos.get(chave).push(linha);
-    }
+    /** Linhas de um tipo agrupadas por nível, na ordem já calculada. */
+    const agrupar = (tipo) => {
+        const grupos = new Map();
+        for (const linha of linhas) {
+            if (linha.item.type !== tipo) continue;
+            const chave = linha.valor.nivel ?? 0;
+            if (!grupos.has(chave)) grupos.set(chave, []);
+            grupos.get(chave).push(linha);
+        }
+        return grupos;
+    };
+    const abas = ["poder", "magia"]
+        .map(tipo => ({ tipo, grupos: agrupar(tipo), total: linhas.filter(l => l.item.type === tipo).length }))
+        .filter(aba => aba.total);
+    const abaInicial = abas.some(a => a.tipo === _ultimaAba) ? _ultimaAba : abas[0].tipo;
 
     // Sugestões do campo: as de fábrica e as que o jogador já criou na ficha.
     // Categorias criadas pelo jogador: as desta ficha primeiro (a grafia dela
@@ -301,13 +313,27 @@ export async function abrirOrganizador(actor, janela) {
         <div class="t20a-po">
             <p class="t20a-po-intro">${escapar(i18n("Intro"))}
                 ${linhas.some(l => l.sugerido) ? `<em>${escapar(i18n("Sugestao"))}</em>` : ""}</p>
+            ${abas.length > 1 ? `
+            <nav class="t20a-po-abas" role="tablist">
+                ${abas.map(({ tipo, total }) => `
+                <button type="button" role="tab" id="t20a-po-aba-${tipo}" data-aba="${tipo}"
+                        aria-controls="t20a-po-painel-${tipo}" aria-selected="${tipo === abaInicial}"
+                        tabindex="${tipo === abaInicial ? 0 : -1}">
+                    ${escapar(i18n(tipo === "poder" ? "AbaPoderes" : "AbaMagias"))} <span>${total}</span>
+                </button>`).join("")}
+            </nav>` : ""}
             <div class="t20a-po-linha t20a-po-colunas" aria-hidden="true">
                 <span></span>
                 <span>${nivelPersonagem ? escapar(game.i18n.format("T20A.OrigemPoderes.NivelPersonagem", { nivel: nivelPersonagem })) : ""}</span>
                 <span>${escapar(i18n("Categoria"))}</span>
                 <span>${escapar(i18n("Nivel"))}</span>
             </div>
-            <div class="t20a-po-lista">${[...grupos].map(grupoHTML).join("")}</div>
+            ${abas.map(({ tipo, grupos }) => `
+            <div class="t20a-po-lista" id="t20a-po-painel-${tipo}" data-aba="${tipo}"
+                 ${abas.length > 1 ? `role="tabpanel" aria-labelledby="t20a-po-aba-${tipo}"` : ""}
+                 ${tipo === abaInicial ? "" : "hidden"}>
+                ${[...grupos].map(grupoHTML).join("")}
+            </div>`).join("")}
             <datalist id="${idLista}">${opcoes}</datalist>
         </div>`;
 
@@ -324,6 +350,45 @@ export async function abrirOrganizador(actor, janela) {
         render: (_event, dialog) => {
             const el = dialog.element;
             if (acento) el.style.setProperty("--t20a-po-acento", acento);
+
+            // Abas Poderes/Magias: os painéis ocultos continuam no formulário,
+            // então Aplicar grava as duas de uma vez.
+            const botoesAba = [...el.querySelectorAll(".t20a-po-abas [role=tab]")];
+            const mostrarAba = (tipo, focar = false) => {
+                _ultimaAba = tipo;
+                for (const b of botoesAba) {
+                    const ativa = b.dataset.aba === tipo;
+                    b.setAttribute("aria-selected", String(ativa));
+                    b.tabIndex = ativa ? 0 : -1;
+                    if (ativa && focar) b.focus();
+                }
+                for (const painel of el.querySelectorAll(".t20a-po-lista[data-aba]")) {
+                    painel.hidden = painel.dataset.aba !== tipo;
+                }
+            };
+            // Mesma altura nas duas abas: trocar de aba não faz a janela
+            // encolher e o botão Aplicar mudar de lugar. Medido uma vez.
+            const paineis = [...el.querySelectorAll(".t20a-po-lista[data-aba]")];
+            if (paineis.length > 1) {
+                const alturas = paineis.map(p => {
+                    const oculto = p.hidden;
+                    p.hidden = false;
+                    const altura = p.getBoundingClientRect().height;
+                    p.hidden = oculto;
+                    return altura;
+                });
+                const maior = Math.ceil(Math.max(...alturas));
+                for (const p of paineis) p.style.minHeight = `${maior}px`;
+            }
+            for (const b of botoesAba) {
+                b.addEventListener("click", () => mostrarAba(b.dataset.aba));
+                b.addEventListener("keydown", ev => {
+                    if (ev.key !== "ArrowLeft" && ev.key !== "ArrowRight") return;
+                    ev.preventDefault();
+                    const i = botoesAba.indexOf(b) + (ev.key === "ArrowRight" ? 1 : -1);
+                    mostrarAba(botoesAba.at(i % botoesAba.length).dataset.aba, true);
+                });
+            }
             el.addEventListener("input", ev => {
                 const campo = ev.target;
                 if (!(campo instanceof HTMLInputElement)) return;
