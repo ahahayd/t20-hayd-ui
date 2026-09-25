@@ -45,3 +45,10 @@ test("a lista de donos é calculada uma vez e reaproveitada para a cor", () => {
     assert.equal((chat.match(/listarDonosJogadores\(actor\)/g) ?? []).length, 1);
     assert.match(chat, /for \(const dono of donosJogadores\)/);
 });
+
+test("chat usa só o hook atual do v13, sem os campos depreciados", () => {
+    assert.doesNotMatch(main, /Hooks\.on\("renderChatMessage",/);
+    assert.match(main, /Hooks\.on\("renderChatMessageHTML"[\s\S]{0,300}aplicarTemaChatMsg\(message, root\)/);
+    assert.doesNotMatch(main, /message\.user\b/);
+    assert.doesNotMatch(main, /instanceof jQuery/);
+});

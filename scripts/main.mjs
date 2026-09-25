@@ -229,17 +229,28 @@ Hooks.once("setup", () => {
 
 Hooks.on("renderActorSheet",  (app, html) => aplicarTema(app, html));
 Hooks.on("renderItemSheet",   (app, html) => aplicarTema(app, html));
-Hooks.on("renderChatMessage", (message, html) => aplicarTemaChatMsg(message, html));
 Hooks.on("renderApplication", (app, html) => aplicarTemaDialog(app, html));
 Hooks.on("closeActorSheet",   (app) => encerrarDiarioResponsivo(app));
 
-/* Correção dos ícones dos botões de efeito: no hook atual do v13, que sai nos
-   dois caminhos de renderização de mensagem. */
+/* Chat: hook do v13 (recebe HTMLElement). O antigo "renderChatMessage" é
+   depreciado no v13, avisa no console a cada mensagem e sai no v15. */
 Hooks.on("renderChatMessageHTML", (message, html) => {
     if (game.system.id !== SYSTEM_ID) return;
-    const root = html?.querySelector ? html : (html?.[0] ?? null);
-    if (root) corrigirIconesDeEfeito(message, root);
+    const root = elementoRaiz(html);
+    if (!root) return;
+    corrigirIconesDeEfeito(message, root);
+    aplicarTemaChatMsg(message, root);
 });
+
+/**
+ * HTMLElement de um argumento de hook de render, venha ele como elemento ou
+ * como jQuery (AppV1). Não referencia o global `jQuery`, que o Foundry pode
+ * deixar de expor.
+ */
+function elementoRaiz(html) {
+    if (html instanceof HTMLElement) return html;
+    return html?.[0] instanceof HTMLElement ? html[0] : null;
+}
 
 /**
  * Arte de um efeito guardado na mensagem, aceitando os dois nomes de campo.
@@ -292,7 +303,7 @@ function corrigirIconesDeEfeito(message, root) {
 function aplicarTemaDialog(_app, html) {
     if (!estiloInterfaceAtivo()) return;
 
-    const root = html instanceof jQuery ? html[0] : html;
+    const root = elementoRaiz(html);
     if (!root) return;
 
     const windowEl = root.closest?.(".window-app") ?? root;
@@ -328,7 +339,7 @@ function aplicarTema(app, html) {
     if (game.system.id !== SYSTEM_ID) return;
     if (!game.settings.get(MODULE_ID, "enabled")) return;
 
-    const root = (html instanceof jQuery ? html[0] : html);
+    const root = elementoRaiz(html);
     if (!root) return;
 
     const doc = documentoDoApp(app);
@@ -480,7 +491,7 @@ function aplicarTemaChatMsg(message, html) {
     if (game.system.id !== SYSTEM_ID) return;
     if (!game.settings.get(MODULE_ID, "enabled")) return;
 
-    const root = html instanceof jQuery ? html[0] : html;
+    const root = elementoRaiz(html);
     if (!root) return;
 
     // `speakerActor` resolve também atores sintéticos de tokens. Consultar só
@@ -490,9 +501,9 @@ function aplicarTemaChatMsg(message, html) {
         ?? ChatMessage.getSpeakerActor?.(message.speaker ?? {})
         ?? null;
 
-    // Usuário que enviou (v13: message.author; v12: message.user)
-    const autorId = message.author?.id ?? message.user?.id;
-    const autor   = autorId ? (game.users?.get(autorId) ?? null) : null;
+    // Usuário que enviou. O antigo alias `user` do mesmo campo é depreciado:
+    // lê-lo quando o autor foi excluído só gera aviso no console.
+    const autor = message.author ?? null;
 
     // A lista já era necessária para resolver a cor. Guardá-la evita repetir
     // testUserPermission para decidir o fundo da mensagem.
