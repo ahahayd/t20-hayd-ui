@@ -17,11 +17,11 @@ const FLAG_ORIGEM = "origemPoder";  // { categoria: string, nivel: number|null }
 const FLAG_NIVEL_LEGADO = "nivelObtido"; // formato do selo antigo: 1..20 | "bonus"
 
 /** Categorias de fábrica; qualquer outro texto é categoria criada pelo jogador. */
-const CATEGORIAS = ["nivel", "origem", "devocao", "complicacao", "bonus"];
+const CATEGORIAS = ["raca", "origem", "complicacao", "devocao", "nivel", "bonus"];
 /** Categoria sugerida pelo tipo que o próprio sistema dá ao poder. */
-const SUGESTAO_POR_TIPO = { origem: "origem", complicacao: "complicacao", concedido: "devocao" };
+const SUGESTAO_POR_TIPO = { racial: "raca", origem: "origem", complicacao: "complicacao", concedido: "devocao" };
 /** Categorias que, por regra, entram na criação do personagem (nível 1). */
-const CATEGORIAS_DE_CRIACAO = new Set(["origem", "complicacao"]);
+const CATEGORIAS_DE_CRIACAO = new Set(["raca", "origem", "complicacao"]);
 const TIPOS_ANOTAVEIS = new Set(["poder", "magia"]);
 const MAX_CATEGORIA = 40;
 const COLLATOR = new Intl.Collator("pt-BR");

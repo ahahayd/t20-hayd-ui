@@ -15,7 +15,7 @@ async function carregar({ mundo = true, modo = "organizador", legadoLigado = fal
             storage: { get: () => ({ getItem: () => (escolheu ? modo : null) }) }
         },
         i18n: {
-            localize: k => ({ "T20A.OrigemPoderes.Categorias.origem": "Origem", "T20A.OrigemPoderes.Categorias.devocao": "Devoção", "T20A.OrigemPoderes.Categorias.complicacao": "Complicação", "T20A.OrigemPoderes.Categorias.bonus": "Bônus",
+            localize: k => ({ "T20A.OrigemPoderes.Categorias.origem": "Origem", "T20A.OrigemPoderes.Categorias.devocao": "Devoção", "T20A.OrigemPoderes.Categorias.complicacao": "Complicação", "T20A.OrigemPoderes.Categorias.bonus": "Bônus", "T20A.OrigemPoderes.Categorias.raca": "Raça",
                               "T20A.OrigemPoderes.Categorias.nivel": "Nível" })[k] ?? k,
             format: (k, d) => `${k}:${JSON.stringify(d)}`
         }
@@ -85,7 +85,7 @@ test("organizador: todas as chaves de tradução usadas existem", async () => {
         assert.ok(pt.T20A[grupo][chave], `pt-BR: ${grupo}.${chave}`);
         assert.ok(en.T20A[grupo][chave], `en: ${grupo}.${chave}`);
     }
-    for (const c of ["nivel", "origem", "devocao", "complicacao", "bonus"]) {
+    for (const c of ["raca", "nivel", "origem", "devocao", "complicacao", "bonus"]) {
         assert.ok(pt.T20A.OrigemPoderes.Categorias[c]);
     }
 });
@@ -102,6 +102,7 @@ test("categoria digitada sem acento ou em outra caixa vira a opção certa", asy
     assert.equal(categoriaDoTexto("devocao"), "devocao");
     assert.equal(categoriaDoTexto("Complicacao"), "complicacao");
     assert.equal(categoriaDoTexto("bonus"), "bonus");
+    assert.equal(categoriaDoTexto("raca"), "raca");
     assert.equal(categoriaDoTexto("regra  da mesa", ["Regra da Mesa"]), "Regra da Mesa");
     assert.equal(categoriaDoTexto("Tesouro"), "Tesouro");
     assert.equal(categoriaDoTexto("   "), "");

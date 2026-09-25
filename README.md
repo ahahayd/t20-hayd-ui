@@ -39,7 +39,7 @@ As mensagens viram cards temáticos: fundo claro para mensagens enviadas por jog
 
 ### Origem dos poderes
 
-Para lembrar em que nível e de onde veio cada poder e magia do personagem. Um ícone discreto ao lado do título **Poderes** abre uma tela com tudo agrupado por nível: em cada linha, uma **categoria** (Nível, Origem, Devoção, Complicação, Bônus ou qualquer outra que você digitar, como uma regra da sua mesa) e o **nível** em que foi obtido. Poderes que o sistema já marca como de origem, complicação ou concedidos chegam com uma sugestão preenchida. Na ficha, cada poder anotado ganha só uma legenda pequena abaixo do nome (ex.: "Nv 1 · Origem").
+Para lembrar em que nível e de onde veio cada poder e magia do personagem. Um ícone discreto ao lado do título **Poderes** abre uma tela com tudo agrupado por nível: em cada linha, uma **categoria** (Raça, Origem, Complicação, Devoção, Nível, Bônus ou qualquer outra que você digitar, como uma regra da sua mesa) e o **nível** em que foi obtido. Poderes que o sistema já marca como raciais, de origem, de complicação ou concedidos chegam com uma sugestão preenchida. Na ficha, cada poder anotado ganha só uma legenda pequena abaixo do nome (ex.: "Nv 1 · Origem").
 
 É só organização: nada muda nas regras, nas rolagens nem na ordem da lista. Cada usuário escolhe entre o organizador, o **selo legado** (o selo clicável antes do ícone de cada poder) ou nada; o Mestre pode desligar para o mundo inteiro. As anotações feitas com o selo antigo continuam valendo.
 

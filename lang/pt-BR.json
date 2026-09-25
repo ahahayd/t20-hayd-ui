@@ -61,7 +61,7 @@
             "Botao": "Origem dos poderes",
             "Titulo": "Origem dos poderes: {nome}",
             "Intro": "Anote em que nível e de onde veio cada poder e magia. É só organização: nada muda nas regras nem na ordem da ficha. Você pode digitar uma categoria nova.",
-            "Sugestao": "Em itálico: sugestão pelo tipo do poder, salva ao aplicar.",
+            "Sugestao": "Em itálico: sugestão pelo tipo do poder (racial, de origem, complicação ou concedido), salva ao aplicar.",
             "Categoria": "Categoria",
             "Nivel": "Nível",
             "NivelN": "Nível {nivel}",
@@ -71,10 +71,11 @@
             "Magia": "Magia de {circulo}º círculo",
             "Vazio": "Esta ficha ainda não tem poderes nem magias.",
             "Categorias": {
-                "nivel": "Nível",
+                "raca": "Raça",
                 "origem": "Origem",
-                "devocao": "Devoção",
                 "complicacao": "Complicação",
+                "devocao": "Devoção",
+                "nivel": "Nível",
                 "bonus": "Bônus"
             }
         }
