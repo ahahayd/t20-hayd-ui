@@ -2691,3 +2691,31 @@ a.t20a-pn-badge.t20a-pn-bonus:hover {
     border-color: color-mix(in srgb, var(--t20a-cor-destaque, #960505) 50%, black) !important;
     color: color-mix(in srgb, var(--t20a-cor-destaque, #960505) 45%, black) !important;
 }
+
+/* ===== Texto da barra de carga ===========================================
+   O texto cruza a parte preenchida (cor de destaque) e a vazia (fundo do
+   tema): com uma cor só, sumia sobre acentos escuros no Light Mode e sobre
+   acentos claros nos temas escuros. O texto é pintado com um degradê de
+   corte seco no fim da barra (--t20a-carga-pct, vindo do JS): contraste
+   calculado sobre a cor e a cor normal do tema no resto. */
+.t20a-any .encumbrance {
+    --t20a-carga-texto: var(--t20a-text-primary, #eceaf2);
+}
+.t20a-dm .encumbrance { --t20a-carga-texto: var(--t20dm-text-primary); }
+.t20a-lm .encumbrance { --t20a-carga-texto: var(--t20lm-text-primary); }
+.t20a-any .encumbrance-label {
+    background-image: linear-gradient(90deg,
+        var(--t20a-texto-sobre-destaque, #fff) var(--t20a-carga-pct, 0%),
+        var(--t20a-carga-texto) var(--t20a-carga-pct, 0%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important;
+    text-shadow: none !important;
+}
+/* Os spans deixam aparecer o degradê do rótulo (calculado sobre a barra
+   inteira), em vez de pintar o próprio texto. */
+.t20a-any .encumbrance-label span {
+    color: transparent !important;
+    text-shadow: none !important;
+}
+

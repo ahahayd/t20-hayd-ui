@@ -378,6 +378,13 @@ function aplicarTema(app, html) {
             windowApp.style.setProperty("--t20a-texto-sobre-destaque", textoContrastante(cor).texto);
         }
 
+        // Barra de carga: o CSS divide a cor do texto no ponto em que a barra
+        // termina, e só sabe onde é pela largura inline que o sistema põe nela.
+        for (const barra of root.querySelectorAll(".encumbrance > .encumbrance-bar")) {
+            const pct = barra.style.width || "0%";
+            barra.parentElement.style.setProperty("--t20a-carga-pct", pct);
+        }
+
         // Só a ficha padrão sobrepõe a navbar à arte do cabeçalho. Na ficha
         // em abas ela continua no fluxo normal, entre o header e o body.
         if (ehFichaBase) {

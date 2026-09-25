@@ -72,3 +72,14 @@ test("logo da ficha em abas fica na faixa das abas, com espaço reservado", () =
     assert.match(logo, /const folga\s*= ehFichaEmAbas \? LOGO_FOLGA_ABAS : 6;/);
     assert.match(logo, /logoRight - tabsLeft \+ folga/);
 });
+
+test("texto da barra de carga troca de cor no fim da barra, nos três temas", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const raiz = new URL("../", import.meta.url);
+    const css = await readFile(new URL("styles/theme.css", raiz), "utf8");
+    const js = await readFile(new URL("scripts/main.mjs", raiz), "utf8");
+    assert.ok(js.includes('setProperty("--t20a-carga-pct", pct)'));
+    assert.ok(js.includes('"--t20a-texto-sobre-destaque"'));
+    assert.match(css, /\.t20a-any \.encumbrance-label \{[^}]*background-clip: text/);
+    assert.match(css, /var\(--t20a-texto-sobre-destaque, #fff\) var\(--t20a-carga-pct, 0%\)/);
+});
