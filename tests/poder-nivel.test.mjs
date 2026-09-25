@@ -15,7 +15,7 @@ async function carregar({ mundo = true, modo = "organizador", legadoLigado = fal
             storage: { get: () => ({ getItem: () => (escolheu ? modo : null) }) }
         },
         i18n: {
-            localize: k => ({ "T20A.OrigemPoderes.Categorias.origem": "Origem",
+            localize: k => ({ "T20A.OrigemPoderes.Categorias.origem": "Origem", "T20A.OrigemPoderes.Categorias.devocao": "Devoção", "T20A.OrigemPoderes.Categorias.complicacao": "Complicação", "T20A.OrigemPoderes.Categorias.bonus": "Bônus",
                               "T20A.OrigemPoderes.Categorias.nivel": "Nível" })[k] ?? k,
             format: (k, d) => `${k}:${JSON.stringify(d)}`
         }
@@ -94,4 +94,15 @@ test("main só delega ao arquivo da origem dos poderes", () => {
     assert.match(main, /from "\.\/origem-poderes\.mjs"/);
     assert.match(main, /registrarConfiguracoesPoderes\(reRenderTormentaSheets\)/);
     assert.doesNotMatch(main, /nivelObtido|marcarPoderesComNivel/);
+});
+
+test("categoria digitada sem acento ou em outra caixa vira a opção certa", async () => {
+    const { categoriaDoTexto } = await carregar();
+    for (const t of ["Nivel", "nivel", "NÍVEL", " nível "]) assert.equal(categoriaDoTexto(t), "nivel", t);
+    assert.equal(categoriaDoTexto("devocao"), "devocao");
+    assert.equal(categoriaDoTexto("Complicacao"), "complicacao");
+    assert.equal(categoriaDoTexto("bonus"), "bonus");
+    assert.equal(categoriaDoTexto("regra  da mesa", ["Regra da Mesa"]), "Regra da Mesa");
+    assert.equal(categoriaDoTexto("Tesouro"), "Tesouro");
+    assert.equal(categoriaDoTexto("   "), "");
 });

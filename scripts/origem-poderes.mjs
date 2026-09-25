@@ -113,13 +113,23 @@ function rotuloCategoria(categoria) {
 }
 
 /** Texto digitado → chave de fábrica quando bate com o nome de uma, senão o próprio texto. */
-function categoriaDoTexto(texto) {
-    const limpo = String(texto ?? "").trim().slice(0, MAX_CATEGORIA);
+/** Forma de comparação: sem acento, sem caixa e sem espaços repetidos ("Nível" = "nivel"). */
+function chaveDeComparacao(texto) {
+    return String(texto ?? "").normalize("NFD").replace(/\p{Diacritic}/gu, "")
+        .toLocaleLowerCase("pt-BR").replace(/\s+/g, " ").trim();
+}
+
+/**
+ * Texto digitado → chave de fábrica quando bate com o nome de uma, ou a
+ * grafia de uma categoria já criada na ficha; senão, o próprio texto.
+ */
+export function categoriaDoTexto(texto, criadas = []) {
+    const limpo = String(texto ?? "").trim().replace(/\s+/g, " ").slice(0, MAX_CATEGORIA);
     if (!limpo) return "";
-    const comparavel = limpo.toLocaleLowerCase("pt-BR");
-    return CATEGORIAS.find(c =>
-        c === comparavel || rotuloCategoria(c).toLocaleLowerCase("pt-BR") === comparavel
-    ) ?? limpo;
+    const chave = chaveDeComparacao(limpo);
+    return CATEGORIAS.find(c => c === chave || chaveDeComparacao(rotuloCategoria(c)) === chave)
+        ?? criadas.find(c => chaveDeComparacao(c) === chave)
+        ?? limpo;
 }
 
 function textoDaEtiqueta({ categoria, nivel }) {
@@ -244,6 +254,7 @@ export async function abrirOrganizador(actor, janela) {
         const c = TIPOS_ANOTAVEIS.has(item.type) ? origemDoItem(item)?.categoria : null;
         if (c && !CATEGORIAS.includes(c)) criadas.add(c);
     }
+    const listaCriadas = [...criadas];
     const idLista = `t20a-po-categorias-${actor.id ?? "ator"}`;
     const opcoes = [...CATEGORIAS.map(rotuloCategoria), ...[...criadas].sort(COLLATOR.compare)]
         .map(c => `<option value="${escapar(c)}"></option>`).join("");
@@ -311,9 +322,17 @@ export async function abrirOrganizador(actor, janela) {
                 if (campo.type !== "text") return;
                 // Origem e complicação vêm na criação: preenche o nível 1 se vazio.
                 const nivel = linha?.querySelector('input[type="number"]');
-                if (nivel && !nivel.value && CATEGORIAS_DE_CRIACAO.has(categoriaDoTexto(campo.value))) {
+                if (nivel && !nivel.value && CATEGORIAS_DE_CRIACAO.has(categoriaDoTexto(campo.value, listaCriadas))) {
                     nivel.value = "1";
                 }
+            });
+            // Ao sair do campo, mostra a grafia certa ("nivel" → "Nível").
+            el.addEventListener("change", ev => {
+                const campo = ev.target;
+                if (!(campo instanceof HTMLInputElement) || campo.type !== "text") return;
+                const categoria = categoriaDoTexto(campo.value, listaCriadas);
+                const grafia = categoria ? rotuloCategoria(categoria) : "";
+                if (campo.value !== grafia) campo.value = grafia;
             });
         },
         ok: {
@@ -323,7 +342,7 @@ export async function abrirOrganizador(actor, janela) {
                 const campos = button.form.elements;
                 return linhas.map(({ item }) => ({
                     item,
-                    categoria: categoriaDoTexto(campos[`categoria.${item.id}`]?.value),
+                    categoria: categoriaDoTexto(campos[`categoria.${item.id}`]?.value, listaCriadas),
                     nivel: nivelValido(campos[`nivel.${item.id}`]?.value)
                 }));
             }
