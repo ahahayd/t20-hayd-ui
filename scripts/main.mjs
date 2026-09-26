@@ -230,6 +230,33 @@ Hooks.once("setup", () => {
 Hooks.on("renderActorSheet",  (app, html) => aplicarTema(app, html));
 Hooks.on("renderItemSheet",   (app, html) => aplicarTema(app, html));
 Hooks.on("renderApplication", (app, html) => aplicarTemaDialog(app, html));
+Hooks.on("renderApplication", (app, html) => manterJanelaDeUsoNaTela(app, html));
+
+/**
+ * A janela de uso do sistema é posicionada pelo tamanho que tinha ao abrir;
+ * com o tema ela passa a ter altura automática e pode crescer depois (a
+ * prévia de dano do gmtools, por exemplo, entra em seguida), saindo pela
+ * parte de baixo da tela junto com o botão "Usar". Sempre que o tamanho
+ * mudar, a janela sobe o necessário para caber inteira.
+ */
+function manterJanelaDeUsoNaTela(app, html) {
+    if (!estiloInterfaceAtivo()) return;
+    const janela = elementoRaiz(html)?.closest?.(".window-app");
+    if (!janela?.classList.contains("ability-use-form") || janela._t20aNaTela) return;
+    janela._t20aNaTela = true;
+
+    const ajustar = () => {
+        if (!janela.isConnected) return observador.disconnect();
+        const { top, height } = janela.getBoundingClientRect();
+        const margem = 8;
+        if (top + height <= window.innerHeight - margem) return;
+        const novoTopo = Math.max(margem, window.innerHeight - height - margem);
+        if (Math.abs(novoTopo - top) >= 1) app.setPosition?.({ top: novoTopo });
+    };
+    const observador = new ResizeObserver(() => requestAnimationFrame(ajustar));
+    observador.observe(janela);
+    requestAnimationFrame(ajustar);
+}
 Hooks.on("closeActorSheet",   (app) => encerrarDiarioResponsivo(app));
 
 /* Chat: hook do v13 (recebe HTMLElement). O antigo "renderChatMessage" é

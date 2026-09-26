@@ -2719,3 +2719,38 @@ a.t20a-pn-badge.t20a-pn-bonus:hover {
     text-shadow: none !important;
 }
 
+/* Janela de uso alta (muitos aprimoramentos, prévia de dano): só o
+   formulário rola e o botão "Usar" fica sempre à vista no rodapé. Antes a
+   janela crescia para fora da tela e o botão sumia embaixo. */
+.tormenta20.window-app.dialog.ability-use-form.t20a {
+    max-height: calc(100vh - 16px) !important;
+}
+
+.tormenta20.window-app.dialog.ability-use-form.t20a .window-content {
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    min-height: 0 !important;
+}
+
+.tormenta20.window-app.dialog.ability-use-form.t20a .window-content > .dialog-content {
+    flex: 0 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+}
+
+.tormenta20.window-app.dialog.ability-use-form.t20a .window-content > .dialog-buttons {
+    flex: 0 0 auto !important;
+    margin-top: 8px !important;
+}
+
+/* A lista de aprimoramentos tem altura máxima no sistema; o overflow: hidden
+   do tema (usado para arredondar os cantos) cortava os últimos itens sem
+   barra de rolagem. Aqui ela rola na vertical. */
+.tormenta20.window-app.dialog.ability-use-form.t20a .item-list {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    /* Barra visível: sem ela não dá para perceber que há mais itens. */
+    scrollbar-width: thin !important;
+    scrollbar-color: var(--t20a-cor-destaque, #888) transparent !important;
+}
