@@ -492,6 +492,8 @@ function aplicarTema(app, html) {
         // Logo: apenas para fichas de personagem jogador, se habilitado
         if (ehFichaJogador && game.settings.get(MODULE_ID, "mostrarLogo")) {
             injetarLogo(windowApp, root);
+        } else {
+            removerLogo(windowApp, root);
         }
     }
 
@@ -833,6 +835,17 @@ const LOGO_ALTURA_ABAS = 50;
  *  px (na ficha padrão é 6). Negativo aproxima a aba do logo — a imagem tem
  *  margem transparente à direita, então dá para encostar sem sobrepor. */
 const LOGO_FOLGA_ABAS = -8;
+
+/**
+ * Desfaz o injetarLogo: o <img> fica na janela (fora do conteúdo que a ficha
+ * redesenha) e o espaço reservado à esquerda das abas também; sem isso, ao
+ * desligar o logo, ele e o recuo das abas só sumiam ao reabrir a ficha.
+ */
+function removerLogo(windowApp, root) {
+    windowApp?.querySelector?.(":scope > .t20a-brand-logo")?.remove();
+    const tabs = root?.querySelector?.(".sheet-tabs");
+    if (tabs?.style.paddingLeft) tabs.style.removeProperty("padding-left");
+}
 
 function injetarLogo(windowApp, root) {
     if (!windowApp || !root) return;
