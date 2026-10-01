@@ -1,0 +1,216 @@
+{{#*inline "livre"}}
+{{!-- Texto livre só no modo edição (cadeado aberto) --}}
+{{#if @root.hf.desbloqueada}}
+<input type="text" class="hf-traco-livre" name="{{campo}}" value="{{valor}}" placeholder="{{localize 'T20A.Ficha.OutrosPlaceholder'}}">
+{{/if}}
+{{/inline}}
+
+<div class="hf-lateral-abas">
+	<button type="button" class="{{#if (eq hf.lateralAba 'favoritos')}}ativa{{/if}}" data-hf-lateral-aba="favoritos" data-tooltip="{{localize 'T20A.Ficha.Favoritos'}}" aria-label="{{localize 'T20A.Ficha.Favoritos'}}">
+		<i class="fa-solid fa-star"></i>
+	</button>
+	<button type="button" class="{{#if (eq hf.lateralAba 'pericias')}}ativa{{/if}}" data-hf-lateral-aba="pericias" data-tooltip="{{localize 'T20.Skills'}}">
+		<i class="fa-solid fa-dice-d20"></i> <span>{{localize 'T20.Skills'}}</span>
+	</button>
+	<button type="button" class="{{#if (eq hf.lateralAba 'tracos')}}ativa{{/if}}" data-hf-lateral-aba="tracos" data-tooltip="{{localize 'T20A.Ficha.Tracos'}}">
+		<i class="fa-solid fa-dna"></i> <span>{{localize 'T20A.Ficha.Tracos'}}</span>
+	</button>
+</div>
+
+{{!-- Favoritos: soltar itens aqui e arrastar para reordenar --}}
+<div class="hf-lateral-painel {{#if (eq hf.lateralAba 'favoritos')}}ativa{{/if}}" data-painel="favoritos">
+	<ol class="item-list hf-lista hf-favoritos">
+		{{#each hf.favoritos as |f|}}
+		<li class="item hf-fav" data-item-id="{{f.id}}" data-nome="{{f.nome}}">
+			<i class="hf-fav-alca fa-solid fa-grip-vertical"></i>
+			<div class="item-image hf-item-img" role="button" tabindex="0" data-tooltip="{{localize 'T20A.Ficha.Usar'}}" style="background-image: url('{{f.img}}')"><i class="fa-solid fa-dice-d20"></i></div>
+			<div class="hf-fav-info">
+				<span class="hf-fav-nome">{{f.nome}}</span>
+				<span class="hf-fav-sub">{{#if f.detalhe}}{{f.detalhe}}{{else}}{{f.ativacao}}{{#if f.custo}} · {{f.custo}}{{/if}}{{/if}}</span>
+			</div>
+			{{#if @root.hf.editavel}}
+			<a class="hf-controle hf-fav-remover" data-hf-acao="favorito" data-tooltip="{{localize 'T20A.Ficha.Desfavoritar'}}"><i class="fa-solid fa-xmark"></i></a>
+			{{/if}}
+		</li>
+		{{/each}}
+		<li class="hf-fav-soltar">
+			<i class="fa-solid fa-hand-pointer"></i>
+			<span>{{localize 'T20A.Ficha.SoltarFavorito'}}</span>
+		</li>
+	</ol>
+</div>
+
+<div class="hf-lateral-painel {{#if (eq hf.lateralAba 'pericias')}}ativa{{/if}}" data-painel="pericias">
+	{{#if hf.desbloqueada}}
+	<div class="hf-pericias-modo">
+		<span>{{localize "T20A.Ficha.OrganizacaoPericias"}}</span>
+		<select data-hf-acao="organizacao-pericias">
+			<option value="padrao" {{#if (eq hf.periciasModo 'padrao')}}selected{{/if}}>{{localize "T20A.Ficha.PericiasPadrao"}}</option>
+			<option value="destaque" {{#if (eq hf.periciasModo 'destaque')}}selected{{/if}}>{{localize "T20A.Ficha.PericiasDestaque"}}</option>
+			<option value="manual" {{#if (eq hf.periciasModo 'manual')}}selected{{/if}}>{{localize "T20A.Ficha.PericiasManual"}}</option>
+		</select>
+		{{#if (eq hf.periciasModo 'manual')}}
+		<button type="button" class="hf-botao-icone" data-hf-acao="pericias-alfabetica" data-tooltip="{{localize 'T20A.Ficha.OrdemAlfabetica'}}"><i class="fa-solid fa-arrow-down-a-z"></i></button>
+		<button type="button" class="hf-botao-icone" data-hf-acao="separador-pericias" data-tooltip="{{localize 'T20A.Ficha.AdicionarSeparador'}}"><i class="fa-solid fa-grip-lines"></i></button>
+		{{/if}}
+	</div>
+	{{/if}}
+	{{#if (and hf.buscaPericias (not hf.desbloqueada))}}
+	<label class="hf-busca hf-busca-pericias"><i class="fa-solid fa-magnifying-glass"></i>
+		<input type="search" data-hf-busca-pericias placeholder="{{localize 'T20A.Ficha.BuscarPericia'}}" autocomplete="off">
+	</label>
+	{{/if}}
+	<ul class="hf-pericias {{#if (eq hf.periciasModo 'manual')}}hf-manual{{/if}}">
+		{{#each hf.pericias as |grupo|}}
+		{{#if grupo.id}}
+		<li class="hf-pericias-grupo" data-grupo-id="{{grupo.id}}">
+			{{#if @root.hf.desbloqueada}}
+				<i class="fa-solid fa-grip-vertical hf-arrastar" data-tooltip="{{localize 'T20A.Ficha.Arrastar'}}"></i>
+				<input type="text" class="hf-grupo-titulo" value="{{grupo.titulo}}" placeholder="{{localize 'T20A.Ficha.NovoGrupo'}}">
+				<a data-hf-acao="remover-separador" data-tooltip="{{localize 'T20A.Ficha.RemoverSeparador'}}"><i class="fa-solid fa-xmark"></i></a>
+			{{else}}{{grupo.titulo}}{{/if}}
+		</li>
+		{{else if grupo.titulo}}<li class="hf-pericias-grupo">{{grupo.titulo}}</li>{{/if}}
+		{{#each grupo.itens as |skill|}}
+		<li class="skill hf-pericia {{#if skill.treinado}}treinada{{/if}} {{#if skill.custom}}custom{{/if}} {{#if skill.favorita}}favorita{{/if}} {{#if skill.ultimaFavorita}}ultima-favorita{{/if}}" data-item-id="{{skill.key}}">
+			{{#if (and @root.hf.desbloqueada (eq @root.hf.periciasModo 'manual'))}}
+				<i class="fa-solid fa-grip-vertical hf-arrastar" data-tooltip="{{localize 'T20A.Ficha.Arrastar'}}"></i>
+			{{/if}}
+			<div class="hf-pericia-treino">
+				{{#if @root.hf.desbloqueada}}
+					<a class="training-toggle" data-tooltip="{{localize 'T20.Trained'}}"><i class="{{#if skill.treinado}}fa-solid fa-diamond{{else}}fa-regular fa-diamond{{/if}}"></i></a>
+				{{else}}
+					<i class="{{#if skill.treinado}}fa-solid fa-diamond{{else}}fa-regular fa-diamond{{/if}}"></i>
+				{{/if}}
+				<input type="hidden" name="system.pericias.{{skill.key}}.treinado" value="{{skill.treinado}}">
+			</div>
+			<span class="hf-pericia-nome rollable pericia-rollable" data-item-id="{{skill.key}}" {{#if skill.oficio}}data-tooltip="{{skill.label}}"{{/if}}>
+				{{#if skill.oficio}}<i class="fa-solid fa-hammer hf-pericia-oficio"></i>{{skill.oficio}}{{else}}{{{skill.label}}}{{/if}}{{#if skill.st}}<sup data-tooltip="{{localize 'T20.SkillTrainedOnly'}}">*</sup>{{/if}}{{#if skill.pda}}<sup data-tooltip="{{localize 'T20.ArmorPenalty'}}">+</sup>{{/if}}
+			</span>
+			{{#if (eq @root.hf.periciasModo 'manual')}}
+				{{!-- No manual a ordem é livre: favoritar não faz sentido --}}
+			{{else if @root.hf.editavel}}
+				<a class="hf-pericia-fav" data-hf-acao="pericia-favorita" data-pericia="{{skill.key}}" data-tooltip="{{#if skill.favorita}}{{localize 'T20A.Ficha.DesfavoritarPericia'}}{{else}}{{localize 'T20A.Ficha.FavoritarPericia'}}{{/if}}"><i class="{{#if skill.favorita}}fa-solid{{else}}fa-regular{{/if}} fa-star"></i></a>
+			{{else if skill.favorita}}
+				<span class="hf-pericia-fav"><i class="fa-solid fa-star"></i></span>
+			{{/if}}
+			{{#if @root.hf.desbloqueada}}
+				<select class="hf-pericia-atr" name="system.pericias.{{skill.key}}.atributo">
+					{{selectOptions @root.config.atributosAbr selected=skill.atributo localize=true}}
+				</select>
+				<input type="text" class="hf-pericia-outros skill-outros" data-dtype="Number" name="system.pericias.{{skill.key}}.outros" value="{{skill.outros}}" data-tooltip="{{localize 'T20.Other'}}">
+				{{#if skill.custom}}
+					<a class="skill-delete" data-item-id="{{skill.key}}" data-tooltip="{{localize 'T20.Delete'}}"><i class="fa-solid fa-trash"></i></a>
+				{{/if}}
+			{{else}}
+				<span class="hf-pericia-atr">{{skill.atributoAbbr}}</span>
+			{{/if}}
+			<span class="hf-pericia-valor rollable pericia-rollable {{#if skill.negativo}}negativo{{/if}}" data-item-id="{{skill.key}}" data-tooltip="{{fieldBonuses (concat 'system.pericias.' skill.key '.bonus')}}" data-tooltip-direction="RIGHT">
+				<small>{{skill.sinal}}</small>{{skill.valor}}
+			</span>
+		</li>
+		{{/each}}
+		{{/each}}
+		{{#if hf.desbloqueada}}
+		<li class="hf-pericia hf-pericia-nova">
+			<input type="text" placeholder="{{localize 'T20.SkillOfic'}}">
+			<a class="skill-create" data-tipo="oficio"><i class="fa-solid fa-plus"></i> {{localize 'T20.Add'}}</a>
+		</li>
+		{{/if}}
+	</ul>
+	{{#unless hf.desbloqueada}}
+		<p class="hf-dica"><i class="fa-solid fa-pencil"></i> {{localize 'T20A.Ficha.DicaPericias'}}</p>
+	{{/unless}}
+</div>
+
+<div class="hf-lateral-painel {{#if (eq hf.lateralAba 'tracos')}}ativa{{/if}}" data-painel="tracos">
+	<div class="hf-tracos">
+		<div class="hf-traco">
+			<label class="hf-traco-titulo">{{localize 'T20.Size'}}</label>
+			{{#if hf.editavel}}
+				<select name="system.tracos.tamanho">{{selectOptions config.actorSizes selected=system.tracos.tamanho}}</select>
+			{{else}}
+				<ul class="hf-tags"><li>{{lookup config.actorSizes system.tracos.tamanho}}</li></ul>
+			{{/if}}
+		</div>
+
+		<div class="hf-traco">
+			<a class="config-button hf-traco-titulo" data-action="movement"><label>{{localize 'T20.Movement'}}</label><i class="fa-solid fa-gear"></i></a>
+			<ul class="hf-tags">
+				{{#each movement as |move|}}<li>{{localize move}}</li>{{/each}}
+			</ul>
+		</div>
+
+		<div class="hf-traco">
+			<a class="config-button hf-traco-titulo" data-action="resistance"><label>{{localize 'T20.Resistances'}}</label><i class="fa-solid fa-gear"></i></a>
+			<ul class="hf-tags">
+				{{#each system.tracos.resistencias as |v k|}}
+					{{#if v.imunidade}}
+						<li class="hf-tag-forte" data-tooltip="{{localize 'T20.DamImm'}}">{{lookup @root.config.damageTypes k}} <i class="fa-solid fa-ban"></i></li>
+					{{else if v.danoPorDado}}
+						<li data-tooltip="{{localize 'T20.DamPerDie'}}">{{lookup @root.config.damageTypes k}} <i class="fa-solid fa-dice"></i></li>
+					{{else if v.vulnerabilidade}}
+						<li class="hf-tag-ruim" data-tooltip="{{localize 'T20.DamVuln'}}">{{lookup @root.config.damageTypes k}} <i class="fa-solid fa-skull"></i></li>
+					{{else if (gt v.excecao 0)}}
+						<li>{{v.excecao}}/{{lookup @root.config.damageTypes k}}</li>
+					{{else if (gt v.value 0)}}
+						<li>{{lookup @root.config.damageTypes k}} {{v.value}}</li>
+					{{/if}}
+				{{/each}}
+			</ul>
+		</div>
+
+		<div class="hf-traco">
+			<a class="trait-selector hf-traco-titulo" data-options="conditionTypes" data-target="system.tracos.ic"><label>{{localize 'T20.StatusImm'}}</label><i class="fa-solid fa-gear"></i></a>
+			<ul class="hf-tags">{{#each system.tracos.ic.selected as |v|}}<li>{{v}}</li>{{/each}}</ul>
+			{{> livre campo="system.tracos.ic.custom" valor=hf.tracos.ic}}
+		</div>
+
+		<div class="hf-traco">
+			<a class="trait-selector hf-traco-titulo" data-options="senses" data-target="system.attributes.sentidos"><label>{{localize 'T20.Senses'}}</label><i class="fa-solid fa-gear"></i></a>
+			<ul class="hf-tags">{{#each senses.value as |v|}}<li>{{localize v}}</li>{{/each}}</ul>
+			{{> livre campo="system.attributes.sentidos.custom" valor=hf.tracos.sentidos}}
+		</div>
+
+		{{#if enableLanguages}}
+		<div class="hf-traco">
+			<a class="trait-selector hf-traco-titulo" data-options="idiomas" data-target="system.tracos.idiomas"><label>{{localize 'T20.Languages'}}</label><i class="fa-solid fa-gear"></i></a>
+			<ul class="hf-tags">{{#each system.tracos.idiomas.selected as |v|}}<li>{{v}}</li>{{/each}}</ul>
+			{{> livre campo="system.tracos.idiomas.custom" valor=hf.tracos.idiomas}}
+		</div>
+		{{/if}}
+
+		<div class="hf-traco">
+			<a class="trait-selector hf-traco-titulo" data-options="profArmas" data-target="system.tracos.profArmas"><label>{{localize 'T20A.Ficha.ProfArmas'}}</label><i class="fa-solid fa-gear"></i></a>
+			<ul class="hf-tags">{{#each system.tracos.profArmas.selected as |v|}}<li>{{localize v}}</li>{{/each}}</ul>
+			{{> livre campo="system.tracos.profArmas.custom" valor=hf.tracos.profArmas}}
+		</div>
+
+		<div class="hf-traco">
+			<a class="trait-selector hf-traco-titulo" data-options="profArmaduras" data-target="system.tracos.profArmaduras"><label>{{localize 'T20A.Ficha.ProfArmaduras'}}</label><i class="fa-solid fa-gear"></i></a>
+			<ul class="hf-tags">{{#each system.tracos.profArmaduras.selected as |v|}}<li>{{localize v}}</li>{{/each}}</ul>
+			{{> livre campo="system.tracos.profArmaduras.custom" valor=hf.tracos.profArmaduras}}
+		</div>
+
+		{{#if showResources}}
+		<div class="hf-traco">
+			<label class="hf-traco-titulo">{{localize 'T20A.Ficha.RecursosExtras'}}</label>
+			{{#each system.resources as |r id|}}
+				{{#unless (or (eq id 'deathsave') (eq id 'shadow') (eq id 'catarse'))}}
+				<div class="hf-recurso">
+					<input type="text" class="hf-recurso-nome" name="system.resources.{{id}}.label" value="{{r.label}}" placeholder="{{localize r.label}}">
+					<input type="number" name="system.resources.{{id}}.value" value="{{r.value}}">
+					<span>/</span>
+					<input type="number" name="system.resources.{{id}}.max" value="{{r.max}}">
+				</div>
+				{{/unless}}
+			{{/each}}
+		</div>
+		{{/if}}
+
+		<div class="hf-traco">
+			<label class="hf-traco-titulo">{{localize 'T20A.Ficha.Anotacoes'}}</label>
+			<textarea name="system.detalhes.info" rows="5" {{#unless hf.editavel}}disabled{{/unless}}>{{system.detalhes.info}}</textarea>
+		</div>
+	</div>
+</div>

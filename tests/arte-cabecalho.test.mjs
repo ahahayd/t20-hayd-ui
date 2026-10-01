@@ -34,7 +34,7 @@ test("opção de arte original remove a recoloração nos dois temas", () => {
     for (const [css, prefixo] of [[neon, "\\.t20a"], [darkMode, "\\.t20a-dm"]]) {
         const regra = new RegExp(
             `${prefixo}\\.t20a-player-sheet\\.t20a-arte-original \\.sheet-header::before\\s*\\{[^}]*` +
-            `background-image:\\s*url\\("\\.\\./assets/header-tormenta\\.webp"\\);[^}]*background-blend-mode:\\s*normal`, "s");
+            `background-image:\\s*url\\("\\.\\./assets/fundos/header-tormenta\\.webp"\\);[^}]*background-blend-mode:\\s*normal`, "s");
         assert.match(css, regra);
     }
 });

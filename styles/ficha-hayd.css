@@ -1,0 +1,2850 @@
+/* ==========================================================================
+   Ficha Hayd — ficha de personagem alternativa (inspirada na Tidy 5e)
+   Tudo preso a .hayd-ficha: não vaza para nenhuma outra janela.
+   A cor de destaque vem de --t20a-cor-destaque (posta pelo main.mjs).
+   ========================================================================== */
+
+.hayd-ficha {
+    --hf-acento: var(--t20a-cor-destaque, #960505);
+    --hf-sobre-acento: var(--t20a-texto-sobre-destaque, #fff);
+    --hf-acento-claro: color-mix(in srgb, var(--hf-acento) 55%, #fff);
+    --hf-acento-vivo: color-mix(in srgb, var(--hf-acento) 80%, #ff5a3c);
+    --hf-acento-escuro: color-mix(in srgb, var(--hf-acento) 55%, #000);
+    --hf-acento-bg: color-mix(in srgb, var(--hf-acento) 18%, transparent);
+    --hf-acento-bg-forte: color-mix(in srgb, var(--hf-acento) 38%, transparent);
+    --hf-acento-borda: color-mix(in srgb, var(--hf-acento) 70%, transparent);
+    --hf-acento-glow: color-mix(in srgb, var(--hf-acento) 60%, transparent);
+
+    --hf-fundo: #0c0b0e;
+    --hf-painel: #141217;
+    --hf-painel-2: #1b181f;
+    --hf-painel-3: #24202a;
+    --hf-linha: rgba(255, 255, 255, 0.07);
+    --hf-linha-forte: rgba(255, 255, 255, 0.14);
+    --hf-texto: #ece6dd;
+    --hf-texto-2: #b3aba2;
+    --hf-texto-3: #7d756d;
+    --hf-ouro: #d8b26a;
+    --hf-pv: #c0262d;
+    --hf-pv-2: #ff5847;
+    --hf-pm: #2257c9;
+    --hf-pm-2: #52a6ff;
+    --hf-bom: #5fbf6a;
+
+    --hf-fonte-display: "Modesto Condensed", "Palatino Linotype", serif;
+    --hf-fonte: "Signika", "Segoe UI", sans-serif;
+    --hf-corte: 10px;
+    --hf-corte-sm: 6px;
+
+    min-width: 500px;
+    min-height: 440px;
+    color: var(--hf-texto);
+    font-family: var(--hf-fonte);
+    background: var(--hf-fundo);
+    border: 1px solid var(--hf-acento-borda);
+    box-shadow: 0 0 0 1px #000, 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 28px var(--hf-acento-bg-forte);
+    border-radius: 0;
+}
+
+/* ---- Moldura da janela --------------------------------------------------- */
+
+.hayd-ficha .window-header {
+    background: linear-gradient(90deg, var(--hf-acento-escuro), #0d0b10 70%);
+    border-bottom: 1px solid var(--hf-acento-borda);
+    color: var(--hf-texto);
+    font-family: var(--hf-fonte-display);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+.hayd-ficha .window-header .header-button,
+.hayd-ficha .window-header a { color: var(--hf-texto-2); }
+.hayd-ficha .window-header a:hover { color: #fff; text-shadow: 0 0 8px var(--hf-acento-glow); }
+
+.hayd-ficha .window-content {
+    padding: 0;
+    overflow: hidden;
+    background:
+        radial-gradient(ellipse at 50% -10%, var(--hf-acento-bg) 0%, transparent 60%),
+        url("../assets/fundos/background-dark4.webp") center / cover,
+        var(--hf-fundo);
+    color: var(--hf-texto);
+}
+
+.hayd-ficha form.hf-ficha {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
+/* ---- Controles genéricos ------------------------------------------------- */
+
+.hayd-ficha input,
+.hayd-ficha select,
+.hayd-ficha textarea {
+    color: var(--hf-texto);
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid var(--hf-linha-forte);
+    border-radius: 0;
+    font-family: var(--hf-fonte);
+}
+.hayd-ficha input:focus,
+.hayd-ficha select:focus,
+.hayd-ficha textarea:focus {
+    outline: none;
+    border-color: var(--hf-acento);
+    box-shadow: 0 0 0 1px var(--hf-acento), 0 0 10px var(--hf-acento-glow);
+}
+.hayd-ficha select option { background: var(--hf-painel-2); color: var(--hf-texto); }
+.hayd-ficha button { font-family: var(--hf-fonte); width: auto; }
+.hayd-ficha a { color: inherit; }
+.hayd-ficha a:hover { text-shadow: none; }
+
+.hayd-ficha .hf-botao-icone,
+.hayd-ficha .hf-cadeado {
+    display: inline-grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    margin: 0;
+    color: var(--hf-texto-2);
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--hf-linha-forte);
+    border-radius: 0;
+    clip-path: polygon(var(--hf-corte-sm) 0, 100% 0, 100% calc(100% - var(--hf-corte-sm)), calc(100% - var(--hf-corte-sm)) 100%, 0 100%, 0 var(--hf-corte-sm));
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s, box-shadow 0.15s;
+    line-height: 1;
+    font-size: 13px;
+}
+.hayd-ficha .hf-botao-icone:hover,
+.hayd-ficha .hf-cadeado:hover {
+    color: #fff;
+    background: var(--hf-acento-bg-forte);
+    border-color: var(--hf-acento);
+}
+.hayd-ficha .hf-cadeado.aberto {
+    color: var(--hf-sobre-acento);
+    background: var(--hf-acento);
+    border-color: var(--hf-acento-claro);
+    box-shadow: 0 0 14px var(--hf-acento-glow);
+    animation: hf-pulso 2.2s ease-in-out infinite;
+}
+
+.hayd-ficha .hf-botao {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 30px;
+    padding: 0 12px;
+    font-family: var(--hf-fonte-display);
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--hf-texto);
+    background: linear-gradient(180deg, var(--hf-acento-bg-forte), var(--hf-acento-bg));
+    border: 1px solid var(--hf-acento-borda);
+    clip-path: polygon(var(--hf-corte-sm) 0, 100% 0, 100% calc(100% - var(--hf-corte-sm)), calc(100% - var(--hf-corte-sm)) 100%, 0 100%, 0 var(--hf-corte-sm));
+    cursor: pointer;
+    white-space: nowrap;
+}
+.hayd-ficha .hf-botao:hover { background: var(--hf-acento); color: var(--hf-sobre-acento); }
+
+@keyframes hf-pulso {
+    0%, 100% { box-shadow: 0 0 8px var(--hf-acento-glow); }
+    50% { box-shadow: 0 0 18px var(--hf-acento-glow), 0 0 2px #fff; }
+}
+
+/* ==========================================================================
+   Cabeçalho
+   ========================================================================== */
+
+.hayd-ficha .hf-cabecalho {
+    position: relative;
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    gap: 18px;
+    padding: 16px 18px 14px;
+    flex: 0 0 auto;
+    isolation: isolate;
+    border-bottom: 2px solid var(--hf-acento);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+}
+
+.hayd-ficha .hf-banner {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    background: #050405;
+}
+/* Fundo: a arte deitada (header-tormenta-lateral.webp, 1624×1216) no
+   enquadramento escolhido: olho à direita, com ~80% da altura do cabeçalho,
+   e os ornamentos correndo para a esquerda. Nesse tamanho (716×535) o olho
+   fica em 350×268 px da imagem. */
+.hayd-ficha .hf-banner::before {
+    content: "";
+    position: absolute;
+    left: calc(72% - 350px);
+    top: calc(55% - 284px); /* 16 px acima do centro do olho no cabeçalho */
+    width: 716px;
+    height: 535px;
+    background: var(--hf-banner) center / 100% 100% no-repeat;
+    opacity: 0.8;
+}
+/* Continuação à esquerda: a mesma arte espelhada, emendada na borda (sem costura) */
+.hayd-ficha .hf-banner-espelho {
+    position: absolute;
+    left: calc(72% - 350px - 716px);
+    top: calc(55% - 284px);
+    width: 716px;
+    height: 535px;
+    background: var(--hf-banner) center / 100% 100% no-repeat;
+    transform: scaleX(-1);
+    opacity: 0.8;
+    /* Só a faixa de ornamentos junto à emenda: o olho da cópia (a 350 px) não aparece.
+       As coordenadas são de antes do espelhamento (x = 0 é a emenda). */
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 220px, transparent 320px);
+    mask-image: linear-gradient(90deg, #000 0, #000 220px, transparent 320px);
+}
+/* Continuação à direita, para janelas largas: mesma ideia, emendada na borda
+   direita da arte (aqui a emenda é o x = 716 de antes do espelhamento) */
+.hayd-ficha .hf-banner-espelho-dir {
+    position: absolute;
+    left: calc(72% - 350px + 716px);
+    top: calc(55% - 284px);
+    width: 716px;
+    height: 535px;
+    background: var(--hf-banner) center / 100% 100% no-repeat;
+    transform: scaleX(-1);
+    opacity: 0.8;
+    -webkit-mask-image: linear-gradient(270deg, #000 0, #000 220px, transparent 320px);
+    mask-image: linear-gradient(270deg, #000 0, #000 220px, transparent 320px);
+}
+.hayd-ficha .hf-sem-arte .hf-banner-espelho-dir { display: none; }
+/* Sombra só de cima para baixo: o topo respira, a base encontra as abas */
+.hayd-ficha .hf-banner-sombra {
+    position: absolute;
+    inset: 0;
+    /* Base mais clara: a arte continua visível atrás das abas, como no Tidy */
+    background: linear-gradient(180deg,
+        rgba(6, 5, 7, 0.45) 0%,
+        rgba(6, 5, 7, 0.35) 35%,
+        rgba(6, 5, 7, 0.6) 75%,
+        rgba(6, 5, 7, 0.55) 100%);
+}
+/* Recolore a arte (vermelha) para a cor de destaque, preservando a luminância */
+.hayd-ficha .hf-banner::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--hf-acento);
+    mix-blend-mode: color;
+}
+.hayd-ficha .hf-cabecalho::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--hf-acento-claro) 30%, #fff 50%, var(--hf-acento-claro) 70%, transparent);
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+/* ---- Retrato ------------------------------------------------------------- */
+
+.hayd-ficha .hf-retrato-coluna {
+    position: relative;
+    align-self: start;
+}
+.hayd-ficha .hf-retrato {
+    position: relative;
+    width: 170px;
+    height: 206px;
+    padding: 3px;
+    background: linear-gradient(160deg, var(--hf-acento-claro), var(--hf-acento) 40%, var(--hf-acento-escuro));
+    clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
+    box-shadow: 0 0 22px var(--hf-acento-glow);
+}
+.hayd-ficha .hf-retrato img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    border: 0;
+    background: #000;
+    /* Sem clip-path, filter nem transform aqui: qualquer um deles faz o
+       navegador rasterizar a imagem numa camada própria e ela sai borrada.
+       O recorte é o da moldura. */
+    image-rendering: auto;
+}
+.hayd-ficha .hf-retrato.editavel { cursor: pointer; }
+.hayd-ficha .hf-retrato.editavel::after {
+    content: "";
+    position: absolute;
+    inset: 3px;
+    background: rgba(255, 255, 255, 0.08);
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+}
+.hayd-ficha .hf-retrato.editavel:hover::after { opacity: 1; }
+
+.hayd-ficha .hf-nivel {
+    position: absolute;
+    left: 50%;
+    bottom: -14px;
+    width: 56px;
+    height: 56px;
+    transform: translateX(-50%) rotate(45deg);
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #1b1519, #070607);
+    border: 2px solid var(--hf-acento);
+    box-shadow: 0 0 16px var(--hf-acento-glow), inset 0 0 10px var(--hf-acento-bg-forte);
+    z-index: 2;
+}
+.hayd-ficha .hf-nivel > span { transform: rotate(-45deg); }
+.hayd-ficha .hf-nivel-rotulo {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--hf-ouro);
+}
+.hayd-ficha .hf-nivel-valor {
+    font-family: var(--hf-fonte-display);
+    font-size: 30px;
+    line-height: 1;
+    color: #fff;
+    text-shadow: 0 0 10px var(--hf-acento-glow);
+}
+
+/* ---- Informações --------------------------------------------------------- */
+
+.hayd-ficha .hf-cabecalho-info {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+}
+
+.hayd-ficha .hf-linha-nome {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.hayd-ficha .hf-nome,
+.hayd-ficha .hf-nome-input {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    height: auto;
+    font-family: var(--hf-fonte-display);
+    font-size: 40px;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 2px 0 #000, 0 0 18px var(--hf-acento-glow);
+    border: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.hayd-ficha .hf-nome { cursor: copy; }
+.hayd-ficha .hf-nome-input {
+    background: rgba(0, 0, 0, 0.45);
+    border-bottom: 2px solid var(--hf-acento);
+    padding: 2px 6px;
+}
+.hayd-ficha .hf-acoes-cabecalho {
+    display: flex;
+    gap: 6px;
+    flex: 0 0 auto;
+}
+
+.hayd-ficha .hf-subtitulo {
+    display: flex;
+    /* Uma linha só: o cabeçalho não muda de altura com muitas classes */
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    /* Folga vertical compensada pela margem: o overflow-y (necessário para o
+       scroll horizontal) cortaria o ícone do deus, que é mais alto que a linha. */
+    padding: 6px 4px;
+    margin-block: -6px;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 6px;
+}
+.hayd-ficha .hf-chip,
+.hayd-ficha .hf-chip-input {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 22px;
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--hf-texto);
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid var(--hf-linha-forte);
+    transform: skewX(-14deg);
+    cursor: default;
+    white-space: nowrap;
+}
+.hayd-ficha a.hf-chip { cursor: pointer; }
+.hayd-ficha a.hf-chip:hover { border-color: var(--hf-acento); background: var(--hf-acento-bg-forte); }
+.hayd-ficha .hf-chip-classe { border-color: var(--hf-acento-borda); background: var(--hf-acento-bg-forte); }
+.hayd-ficha .hf-chip-classe b { color: var(--hf-ouro); }
+.hayd-ficha .hf-chip-vazio { color: var(--hf-texto-3); border-style: dashed; }
+.hayd-ficha .hf-chip-texto { color: var(--hf-texto-2); font-weight: 400; text-transform: none; letter-spacing: 0; }
+.hayd-ficha .hf-chip-input { width: 150px; text-transform: none; letter-spacing: 0; font-weight: 400; }
+
+/* ---- XP ------------------------------------------------------------------ */
+
+.hayd-ficha .hf-xp {
+    position: relative;
+    height: 14px;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--hf-linha);
+}
+.hayd-ficha .hf-xp-barra {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--hf-pct);
+    background: linear-gradient(90deg, #6b4d1c, var(--hf-ouro));
+    box-shadow: 0 0 8px rgba(216, 178, 106, 0.5);
+}
+.hayd-ficha .hf-xp-texto {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 3px;
+    padding-right: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 2px #000;
+}
+.hayd-ficha .hf-xp-texto input {
+    width: 48px;
+    height: 12px;
+    padding: 0 2px;
+    font-size: 10px;
+    text-align: right;
+    background: transparent;
+    border: 0;
+    color: #fff;
+}
+
+/* ---- Barras PV / PM (clique para editar, com delta) ---------------------- */
+
+.hayd-ficha .hf-vitais {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+.hayd-ficha .hf-barra {
+    --cor-escura: #7a1418;
+    --cor-clara: #d8353b;
+    position: relative;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: rgba(12, 10, 13, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 4px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+    cursor: text;
+}
+.hayd-ficha .hf-barra-pm { --cor-escura: #1a3f86; --cor-clara: #3d7fe0; }
+.hayd-ficha .hf-barra-preenchimento {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--hf-pct);
+    background: linear-gradient(90deg, var(--cor-escura), var(--cor-clara));
+    border-right: 3px solid color-mix(in srgb, var(--cor-clara) 60%, #fff);
+    transition: width 0.4s ease;
+}
+.hayd-ficha .hf-barra-preenchimento::after {
+    /* brilho discreto na metade de cima */
+    content: "";
+    position: absolute;
+    inset: 0 0 50% 0;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent);
+}
+.hayd-ficha .hf-barra-temp {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 3px;
+    width: var(--hf-temp-pct);
+    background: #f3e3b0;
+}
+.hayd-ficha .hf-barra-rotulo {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+    padding-left: 10px;
+    flex: 1;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+.hayd-ficha .hf-barra-sigla {
+    margin-right: 6px;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.7);
+}
+.hayd-ficha .hf-barra-valor {
+    width: 3ch;
+    height: auto;
+    padding: 0;
+    font-family: var(--hf-fonte);
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1;
+    text-align: right;
+    color: #fff;
+    background: transparent;
+    border: 0;
+    text-shadow: inherit;
+}
+.hayd-ficha input.hf-barra-valor:focus {
+    width: 4.5ch;
+    background: rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+.hayd-ficha .hf-barra-sep { font-size: 15px; color: rgba(255, 255, 255, 0.55); }
+.hayd-ficha .hf-barra-max { font-size: 15px; color: rgba(255, 255, 255, 0.85); }
+.hayd-ficha .hf-barra-max-input { width: 46px; height: 22px; font-size: 14px; }
+
+.hayd-ficha .hf-barra-extra {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding-right: 6px;
+}
+.hayd-ficha .hf-passo,
+.hayd-ficha .hf-passo-mini {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    padding: 0;
+    font-size: 9px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 3px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s, background 0.15s;
+}
+.hayd-ficha .hf-barra:hover .hf-passo,
+.hayd-ficha .hf-barra:focus-within .hf-passo { opacity: 1; }
+.hayd-ficha .hf-passo:hover,
+.hayd-ficha .hf-passo-mini:hover { background: var(--hf-acento); }
+.hayd-ficha .hf-temp {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 22px;
+    padding: 0 5px;
+    margin-left: 3px;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.55);
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 3px;
+}
+.hayd-ficha .hf-temp.ativo { color: #fff; border-color: #f3e3b0; }
+.hayd-ficha .hf-temp input {
+    width: 3ch;
+    height: 18px;
+    padding: 0;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    background: transparent;
+    border: 0;
+    color: inherit;
+}
+
+/* ---- Atributos, Defesa e estatísticas ------------------------------------ */
+
+.hayd-ficha .hf-atributos {
+    display: flex;
+    align-items: stretch;
+    gap: 6px;
+    margin-top: 2px;
+}
+
+.hayd-ficha .hf-defesa {
+    position: relative;
+    flex: 0 0 84px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: -3px;
+}
+.hayd-ficha .hf-escudo {
+    width: 80px;
+    height: 88px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 4px;
+    background: var(--hf-escudo) center / contain no-repeat;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+}
+.hayd-ficha .hf-defesa-valor {
+    font-family: var(--hf-fonte);
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-shadow: 0 1px 2px #000;
+}
+.hayd-ficha .hf-defesa-rotulo {
+    margin-top: 1px;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #d6d0c2;
+}
+.hayd-ficha .hf-defesa-edicao {
+    display: flex;
+    gap: 2px;
+    margin-top: 2px;
+}
+.hayd-ficha .hf-desbloqueada .hf-defesa { flex-basis: 92px; }
+.hayd-ficha .hf-defesa-edicao select,
+.hayd-ficha .hf-defesa-edicao input {
+    width: 40px;
+    height: 18px;
+    padding: 0;
+    font-size: 10px;
+    text-align: center;
+}
+
+/* Atributos em hexágono de aço, no mesmo esquema do escudo da Defesa:
+   moldura grafite com brilho metálico (::before) e miolo escuro (::after). */
+.hayd-ficha .hf-atributo {
+    --hex: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+    flex: 1 1 0;
+    min-width: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+.hayd-ficha .hf-atributo-rolar {
+    position: relative;
+    isolation: isolate;
+    width: 62px;
+    height: 70px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    color: var(--hf-texto);
+    background: none;
+    border: 0;
+    border-radius: 0;
+    cursor: pointer;
+    line-height: 1;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.8));
+    transition: filter 0.15s, transform 0.15s;
+}
+.hayd-ficha .hf-atributo-rolar::before,
+.hayd-ficha .hf-atributo-rolar::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    clip-path: var(--hex);
+}
+/* Moldura: aço grafite com faixas de luz, como a borda do escudo */
+.hayd-ficha .hf-atributo-rolar::before {
+    inset: 0;
+    background:
+        linear-gradient(160deg, rgba(255, 255, 255, 0.55) 0%, transparent 28%),
+        linear-gradient(340deg, rgba(255, 255, 255, 0.25) 0%, transparent 30%),
+        linear-gradient(180deg, #9a9ea5 0%, #5d6168 45%, #3a3d42 55%, #7d8188 100%);
+}
+/* Miolo: escuro, com leve luz no centro (como o octógono do escudo) */
+.hayd-ficha .hf-atributo-rolar::after {
+    inset: 4px;
+    background:
+        radial-gradient(circle at 50% 45%, #2a2a30 0%, #16161a 60%, #0d0d10 100%);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.8);
+}
+.hayd-ficha .hf-atributo-rolar:hover { box-shadow: none; transform: translateY(-1px); }
+.hayd-ficha .hf-atributo-rolar:hover {
+    filter: drop-shadow(0 0 6px var(--hf-acento-glow)) drop-shadow(0 2px 3px rgba(0, 0, 0, 0.8));
+}
+.hayd-ficha .hf-atributo-rolar:hover::after {
+    background: radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--hf-acento) 45%, #2a2a30) 0%, #16161a 65%, #0d0d10 100%);
+}
+.hayd-ficha .hf-atributo-abbr {
+    margin-top: 2px;
+    text-transform: uppercase;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: #c9c4b8;
+}
+.hayd-ficha .hf-atributo-valor {
+    font-family: var(--hf-fonte);
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 2px #000;
+}
+/* Botão de olho no retrato (aparece ao passar o mouse): abre a arte */
+.hayd-ficha .hf-retrato-ver {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    margin: 0;
+    padding: 0;
+    font-size: 13px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    cursor: zoom-in;
+    opacity: 0;
+    transition: opacity 0.15s, background 0.15s;
+}
+.hayd-ficha .hf-retrato:hover .hf-retrato-ver { opacity: 1; }
+.hayd-ficha .hf-retrato-ver:hover { background: var(--hf-acento); border-color: var(--hf-acento-claro); }
+
+/* Sinal legível: quase do tamanho do número e forte; negativos inteiros em vermelho-claro */
+.hayd-ficha .hf-atributo-valor small,
+.hayd-ficha .hf-pericia-valor small {
+    font-size: 0.8em;
+    font-weight: 700;
+    color: var(--hf-texto-2);
+    margin-right: 1px;
+}
+.hayd-ficha .hf-atributo-valor.negativo,
+.hayd-ficha .hf-pericia-valor.negativo,
+.hayd-ficha .hf-atributo-valor.negativo small,
+.hayd-ficha .hf-pericia-valor.negativo small { color: #ff8a80; }
+.hayd-ficha .hf-atributo-edicao {
+    display: flex;
+    width: 62px;
+    border: 1px solid var(--hf-linha-forte);
+}
+.hayd-ficha .hf-atributo-edicao input {
+    width: 100%;
+    min-width: 0;
+    height: 20px;
+    padding: 0;
+    font-size: 11px;
+    text-align: center;
+    border: 0;
+    border-right: 1px solid var(--hf-linha);
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.hayd-ficha .hf-estatisticas {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 3px;
+    min-width: 92px;
+}
+.hayd-ficha .hf-estat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 20px;
+    padding: 0 8px;
+    font-size: 13px;
+    font-weight: 700;
+    background: rgba(0, 0, 0, 0.55);
+    border-left: 2px solid var(--hf-acento);
+}
+.hayd-ficha .hf-estat i { width: 14px; color: var(--hf-acento-claro); font-size: 11px; text-align: center; }
+.hayd-ficha .hf-estat small { font-size: 10px; color: var(--hf-texto-3); margin: 0 2px; }
+.hayd-ficha .hf-estat-texto { font-size: 11px; font-weight: 400; color: var(--hf-texto-2); }
+
+/* ==========================================================================
+   Abas principais
+   ========================================================================== */
+
+.hayd-ficha .hf-abas {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: stretch;
+    gap: 2px;
+    padding: 0 12px 0 0;
+    background: linear-gradient(180deg, #120f13, #0a090b);
+    border-bottom: 1px solid var(--hf-linha-forte);
+}
+.hayd-ficha .hf-lateral-alternar {
+    flex: 0 0 38px;
+    margin: 0;
+    height: 38px;
+    color: var(--hf-texto-3);
+    background: rgba(0, 0, 0, 0.4);
+    border: 0;
+    border-right: 1px solid var(--hf-linha);
+    border-radius: 0;
+    cursor: pointer;
+}
+.hayd-ficha .hf-lateral-alternar:hover { color: #fff; background: var(--hf-acento-bg-forte); }
+.hayd-ficha .hf-aba-botao {
+    position: relative;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0;
+    padding: 0 16px;
+    height: 38px;
+    font-family: var(--hf-fonte-display);
+    font-size: 17px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--hf-texto-3);
+    background: none;
+    border: 0;
+    border-radius: 0;
+    cursor: pointer;
+    transition: color 0.15s;
+    white-space: nowrap;
+}
+.hayd-ficha .hf-aba-botao i { font-size: 12px; }
+.hayd-ficha .hf-aba-botao:hover { color: var(--hf-texto); box-shadow: none; }
+.hayd-ficha .hf-aba-botao::after {
+    content: "";
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: 0;
+    height: 3px;
+    background: var(--hf-acento);
+    transform: scaleX(0);
+    transition: transform 0.2s cubic-bezier(.2, .8, .2, 1);
+    box-shadow: 0 0 10px var(--hf-acento-glow);
+}
+.hayd-ficha .hf-aba-botao.ativa {
+    color: #fff;
+    background: linear-gradient(0deg, var(--hf-acento-bg-forte), transparent);
+    text-shadow: 0 0 10px var(--hf-acento-glow);
+}
+.hayd-ficha .hf-aba-botao.ativa::after { transform: scaleX(1); }
+.hayd-ficha .hf-aba-botao.ativa i { color: var(--hf-acento-claro); }
+.hayd-ficha .hf-contagem {
+    min-width: 18px;
+    padding: 0 4px;
+    font-family: var(--hf-fonte);
+    font-size: 10px;
+    line-height: 16px;
+    text-align: center;
+    /* Sempre texto branco: sobre a cor viva, um número de 10px escuro fica ilegível */
+    font-weight: 700;
+    color: #fff;
+    background: var(--hf-acento-escuro);
+    border: 1px solid var(--hf-acento);
+    border-radius: 2px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.6);
+}
+
+/* ==========================================================================
+   Corpo: lateral + conteúdo
+   ========================================================================== */
+
+.hayd-ficha .hf-corpo {
+    flex: 1 1 auto;
+    display: flex;
+    min-height: 0;
+}
+
+.hayd-ficha .hf-lateral {
+    flex: 0 0 260px;
+    width: 260px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: linear-gradient(90deg, rgba(10, 9, 11, 0.92), rgba(16, 14, 18, 0.85));
+    border-right: 1px solid var(--hf-linha-forte);
+    overflow: hidden;
+    transition: flex-basis 0.25s ease, width 0.25s ease, opacity 0.2s ease, border-color 0.25s;
+}
+/* Lateral recolhida: encolhe até zero em vez de sumir de uma vez */
+.hayd-ficha .hf-sem-lateral .hf-lateral {
+    flex-basis: 0;
+    width: 0;
+    opacity: 0;
+    border-right-color: transparent;
+}
+
+.hayd-ficha .hf-lateral-abas {
+    display: flex;
+    padding: 8px 8px 0;
+    gap: 4px;
+}
+.hayd-ficha .hf-lateral-abas button {
+    flex: 1;
+    margin: 0;
+    height: 28px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--hf-texto-3);
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--hf-linha);
+    border-radius: 0;
+    cursor: pointer;
+}
+.hayd-ficha .hf-lateral-abas button.ativa {
+    color: #fff;
+    background: var(--hf-acento-bg-forte);
+    border-color: var(--hf-acento-borda);
+}
+.hayd-ficha .hf-lateral-painel {
+    display: none;
+    min-width: 244px;
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 8px 14px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--hf-acento-escuro) transparent;
+}
+
+/* ---- Perícias ------------------------------------------------------------ */
+
+.hayd-ficha .hf-pericias {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.hayd-ficha .hf-pericia {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 26px;
+    padding: 0 6px;
+    border-bottom: 1px solid var(--hf-linha);
+    transition: background 0.12s;
+}
+.hayd-ficha .hf-pericia:hover { background: var(--hf-acento-bg); }
+.hayd-ficha .hf-pericia-treino {
+    flex: 0 0 14px;
+    font-size: 10px;
+    color: var(--hf-texto-3);
+    text-align: center;
+}
+.hayd-ficha .hf-pericia.treinada .hf-pericia-treino { color: var(--hf-acento-claro); text-shadow: 0 0 6px var(--hf-acento-glow); }
+.hayd-ficha .hf-pericia-treino a { cursor: pointer; }
+.hayd-ficha .hf-pericia-nome {
+    flex: 1;
+    min-width: 0;
+    font-size: 13px;
+    color: var(--hf-texto-2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+.hayd-ficha .hf-pericia.treinada .hf-pericia-nome { color: var(--hf-texto); font-weight: 700; }
+.hayd-ficha .hf-pericia-nome:hover { color: #fff; }
+.hayd-ficha .hf-pericia-nome sup { color: var(--hf-texto-3); font-size: 9px; }
+/* Favoritar perícia: estrela só no hover; acesa (e sempre visível) nas favoritas,
+   que ficam no topo com uma linha mais forte separando do resto. */
+.hayd-ficha .hf-pericia-fav {
+    flex: 0 0 auto;
+    font-size: 10px;
+    color: var(--hf-texto-3);
+    opacity: 0;
+    transition: opacity 0.12s, color 0.12s;
+}
+.hayd-ficha a.hf-pericia-fav { cursor: pointer; }
+.hayd-ficha .hf-pericia:hover .hf-pericia-fav,
+.hayd-ficha .hf-pericia.favorita .hf-pericia-fav { opacity: 1; }
+.hayd-ficha a.hf-pericia-fav:hover { color: var(--hf-texto); }
+.hayd-ficha .hf-pericia.favorita .hf-pericia-fav { color: var(--hf-acento-claro); text-shadow: 0 0 6px var(--hf-acento-glow); }
+.hayd-ficha .hf-pericia.ultima-favorita { border-bottom: 1px solid var(--hf-acento-borda); }
+.hayd-ficha .hf-pericia-atr {
+    flex: 0 0 auto;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--hf-texto-3);
+}
+.hayd-ficha select.hf-pericia-atr { flex: 0 0 50px; width: 50px; height: 20px; padding: 0 0 0 3px; font-size: 10px; letter-spacing: 0; text-transform: none; background-position: right 2px center; }
+.hayd-ficha .hf-pericia-outros { flex: 0 0 26px; width: 26px; height: 20px; padding: 0; font-size: 11px; text-align: center; }
+.hayd-ficha .hf-pericia .skill-delete { font-size: 10px; color: var(--hf-texto-3); cursor: pointer; }
+.hayd-ficha .hf-pericia .skill-delete:hover { color: #ff6b6b; }
+.hayd-ficha .hf-pericia-valor {
+    flex: 0 0 36px;
+    font-family: var(--hf-fonte-display);
+    font-size: 19px;
+    text-align: right;
+    color: #fff;
+    cursor: pointer;
+}
+.hayd-ficha .hf-pericia-valor:hover { color: var(--hf-acento-claro); text-shadow: 0 0 8px var(--hf-acento-glow); }
+.hayd-ficha .hf-pericia-nova { gap: 4px; padding: 6px; }
+.hayd-ficha .hf-pericia-nova input { flex: 1; height: 22px; font-size: 12px; }
+.hayd-ficha .hf-pericia-nova a { font-size: 11px; white-space: nowrap; cursor: pointer; color: var(--hf-acento-claro); }
+
+.hayd-ficha .hf-dica {
+    margin: 10px 4px 0;
+    font-size: 11px;
+    line-height: 1.35;
+    color: var(--hf-texto-3);
+}
+
+/* ---- Traços -------------------------------------------------------------- */
+
+.hayd-ficha .hf-tracos { display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }
+.hayd-ficha .hf-traco { display: flex; flex-direction: column; gap: 4px; }
+.hayd-ficha .hf-traco label,
+.hayd-ficha .hf-traco-titulo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--hf-fonte-display);
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--hf-ouro);
+    cursor: pointer;
+}
+.hayd-ficha .hf-traco-titulo i { font-size: 10px; color: var(--hf-texto-3); opacity: 0; transition: opacity 0.15s; }
+.hayd-ficha .hf-traco:hover .hf-traco-titulo i { opacity: 1; }
+.hayd-ficha .hf-traco-titulo:hover label,
+.hayd-ficha .hf-traco-titulo:hover { color: #fff; }
+.hayd-ficha .hf-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.hayd-ficha .hf-tags:not(:has(li))::before { content: "—"; color: var(--hf-texto-3); font-size: 12px; }
+.hayd-ficha .hf-tags li {
+    padding: 1px 7px;
+    font-size: 11px;
+    color: var(--hf-texto);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--hf-linha-forte);
+}
+.hayd-ficha .hf-tags li.hf-tag-forte { border-color: var(--hf-bom); color: #bff0c4; }
+.hayd-ficha .hf-tags li.hf-tag-ruim { border-color: #c0262d; color: #ffb3ae; }
+.hayd-ficha .hf-traco select { height: 24px; font-size: 12px; }
+.hayd-ficha .hf-traco textarea { resize: vertical; font-size: 12px; min-height: 70px; }
+.hayd-ficha .hf-recurso { display: flex; align-items: center; gap: 3px; }
+.hayd-ficha .hf-recurso input { width: 40px; height: 22px; font-size: 12px; text-align: center; }
+.hayd-ficha .hf-recurso .hf-recurso-nome { flex: 1; width: auto; text-align: left; }
+
+/* ==========================================================================
+   Conteúdo das abas
+   ========================================================================== */
+
+.hayd-ficha .hf-aba-conteudo {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--hf-acento-escuro) transparent;
+}
+.hayd-ficha .hf-aba {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 14px 18px;
+}
+@keyframes hf-surgir { from { opacity: 0; transform: translateY(6px); } }
+
+.hayd-ficha .hf-barra-ferramentas {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.hayd-ficha .hf-busca {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+.hayd-ficha .hf-busca i {
+    position: absolute;
+    left: 10px;
+    font-size: 12px;
+    color: var(--hf-texto-3);
+    pointer-events: none;
+}
+.hayd-ficha .hf-busca input {
+    width: 100%;
+    height: 30px;
+    padding-left: 30px;
+    font-size: 13px;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+/* ---- Pinos (favoritos fixados, como os "Sheet Pins" do Tidy) ------------- */
+
+.hayd-ficha .hf-pinos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 6px;
+}
+.hayd-ficha .hf-pino {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 48px;
+    padding: 0 10px 0 0;
+    background: linear-gradient(90deg, var(--hf-acento-bg-forte), rgba(0, 0, 0, 0.55) 60%);
+    border: 1px solid var(--hf-acento-borda);
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+    cursor: pointer;
+    transition: transform 0.12s, box-shadow 0.12s;
+}
+.hayd-ficha .hf-pino:hover { box-shadow: 0 0 14px var(--hf-acento-glow); transform: translateY(-1px); }
+.hayd-ficha .hf-pino-img {
+    flex: 0 0 46px;
+    height: 46px;
+    background-size: cover;
+    background-position: center;
+    border-right: 1px solid var(--hf-acento-borda);
+}
+.hayd-ficha .hf-pino-info { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.hayd-ficha .hf-pino-nome {
+    font-weight: 700;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.hayd-ficha .hf-pino-sub { font-size: 11px; color: var(--hf-texto-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hayd-ficha .hf-pino-qtd { font-family: var(--hf-fonte-display); font-size: 18px; color: var(--hf-ouro); }
+.hayd-ficha .hf-pino-soltar {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: 10px;
+    color: var(--hf-texto-3);
+    opacity: 0;
+}
+.hayd-ficha .hf-pino:hover .hf-pino-soltar { opacity: 1; }
+.hayd-ficha .hf-pino-soltar:hover { color: #fff; }
+
+/* ---- Seções de itens ----------------------------------------------------- */
+
+.hayd-ficha .hf-secao {
+    background: rgba(12, 10, 13, 0.72);
+    border: 1px solid var(--hf-linha);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+.hayd-ficha .hf-secao-cabecalho {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    padding: 0 8px 0 12px;
+    background: linear-gradient(90deg, var(--hf-acento-bg-forte), rgba(0, 0, 0, 0.35) 55%);
+    border-bottom: 1px solid var(--hf-linha-forte);
+    cursor: pointer;
+    user-select: none;
+}
+.hayd-ficha .hf-secao-cabecalho::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--hf-acento);
+    box-shadow: 0 0 10px var(--hf-acento-glow);
+}
+.hayd-ficha .hf-secao-seta {
+    font-size: 10px;
+    color: var(--hf-texto-3);
+    transition: transform 0.2s;
+}
+.hayd-ficha .hf-secao.recolhida .hf-secao-seta { transform: rotate(-90deg); }
+.hayd-ficha .hf-secao-icone { font-size: 12px; color: var(--hf-acento-claro); }
+.hayd-ficha .hf-secao-cabecalho h3 {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-family: var(--hf-fonte-display);
+    font-size: 18px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fff;
+    white-space: nowrap;
+}
+.hayd-ficha .hf-secao-contagem {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--hf-texto-3);
+}
+.hayd-ficha .hf-secao-extra {
+    padding: 0 6px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--hf-pm-2);
+    border: 1px solid color-mix(in srgb, var(--hf-pm-2) 45%, transparent);
+}
+.hayd-ficha .hf-secao-colunas {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* o mesmo espaço entre colunas das linhas, senão os títulos saem do lugar */
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--hf-texto-3);
+}
+.hayd-ficha .hf-secao.recolhida .hf-secao-colunas { visibility: hidden; }
+.hayd-ficha .hf-criar {
+    /* Fora do fluxo, sobre a coluna dos controles: não empurra os títulos das colunas */
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+    color: var(--hf-sobre-acento);
+    background: var(--hf-acento);
+    cursor: pointer;
+}
+.hayd-ficha .hf-criar:hover { box-shadow: 0 0 10px var(--hf-acento-glow); }
+.hayd-ficha .hf-criar-espaco { width: 22px; }
+
+.hayd-ficha .hf-lista { list-style: none; margin: 0; padding: 0; }
+.hayd-ficha .hf-lista-vazia {
+    padding: 8px 14px;
+    font-size: 12px;
+    font-style: italic;
+    color: var(--hf-texto-3);
+}
+
+/* Colunas */
+.hayd-ficha .hf-col {
+    flex: 0 0 auto;
+    text-align: center;
+    font-size: 12px;
+    color: var(--hf-texto-2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.hayd-ficha .hf-col-larga { width: 190px; }
+.hayd-ficha .hf-col-rolagem { font-family: var(--hf-fonte-display); font-size: 16px; color: var(--hf-texto); letter-spacing: 0.02em; }
+.hayd-ficha .hf-col-qtd { width: 92px; display: flex; align-items: center; justify-content: center; gap: 2px; }
+.hayd-ficha .hf-col-espacos { width: 44px; }
+.hayd-ficha .hf-col-custo { width: 58px; color: var(--hf-pm-2); font-weight: 700; }
+.hayd-ficha .hf-col-ativacao { width: 92px; }
+.hayd-ficha .hf-col-fonte { width: 140px; }
+.hayd-ficha .hf-col-duracao { width: 100px; }
+/* Largura da coluna de botões = quantos botões a seção realmente tem (24 px
+   cada: 22 + 2 de espaço). Linha e cabeçalho usam a mesma variável, então
+   continuam alinhados sem sobrar vazio à direita.
+   Bloqueada: fixar, favoritar e ⋮ (+ equipar nas armas; + equipar e guardar
+   no inventário). Desbloqueada: + editar e excluir. Sem edição: só ⋮. */
+.hayd-ficha .hf-secao { --hf-controles: 72px; }
+.hayd-ficha .hf-secao-armas { --hf-controles: 96px; }
+.hayd-ficha .hf-secao-inventario { --hf-controles: 120px; }
+.hayd-ficha .hf-desbloqueada .hf-secao { --hf-controles: 120px; }
+.hayd-ficha .hf-desbloqueada .hf-secao-armas { --hf-controles: 144px; }
+.hayd-ficha .hf-desbloqueada .hf-secao-inventario { --hf-controles: 168px; }
+.hayd-ficha .hf-somente-leitura .hf-secao { --hf-controles: 24px; }
+.hayd-ficha .hf-item-controles-espaco { width: var(--hf-controles); }
+
+/* ---- Linha de item ------------------------------------------------------- */
+
+.hayd-ficha .hf-item {
+    border-bottom: 1px solid var(--hf-linha);
+}
+.hayd-ficha .hf-item:last-child { border-bottom: 0; }
+.hayd-ficha .hf-item-linha {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 0 8px 0 6px;
+    transition: background 0.12s;
+}
+.hayd-ficha .hf-item:hover > .hf-item-linha { background: linear-gradient(90deg, var(--hf-acento-bg-forte), transparent 70%); }
+.hayd-ficha .hf-item.hf-expandido > .hf-item-linha { background: var(--hf-acento-bg); }
+
+.hayd-ficha .hf-item-img {
+    position: relative;
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    background-size: cover;
+    background-position: center;
+    border: 1px solid var(--hf-linha-forte);
+    cursor: pointer;
+}
+/* O fundo tingido fica parado; só o dado gira (antes o quadrado girava junto) */
+.hayd-ficha .hf-item-img::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--hf-acento-bg-forte);
+    opacity: 0;
+    transition: opacity 0.12s;
+}
+.hayd-ficha .hf-item-img:hover::before { opacity: 1; }
+.hayd-ficha .hf-item-img i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1em;
+    height: 1em;
+    margin: -0.5em 0 0 -0.5em;
+    line-height: 1;
+    text-align: center;
+    font-size: 16px;
+    color: #fff;
+    background: none;
+    opacity: 0;
+    transition: opacity 0.12s;
+    text-shadow: 0 0 6px #000;
+}
+.hayd-ficha .hf-item-img:hover { border-color: var(--hf-acento); box-shadow: 0 0 10px var(--hf-acento-glow); }
+.hayd-ficha .hf-item-img:hover i { opacity: 1; animation: hf-girar 0.6s ease-out; }
+@keyframes hf-girar { from { transform: rotate(-120deg) scale(0.6); } }
+
+.hayd-ficha .hf-item-nome {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    cursor: pointer;
+    line-height: 1.2;
+}
+.hayd-ficha .hf-item-titulo {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--hf-texto);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.hayd-ficha .hf-item-titulo i { font-size: 10px; color: var(--hf-texto-3); }
+.hayd-ficha .hf-item-nome:hover .hf-item-titulo { color: #fff; }
+.hayd-ficha .hf-item-sub {
+    font-size: 11px;
+    color: var(--hf-texto-3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.hayd-ficha .hf-aba-combate .hf-tipo-arma:not(.equipado) .hf-item-linha { opacity: 0.6; }
+.hayd-ficha .hf-aba-combate .hf-tipo-arma:not(.equipado):hover .hf-item-linha { opacity: 1; }
+.hayd-ficha .hf-item.guardado .hf-item-titulo { color: var(--hf-texto-3); font-style: italic; }
+.hayd-ficha .hf-item.equipado .hf-item-img { border-color: var(--hf-ouro); box-shadow: 0 0 0 1px var(--hf-ouro) inset; }
+
+.hayd-ficha .hf-qtd {
+    width: 34px;
+    height: 22px;
+    padding: 0;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.4);
+}
+.hayd-ficha .hf-passo-mini { width: 18px; height: 18px; font-size: 8px; }
+.hayd-ficha .hf-item:hover .hf-passo-mini { opacity: 1; }
+
+.hayd-ficha .hf-item-controles {
+    flex: 0 0 var(--hf-controles, 150px);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 2px;
+}
+.hayd-ficha .hf-controle {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 24px;
+    font-size: 12px;
+    color: var(--hf-texto-3);
+    cursor: pointer;
+    transition: color 0.12s;
+}
+.hayd-ficha .hf-controle:hover { color: #fff; }
+.hayd-ficha .hf-controle.ativo { color: var(--hf-acento-claro); text-shadow: 0 0 8px var(--hf-acento-glow); }
+.hayd-ficha .hf-controle.hf-perigo:hover { color: #ff6b6b; }
+.hayd-ficha .hf-controle b {
+    position: absolute;
+    right: 0;
+    bottom: 1px;
+    font-size: 8px;
+    color: #fff;
+}
+.hayd-ficha .hf-favorito:not(.ativo),
+.hayd-ficha .hf-guardar:not(.ativo) { opacity: 0; }
+.hayd-ficha .hf-item:hover .hf-favorito,
+.hayd-ficha .hf-item:hover .hf-guardar { opacity: 1; }
+.hayd-ficha .hf-equipar.ativo { color: var(--hf-ouro); text-shadow: 0 0 8px rgba(216, 178, 106, 0.6); }
+.hayd-ficha .preparation-toggle { color: var(--hf-texto-3); }
+.hayd-ficha .preparation-toggle.ativo { color: var(--hf-ouro); text-shadow: 0 0 8px rgba(216, 178, 106, 0.7); }
+
+/* ---- Descrição expandida -------------------------------------------------- */
+
+.hayd-ficha .hf-descricao {
+    display: grid;
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transition: grid-template-rows 0.22s ease, opacity 0.22s ease;
+}
+.hayd-ficha .hf-descricao.fechada { grid-template-rows: 0fr; opacity: 0; }
+.hayd-ficha .hf-descricao-interno { min-height: 0; overflow: hidden; }
+/* Margens moram dentro da parte que encolhe: nenhum espaço sobra no fim */
+.hayd-ficha .hf-descricao-caixa {
+    margin: 0 8px 8px 46px;
+    padding: 8px 12px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--hf-texto-2);
+    background: rgba(0, 0, 0, 0.45);
+    border-left: 2px solid var(--hf-acento);
+}
+.hayd-ficha .hf-descricao-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 6px;
+}
+.hayd-ficha .hf-descricao-tags span {
+    padding: 0 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--hf-texto);
+    background: var(--hf-acento-bg-forte);
+    border: 1px solid var(--hf-acento-borda);
+}
+.hayd-ficha .hf-descricao-texto p { margin: 0 0 6px; }
+.hayd-ficha .hf-descricao-texto p:last-child { margin-bottom: 0; }
+.hayd-ficha .hf-descricao-texto a.content-link {
+    color: var(--hf-texto);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--hf-linha-forte);
+}
+.hayd-ficha .hf-vazio { font-style: italic; color: var(--hf-texto-3); }
+
+/* ---- Estado vazio --------------------------------------------------------- */
+
+.hayd-ficha .hf-estado-vazio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 50px 30px;
+    text-align: center;
+    color: var(--hf-texto-3);
+}
+.hayd-ficha .hf-estado-vazio i { font-size: 42px; color: var(--hf-acento-escuro); filter: drop-shadow(0 0 12px var(--hf-acento-glow)); }
+.hayd-ficha .hf-estado-vazio p { max-width: 360px; margin: 0; font-size: 13px; }
+
+/* ---- Inventário: carga e moedas ------------------------------------------ */
+
+.hayd-ficha .hf-rodape-inventario {
+    position: sticky;
+    bottom: -18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 -14px -18px;
+    padding: 10px 14px;
+    background: linear-gradient(0deg, #0b0a0c, rgba(11, 10, 12, 0.94));
+    border-top: 1px solid var(--hf-acento-borda);
+    box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.6);
+}
+.hayd-ficha .hf-carga {
+    position: relative;
+    flex: 1;
+    height: 28px;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--hf-linha-forte);
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+}
+.hayd-ficha .hf-carga-barra {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--hf-pct);
+    background: linear-gradient(90deg, #6b4d1c, var(--hf-ouro));
+    transition: width 0.3s;
+}
+.hayd-ficha .hf-carga::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.5);
+}
+.hayd-ficha .hf-carga.sobrecarregado .hf-carga-barra { background: linear-gradient(90deg, var(--hf-pv), var(--hf-pv-2)); animation: hf-pulso 1.6s infinite; }
+.hayd-ficha .hf-carga-texto {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 2px #000;
+}
+.hayd-ficha .hf-carga-texto small { font-weight: 400; opacity: 0.8; }
+.hayd-ficha .hf-moedas { display: flex; }
+.hayd-ficha .hf-moedas ul.currency {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.hayd-ficha .hf-moeda,
+.hayd-ficha .hf-moeda label {
+    display: flex;
+    align-items: center;
+    height: 28px;
+    margin: 0;
+}
+.hayd-ficha .hf-moeda {
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid var(--hf-linha-forte);
+}
+/* Botões que outros módulos põem no fim das moedas: loja (t20-hayd-loja) e
+   enviar dinheiro (t20-hayd-gmtools) */
+.hayd-ficha .hf-moedas li.t20-loja-atalho,
+.hayd-ficha .hf-moedas li.thm-send {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+}
+.hayd-ficha .hf-moedas li.t20-loja-atalho a,
+.hayd-ficha .hf-moedas li.thm-send a {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 28px;
+    margin: 0;
+    padding: 0;
+    font-size: 13px;
+    color: var(--hf-texto);
+    background: linear-gradient(180deg, var(--hf-acento-bg-forte), var(--hf-acento-bg));
+    border: 1px solid var(--hf-acento-borda);
+    border-radius: 0;
+    cursor: pointer;
+}
+.hayd-ficha .hf-moedas li.t20-loja-atalho a:hover,
+.hayd-ficha .hf-moedas li.thm-send a:hover {
+    color: var(--hf-sobre-acento);
+    background: var(--hf-acento);
+    box-shadow: 0 0 10px var(--hf-acento-glow);
+}
+/* Ícone da pilha de moedas (cobre, prata, ouro, platina) */
+.hayd-ficha .hf-moeda-icone {
+    width: 30px;
+    height: 30px;
+    margin: -2px 0 -2px 2px;
+    border: 0;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
+}
+.hayd-ficha .hf-moeda span {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    padding: 0 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #1b1206;
+}
+.hayd-ficha .hf-moeda-tl span { background: linear-gradient(180deg, #e8eef5, #9aa8b6); }
+.hayd-ficha .hf-moeda-to span { background: linear-gradient(180deg, #ffe08a, #c7922b); }
+.hayd-ficha .hf-moeda-tp span { background: linear-gradient(180deg, #e6e6e6, #9b9b9b); }
+.hayd-ficha .hf-moeda-tc span { background: linear-gradient(180deg, #f0b27a, #a8602b); }
+.hayd-ficha .hf-moeda input {
+    width: 54px;
+    height: 100%;
+    padding: 0 4px;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: right;
+    background: transparent;
+    border: 0;
+}
+
+/* ---- Magias --------------------------------------------------------------- */
+
+.hayd-ficha .hf-conjuracao {
+    display: flex;
+    gap: 8px;
+}
+.hayd-ficha .hf-conjuracao-bloco {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    padding: 6px 12px;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid var(--hf-linha-forte);
+    border-top: 2px solid var(--hf-pm-2);
+}
+.hayd-ficha .hf-conjuracao-cd { border-top-color: var(--hf-acento); }
+.hayd-ficha .hf-conjuracao-atr { flex: 1; }
+.hayd-ficha .hf-conjuracao-rotulo {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--hf-texto-3);
+}
+.hayd-ficha .hf-conjuracao-valor { font-family: var(--hf-fonte-display); font-size: 28px; line-height: 1; color: #fff; }
+.hayd-ficha .hf-conjuracao-valor small { font-size: 16px; color: var(--hf-texto-3); }
+.hayd-ficha .hf-conjuracao-campos { display: flex; gap: 4px; align-items: center; }
+.hayd-ficha .hf-conjuracao-campos select { flex: 1; height: 28px; }
+
+/* ---- Efeitos e condições --------------------------------------------------- */
+
+.hayd-ficha .hf-subtitulo-secao {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-family: var(--hf-fonte-display);
+    font-size: 18px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fff;
+}
+.hayd-ficha .hf-subtitulo-secao i { color: var(--hf-acento-claro); font-size: 13px; }
+.hayd-ficha .hf-condicoes-grade {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+    gap: 4px;
+}
+.hayd-ficha .hf-condicao {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 30px;
+    margin: 0;
+    padding: 0 6px;
+    font-size: 11px;
+    color: var(--hf-texto-3);
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--hf-linha);
+    border-radius: 0;
+    cursor: pointer;
+    text-align: left;
+    overflow: hidden;
+}
+.hayd-ficha .hf-condicao img { width: 20px; height: 20px; border: 0; filter: grayscale(1) brightness(0.7); }
+.hayd-ficha .hf-condicao span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hayd-ficha .hf-condicao:hover { color: var(--hf-texto); border-color: var(--hf-linha-forte); }
+.hayd-ficha .hf-condicao.ativa {
+    color: #fff;
+    background: var(--hf-acento-bg-forte);
+    border-color: var(--hf-acento);
+    box-shadow: 0 0 10px var(--hf-acento-glow) inset;
+}
+.hayd-ficha .hf-condicao.ativa img { filter: none; }
+
+.hayd-ficha .hf-efeitos {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    background: rgba(12, 10, 13, 0.72);
+    border: 1px solid var(--hf-linha);
+}
+.hayd-ficha .hf-efeitos-cabecalho {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    padding: 0 8px 0 12px;
+    background: linear-gradient(90deg, var(--hf-acento-bg-forte), rgba(0, 0, 0, 0.35) 55%);
+    border-bottom: 1px solid var(--hf-linha-forte);
+}
+.hayd-ficha .hf-efeitos-cabecalho::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--hf-acento);
+}
+.hayd-ficha .hf-efeitos-cabecalho .hf-secao-contagem { flex: 1; }
+.hayd-ficha .hf-efeitos-cabecalho h3 {
+    margin: 0;
+    border: 0;
+    font-family: var(--hf-fonte-display);
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fff;
+}
+.hayd-ficha .hf-efeitos-cabecalho .hf-col { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hf-texto-3); }
+.hayd-ficha .hf-efeito {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+    padding: 2px 8px;
+    border-bottom: 1px solid var(--hf-linha);
+}
+.hayd-ficha .hf-efeito:hover { background: var(--hf-acento-bg); }
+.hayd-ficha .hf-efeito.desativado { opacity: 0.55; }
+.hayd-ficha .hf-efeito-img { width: 26px; height: 26px; border: 1px solid var(--hf-linha-forte); flex: 0 0 26px; }
+.hayd-ficha .hf-efeito-nome { flex: 1; min-width: 0; font-size: 13px; font-weight: 700; }
+.hayd-ficha .hf-efeito-custo { color: var(--hf-pm-2); margin-right: 4px; }
+.hayd-ficha .hf-efeito-nome p { margin: 0; font-weight: 400; font-size: 12px; color: var(--hf-texto-2); }
+.hayd-ficha .hf-efeito-nome p label { font-weight: 700; color: var(--hf-texto); }
+.hayd-ficha .hf-efeito .hf-item-controles { flex-basis: 76px; }
+/* Reserva no cabeçalho a largura dos botões das linhas (Fonte/Duração alinhados) */
+.hayd-ficha .hf-desbloqueada .hf-efeitos-cabecalho .hf-secao-colunas::after,
+.hayd-ficha .hf-efeitos-cabecalho .hf-secao-colunas::after { content: ""; width: 76px; }
+
+/* ---- Diário ---------------------------------------------------------------- */
+
+.hayd-ficha .hf-aba-diario {
+    flex-direction: row;
+    height: 100%;
+    gap: 12px;
+}
+.hayd-ficha .hf-diario-indice {
+    flex: 0 0 170px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.hayd-ficha .hf-diario-indice button {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    margin: 0;
+    height: 32px;
+    padding: 0 10px;
+    font-size: 13px;
+    text-align: left;
+    color: var(--hf-texto-2);
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid var(--hf-linha);
+    border-radius: 0;
+    cursor: pointer;
+    overflow: hidden;
+}
+.hayd-ficha .hf-diario-indice button span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hayd-ficha .hf-diario-indice button i { font-size: 11px; color: var(--hf-texto-3); }
+.hayd-ficha .hf-diario-indice button:hover { color: #fff; border-color: var(--hf-linha-forte); }
+.hayd-ficha .hf-diario-indice button.ativa {
+    color: #fff;
+    background: var(--hf-acento-bg-forte);
+    border-color: var(--hf-acento);
+    box-shadow: inset 3px 0 0 var(--hf-acento);
+}
+.hayd-ficha .hf-diario-indice button.ativa i { color: var(--hf-acento-claro); }
+.hayd-ficha .hf-diario-pagina {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 16px;
+    background: rgba(12, 10, 13, 0.72);
+    border: 1px solid var(--hf-linha);
+    border-top: 2px solid var(--hf-acento);
+}
+.hayd-ficha .hf-diario-titulo,
+.hayd-ficha .hf-diario-titulo-input {
+    margin: 0;
+    height: auto;
+    padding: 0 0 4px;
+    font-family: var(--hf-fonte-display);
+    font-size: 26px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #fff;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--hf-linha-forte);
+}
+.hayd-ficha .hf-diario-editor {
+    flex: 1;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--hf-texto);
+}
+.hayd-ficha .hf-diario-editor .editor { flex: 1; min-height: 300px; }
+.hayd-ficha .hf-diario-editor .editor-content { color: var(--hf-texto); }
+.hayd-ficha .hf-diario-editor .editor-edit {
+    color: var(--hf-texto);
+    background: var(--hf-acento);
+    border: 0;
+}
+.hayd-ficha .hf-diario-editor h1,
+.hayd-ficha .hf-diario-editor h2,
+.hayd-ficha .hf-diario-editor h3 {
+    font-family: var(--hf-fonte-display);
+    color: #fff;
+    border-bottom-color: var(--hf-acento-borda);
+}
+
+/* ---- Larguras menores: colunas secundárias somem antes do nome ---------- */
+
+.hayd-ficha .hf-aba-conteudo { container-type: inline-size; }
+
+@container (max-width: 640px) {
+    .hayd-ficha .hf-col-ativacao,
+    .hayd-ficha .hf-col-fonte { display: none; }
+    .hayd-ficha .hf-col-larga { width: 130px; }
+}
+
+/* ==========================================================================
+   Navegação sem redesenhar: todas as abas estão no DOM, só a ativa aparece
+   ========================================================================== */
+
+.hayd-ficha .hf-aba-conteudo {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.hayd-ficha .hf-aba { display: none; }
+.hayd-ficha .hf-aba.ativa {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--hf-acento-escuro) transparent;
+}
+.hayd-ficha .hf-aba-diario.ativa { overflow: hidden; }
+.hayd-ficha .hf-lateral-painel.ativa { display: block; }
+.hayd-ficha .hf-anim-entrar { animation: hf-surgir 0.2s ease-out; }
+
+/* ---- Recolher / expandir (seções, condições, efeitos) -------------------- */
+
+.hayd-ficha .hf-recolhivel-corpo {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows 0.25s ease;
+}
+.hayd-ficha .recolhida > .hf-recolhivel-corpo { grid-template-rows: 0fr; }
+.hayd-ficha .hf-buscando .recolhida > .hf-recolhivel-corpo { grid-template-rows: 1fr; }
+.hayd-ficha .hf-recolhivel-interno { min-height: 0; overflow: hidden; }
+.hayd-ficha .hf-condicoes .hf-condicoes-grade { padding: 6px; }
+.hayd-ficha .hf-efeitos { border: 0; }
+.hayd-ficha .hf-efeitos-cabecalho { cursor: pointer; }
+.hayd-ficha .hf-efeitos-cabecalho h3 { flex: 0 1 auto; }
+.hayd-ficha .hf-efeitos-criar-lista { list-style: none; margin: 0 0 0 6px; padding: 0; }
+.hayd-ficha .hf-efeitos-criar-lista li { display: flex; }
+
+/* ---- Barra de ferramentas ------------------------------------------------- */
+
+.hayd-ficha .hf-botao-icone.ativo {
+    color: var(--hf-sobre-acento);
+    background: var(--hf-acento);
+    border-color: var(--hf-acento-claro);
+}
+.hayd-ficha .hf-secao-dica {
+    font-size: 10px;
+    color: var(--hf-texto-3);
+    letter-spacing: 0.04em;
+}
+
+/* ---- Marca de engenhoca / magia ------------------------------------------- */
+
+.hayd-ficha .hf-marca {
+    margin-right: 4px;
+    font-size: 11px;
+}
+.hayd-ficha .hf-marca-engenhoca { color: var(--hf-ouro); }
+.hayd-ficha .hf-marca-magia { color: var(--hf-pm-2); }
+
+/* ---- Traços: texto livre --------------------------------------------------- */
+
+.hayd-ficha .hf-traco-livre {
+    height: 24px;
+    font-size: 12px;
+    background: rgba(0, 0, 0, 0.35);
+    border-style: dashed;
+}
+.hayd-ficha .hf-traco-livre:focus { border-style: solid; }
+
+/* ---- Lateral: três abas ---------------------------------------------------- */
+
+.hayd-ficha .hf-lateral-abas button { font-size: 10px; letter-spacing: 0.04em; display: flex; align-items: center; justify-content: center; gap: 5px; padding: 0 4px; }
+.hayd-ficha .hf-lateral-abas button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Aba dos favoritos: só a estrela, estreita; Perícias e Traços dividem o resto */
+.hayd-ficha .hf-lateral-abas button[data-hf-lateral-aba="favoritos"] {
+    flex: 0 0 28px;
+    width: 28px;
+    height: 28px; /* mesma altura das outras abas: fica quadrado */
+    display: grid;
+    place-items: center;
+    padding: 0;
+    gap: 0;
+    font-size: 13px;
+    letter-spacing: 0;
+}
+.hayd-ficha .hf-lateral-abas button[data-hf-lateral-aba="favoritos"] i {
+    margin: 0;
+    width: 1em;
+    line-height: 1;
+    text-align: center;
+    /* Correção óptica: a estrela tem a massa embaixo (a ponta de cima é fina),
+       então centrada pela caixa ela parece subida. Desce 1 px e tira o meio
+       pixel que sobrava para a direita. */
+    transform: translate(-0.5px, 1px);
+}
+
+/* ---- Favoritos na lateral (soltar e reordenar) ----------------------------- */
+
+.hayd-ficha .hf-favoritos {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 120px;
+    transition: background 0.15s, box-shadow 0.15s;
+}
+.hayd-ficha .hf-favoritos.hf-recebendo {
+    background: var(--hf-acento-bg);
+    box-shadow: inset 0 0 0 1px var(--hf-acento-borda);
+}
+.hayd-ficha .hf-fav {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 40px;
+    padding: 3px 6px 3px 2px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--hf-linha);
+    border-left: 2px solid var(--hf-acento);
+    cursor: grab;
+    transition: background 0.12s, transform 0.12s;
+}
+.hayd-ficha .hf-fav:hover { background: var(--hf-acento-bg); }
+.hayd-ficha .hf-fav:active { cursor: grabbing; }
+/* O item sendo reordenado vira a própria prévia da posição */
+.hayd-ficha .hf-fav.hf-arrastado {
+    opacity: 0.45;
+    background: var(--hf-acento-bg-forte);
+    border: 1px dashed var(--hf-acento-claro);
+    border-left-width: 2px;
+}
+/* Vaga de um item vindo de fora: abre com animação */
+.hayd-ficha .hf-fav-fantasma {
+    height: 40px;
+    border: 1px dashed var(--hf-acento-claro);
+    background: var(--hf-acento-bg);
+    animation: hf-vaga 0.18s ease-out;
+}
+@keyframes hf-vaga { from { height: 0; opacity: 0; } }
+.hayd-ficha .hf-fav-alca { font-size: 10px; color: var(--hf-texto-3); }
+.hayd-ficha .hf-fav .hf-item-img { flex: 0 0 30px; width: 30px; height: 30px; }
+.hayd-ficha .hf-fav-info { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
+.hayd-ficha .hf-fav-nome { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hayd-ficha .hf-fav-sub { font-size: 10px; color: var(--hf-texto-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hayd-ficha .hf-fav-qtd { font-size: 13px; font-weight: 700; color: var(--hf-ouro); }
+.hayd-ficha .hf-fav-remover { opacity: 0; }
+.hayd-ficha .hf-fav:hover .hf-fav-remover { opacity: 1; }
+.hayd-ficha .hf-fav-soltar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 8px;
+    font-size: 11px;
+    text-align: center;
+    color: var(--hf-texto-3);
+    border: 1px dashed var(--hf-linha-forte);
+}
+.hayd-ficha .hf-fav-soltar { display: none; }
+.hayd-ficha .hf-favoritos:not(:has(.hf-fav)) .hf-fav-soltar,
+.hayd-ficha .hf-favoritos.hf-recebendo:not(.hf-reordenando) .hf-fav-soltar {
+    display: flex;
+    animation: hf-surgir 0.18s ease-out;
+}
+.hayd-ficha .hf-favoritos.hf-recebendo .hf-fav-soltar { color: #fff; border-color: var(--hf-acento); }
+
+/* ---- Diário: só a página ativa --------------------------------------------- */
+
+.hayd-ficha .hf-diario-pagina { display: none; }
+.hayd-ficha .hf-diario-pagina.ativa { display: flex; }
+
+/* ---- Origem / devoção: viram só ícone quando a linha não cabe ------------- */
+
+.hayd-ficha .hf-chip-recolhivel .hf-chip-rotulo {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: max-width 0.2s ease, opacity 0.2s ease;
+}
+.hayd-ficha .hf-chip-recolhivel.vazio { opacity: 0.45; font-style: italic; }
+.hayd-ficha .hf-subtitulo.hf-compacto .hf-chip-recolhivel { gap: 0; padding: 0 8px; }
+.hayd-ficha .hf-subtitulo.hf-compacto .hf-chip-rotulo { max-width: 0; opacity: 0; }
+
+/* ---- Fixados no topo do Combate (separados dos favoritos da lateral) ------ */
+
+.hayd-ficha .hf-fixar:not(.ativo) { opacity: 0; }
+.hayd-ficha .hf-item:hover .hf-fixar { opacity: 1; }
+.hayd-ficha .hf-fixar.ativo { color: var(--hf-ouro); text-shadow: 0 0 8px rgba(216, 178, 106, 0.6); }
+
+/* ==========================================================================
+   Topo limpo, como no Tidy: a arte do cabeçalho corre por trás das abas,
+   sem linha entre os dois; abas pequenas, sem caixa-alta, alinhadas com a
+   coluna de informações (à direita do retrato).
+   ========================================================================== */
+
+.hayd-ficha .hf-topo {
+    position: relative;
+    isolation: isolate;
+    flex: 0 0 auto;
+}
+.hayd-ficha .hf-topo > .hf-banner { z-index: -1; }
+.hayd-ficha .hf-cabecalho {
+    isolation: auto;
+    border-bottom: 0;
+    box-shadow: none;
+    padding-bottom: 4px;
+}
+.hayd-ficha .hf-cabecalho::after { display: none; }
+
+.hayd-ficha .hf-abas {
+    position: relative;
+    align-items: flex-end;
+    gap: 2px;
+    height: 34px;
+    /* Depois do logo e do botão da lateral (194 + 28 + folga) */
+    padding: 0 12px 0 228px;
+    background: none;
+    border-bottom: 0;
+}
+.hayd-ficha .hf-lateral-alternar {
+    position: absolute;
+    /* Logo depois do logo (que vai até ~192 px), antes das abas */
+    left: 194px;
+    bottom: 4px;
+    flex: none;
+    width: 28px;
+    height: 26px;
+    color: rgba(255, 255, 255, 0.6);
+    background: none;
+    border: 0;
+}
+.hayd-ficha .hf-lateral-alternar:hover { color: #fff; background: none; }
+.hayd-ficha .hf-aba-botao {
+    height: 32px;
+    gap: 6px;
+    padding: 0 10px;
+    font-family: var(--hf-fonte);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    color: rgba(255, 255, 255, 0.72);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+.hayd-ficha .hf-aba-botao i { font-size: 13px; }
+.hayd-ficha .hf-aba-botao:hover { color: #fff; }
+.hayd-ficha .hf-aba-botao.ativa {
+    color: #fff;
+    background: none;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+.hayd-ficha .hf-aba-botao.ativa i { color: #fff; }
+.hayd-ficha .hf-aba-botao::after {
+    left: 10px;
+    right: 10px;
+    bottom: 2px;
+    height: 2px;
+    border-radius: 1px;
+    box-shadow: none;
+}
+
+.hayd-ficha .hf-topo { z-index: 2; }
+
+/* Logo do Tormenta 20 no canto direito, sobre a faixa das abas e abaixo do selo.
+   Fica fora da faixa (que rola de lado): a faixa reserva o espaço dele à direita. */
+.hayd-ficha .hf-logo {
+    position: absolute;
+    z-index: 6;
+    right: 16px;
+    bottom: -10px;
+    height: 58px;
+    width: auto;
+    border: 0;
+    pointer-events: none;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
+}
+.hayd-ficha .hf-topo:has(.hf-logo) .hf-abas { padding-right: 190px; }
+
+/* Deslocamento e tamanho sob o retrato, na faixa das abas (onde ficava o logo).
+   Retrato: 18 px de margem + 170 de largura; fica abaixo do losango do nível. */
+.hayd-ficha .hf-sob-retrato {
+    position: absolute;
+    left: 18px;
+    bottom: 4px;
+    width: 170px;
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+}
+.hayd-ficha .hf-sob-retrato .hf-estat {
+    height: 22px;
+    border-left: 0;
+    border: 1px solid var(--hf-linha-forte);
+    background: rgba(0, 0, 0, 0.6);
+}
+
+/* Selo rúnico com a CD de magias, no lugar da antiga coluna de estatísticas */
+.hayd-ficha .hf-selo-coluna {
+    flex: 0 0 78px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    /* Centro do selo na mesma altura do centro dos hexágonos (70 px, no topo
+       da linha): 78/2 - 70/2 = 4 px para cima */
+    align-self: flex-start;
+    margin-top: -4px;
+}
+/* Botão de trocar o selo (só com a ficha desbloqueada), como os campos sob os atributos */
+.hayd-ficha .hf-selo-trocar {
+    width: 62px;
+    height: 20px;
+    margin: 0;
+    padding: 0;
+    font-size: 11px;
+    line-height: 1;
+    display: grid;
+    place-items: center;
+    color: var(--hf-texto-2);
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--hf-linha-forte);
+    border-radius: 0;
+    cursor: pointer;
+}
+.hayd-ficha .hf-selo-trocar i { margin: 0; line-height: 1; }
+.hayd-ficha .hf-selo-trocar:hover { color: #fff; border-color: var(--hf-acento); background: var(--hf-acento-bg-forte); }
+.hayd-ficha .hf-selo-cd {
+    width: 78px;
+    height: 78px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--hf-selo) center / contain no-repeat;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+    cursor: default;
+}
+.hayd-ficha .hf-selo-valor {
+    font-family: var(--hf-fonte);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-shadow: 0 1px 2px #000, 0 0 8px rgba(90, 170, 255, 0.45);
+}
+.hayd-ficha .hf-selo-rotulo {
+    margin-top: 1px;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    color: #9fd0ff;
+}
+
+/* Janela de escolha do selo da CD (usa a classe da ficha só para herdar as cores) */
+.hayd-ficha.hf-selo-dialogo { min-width: 0; min-height: 0; }
+.hayd-ficha.hf-selo-dialogo .window-content { padding: 12px; overflow: auto; }
+.hayd-ficha .hf-selo-grade {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+.hayd-ficha .hf-selo-opcao {
+    height: auto; /* os botões da Foundry têm altura fixa de 28 px */
+    min-height: 0;
+    line-height: 1.2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    padding: 8px 4px 6px;
+    font-size: 11px;
+    color: var(--hf-texto-2);
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid var(--hf-linha-forte);
+    border-radius: 0;
+    cursor: pointer;
+}
+.hayd-ficha .hf-selo-opcao img { width: 72px; height: 72px; border: 0; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.8)); }
+.hayd-ficha .hf-selo-opcao:hover { color: #fff; border-color: var(--hf-acento); background: var(--hf-acento-bg); }
+.hayd-ficha .hf-selo-opcao.ativo { color: #fff; border-color: var(--hf-acento-claro); background: var(--hf-acento-bg-forte); box-shadow: 0 0 10px var(--hf-acento-glow); }
+
+/* Fixados do Combate: arrastáveis; o cartão arrastado vira a prévia da posição */
+.hayd-ficha .hf-pino[draggable="true"] { cursor: grab; }
+.hayd-ficha .hf-pino[draggable="true"]:active { cursor: grabbing; }
+.hayd-ficha .hf-pino.hf-arrastado {
+    opacity: 0.45;
+    border-style: dashed;
+    border-color: var(--hf-acento-claro);
+    box-shadow: none;
+    transform: none;
+}
+
+/* Origem dos poderes: etiqueta na linha e botão que pulsa até o primeiro uso */
+/* Coluna "Origem" (Poderes e Magias) */
+.hayd-ficha .hf-col-origem { width: 116px; overflow: visible; }
+.hayd-ficha .hf-item-origem {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+    padding: 0 5px;
+    font-size: 10px;
+    color: var(--hf-ouro);
+    border: 1px solid rgba(216, 178, 106, 0.35);
+    border-radius: 2px;
+}
+.hayd-ficha .hf-item-origem i { font-size: 8px; }
+.hayd-ficha .hf-botao-icone.hf-pulsando { animation: hf-pulso 1.6s ease-in-out infinite; color: #fff; border-color: var(--hf-acento); }
+
+/* Película escura uniforme por cima da arte (além da sombra de cima para baixo) */
+.hayd-ficha .hf-banner-sombra::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.15);
+}
+
+/* Opções do diálogo "Cor da Ficha" */
+/* Ocultar a arte: some a arte (e a cópia espelhada); fica o degradê na cor do jogador */
+.hayd-ficha .hf-sem-arte .hf-banner::before,
+.hayd-ficha .hf-sem-arte .hf-banner-espelho { display: none; }
+.hayd-ficha .hf-sem-arte .hf-banner {
+    background: linear-gradient(135deg, var(--hf-acento-escuro), #070507 70%);
+}
+/* Manter as cores originais: sem o tingimento pela cor de destaque */
+.hayd-ficha .hf-arte-original .hf-banner::after { display: none; }
+
+/* ==========================================================================
+   Responsividade
+   O script mede a ficha e marca classes no form: hf-w-md (< 1000 px),
+   hf-w-sm (< 860), hf-w-xs (< 680), hf-w-xxs (< 560) e hf-h-baixa
+   (< 620 px de altura). --hf-ret é a largura do retrato; tudo que se alinha
+   com ele (colunas do cabeçalho, chips de deslocamento, início das abas)
+   deriva dela.
+   ========================================================================== */
+
+.hayd-ficha form.hf-ficha { --hf-ret: 150px; }
+.hayd-ficha .hf-cabecalho { grid-template-columns: var(--hf-ret) minmax(0, 1fr); }
+.hayd-ficha .hf-retrato { width: var(--hf-ret); height: calc(var(--hf-ret) * 1.21); }
+.hayd-ficha .hf-sob-retrato { width: var(--hf-ret); flex-wrap: wrap; }
+.hayd-ficha .hf-lateral-alternar { left: calc(var(--hf-ret) + 24px); }
+.hayd-ficha .hf-abas { padding-left: calc(var(--hf-ret) + 58px); }
+/* A faixa das abas nunca empurra a janela: o que não couber rola de lado */
+.hayd-ficha .hf-abas { overflow-x: auto; overflow-y: visible; scrollbar-width: none; }
+.hayd-ficha .hf-abas::-webkit-scrollbar { display: none; }
+.hayd-ficha .hf-cabecalho-info { min-width: 0; }
+.hayd-ficha .hf-atributo { min-width: 0; }
+
+/* ---- < 1000 px: logo menor, abas mais juntas, lateral um pouco menor ------ */
+.hayd-ficha .hf-w-md .hf-logo { height: 48px; bottom: -6px; }
+.hayd-ficha .hf-w-md .hf-topo:has(.hf-logo) .hf-abas { padding-right: 150px; }
+.hayd-ficha .hf-w-md .hf-aba-botao { padding: 0 8px; }
+.hayd-ficha .hf-w-md .hf-lateral { flex-basis: 236px; width: 236px; }
+
+/* ---- < 860 px: abas só com ícone; cabeçalho compacto ---------------------- */
+.hayd-ficha form.hf-w-sm { --hf-ret: 140px; }
+.hayd-ficha .hf-w-sm .hf-aba-botao > span { display: none; }
+.hayd-ficha .hf-w-sm .hf-aba-botao { padding: 0 10px; }
+.hayd-ficha .hf-w-sm .hf-aba-botao i { font-size: 15px; }
+.hayd-ficha .hf-w-sm .hf-logo { height: 40px; bottom: -4px; }
+.hayd-ficha .hf-w-sm .hf-topo:has(.hf-logo) .hf-abas { padding-right: 124px; }
+.hayd-ficha .hf-w-sm .hf-nome,
+.hayd-ficha .hf-w-sm .hf-nome-input { font-size: 32px; }
+.hayd-ficha .hf-w-sm .hf-atributo-rolar { width: 54px; height: 61px; }
+.hayd-ficha .hf-w-sm .hf-atributo-valor { font-size: 20px; }
+.hayd-ficha .hf-w-sm .hf-atributo-edicao { width: 54px; }
+.hayd-ficha .hf-w-sm .hf-defesa { flex-basis: 70px; }
+.hayd-ficha .hf-w-sm .hf-escudo { width: 68px; height: 75px; }
+.hayd-ficha .hf-w-sm .hf-defesa-valor { font-size: 22px; }
+.hayd-ficha .hf-w-sm .hf-selo-coluna { flex-basis: 68px; margin-top: -3px; }
+.hayd-ficha .hf-w-sm .hf-selo-cd { width: 68px; height: 68px; }
+.hayd-ficha .hf-w-sm .hf-selo-valor { font-size: 19px; }
+.hayd-ficha .hf-w-sm .hf-selo-trocar { width: 54px; }
+.hayd-ficha .hf-w-sm .hf-lateral-abas button span { display: none; }
+.hayd-ficha .hf-w-sm .hf-lateral-abas button { font-size: 13px; }
+
+/* ---- < 680 px: lateral vira gaveta; PV/PM empilhados ---------------------- */
+.hayd-ficha form.hf-w-xs { --hf-ret: 118px; }
+.hayd-ficha .hf-w-xs .hf-corpo { position: relative; }
+.hayd-ficha .hf-w-xs .hf-lateral {
+    position: absolute;
+    z-index: 20;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 250px;
+    flex-basis: auto;
+    opacity: 1;
+    background: #0e0c10; /* opaca: por cima da lista */
+    box-shadow: 8px 0 24px rgba(0, 0, 0, 0.7);
+    transform: translateX(-105%);
+    transition: transform 0.22s ease;
+}
+.hayd-ficha .hf-w-xs.hf-gaveta-aberta .hf-lateral { transform: none; }
+/* Na gaveta cabem os nomes das abas laterais de novo */
+.hayd-ficha .hf-w-xs .hf-lateral-abas button span { display: inline; }
+.hayd-ficha .hf-w-xs .hf-lateral-alternar i { transform: none; }
+/* Retrato ao lado só do nome, das classes e do XP; PV/PM e atributos na largura toda,
+   embaixo dos dois (sem vazio sob o retrato) */
+.hayd-ficha .hf-w-xs .hf-cabecalho { row-gap: 6px; align-items: start; }
+.hayd-ficha .hf-w-xs .hf-cabecalho-info { display: contents; }
+.hayd-ficha .hf-w-xs .hf-retrato-coluna { grid-column: 1; grid-row: 1 / span 3; }
+.hayd-ficha .hf-w-xs .hf-linha-nome,
+.hayd-ficha .hf-w-xs .hf-subtitulo,
+.hayd-ficha .hf-w-xs .hf-xp { grid-column: 2; }
+.hayd-ficha .hf-w-xs .hf-vitais,
+.hayd-ficha .hf-w-xs .hf-atributos { grid-column: 1 / -1; }
+.hayd-ficha .hf-w-xs .hf-vitais { margin-top: 8px; gap: 6px; }
+.hayd-ficha .hf-w-xs .hf-barra { height: 30px; }
+/* Os 8 blocos (Defesa, 6 atributos, selo) numa linha só, menores */
+.hayd-ficha .hf-w-xs .hf-atributos { gap: 4px; justify-content: space-between; }
+.hayd-ficha .hf-w-xs .hf-atributo { flex: 0 0 auto; }
+.hayd-ficha .hf-w-xs .hf-atributo-rolar { width: 46px; height: 52px; }
+.hayd-ficha .hf-w-xs .hf-atributo-abbr { font-size: 8px; letter-spacing: 0.08em; }
+.hayd-ficha .hf-w-xs .hf-atributo-valor { font-size: 17px; }
+.hayd-ficha .hf-w-xs .hf-atributo-edicao { width: 46px; }
+.hayd-ficha .hf-w-xs .hf-defesa { flex-basis: 60px; }
+.hayd-ficha .hf-w-xs .hf-escudo { width: 58px; height: 64px; }
+.hayd-ficha .hf-w-xs .hf-defesa-valor { font-size: 19px; }
+.hayd-ficha .hf-w-xs .hf-defesa-rotulo { font-size: 7px; }
+.hayd-ficha .hf-w-xs .hf-selo-coluna { flex-basis: 58px; margin-top: -3px; }
+.hayd-ficha .hf-w-xs .hf-selo-cd { width: 58px; height: 58px; }
+.hayd-ficha .hf-w-xs .hf-selo-valor { font-size: 16px; }
+.hayd-ficha .hf-w-xs .hf-selo-trocar { width: 46px; }
+.hayd-ficha .hf-w-xs .hf-nome,
+.hayd-ficha .hf-w-xs .hf-nome-input { font-size: 28px; }
+.hayd-ficha .hf-w-xs .hf-nivel { width: 46px; height: 46px; bottom: -10px; }
+.hayd-ficha .hf-w-xs .hf-nivel-valor { font-size: 24px; }
+.hayd-ficha .hf-w-xs .hf-sob-retrato { gap: 3px; bottom: 2px; }
+.hayd-ficha .hf-w-xs .hf-sob-retrato .hf-estat { padding: 0 5px; font-size: 11px; }
+.hayd-ficha .hf-w-xs .hf-logo { display: none; }
+.hayd-ficha .hf-w-xs .hf-topo:has(.hf-logo) .hf-abas { padding-right: 12px; }
+.hayd-ficha .hf-w-xs .hf-conjuracao { flex-wrap: wrap; }
+.hayd-ficha .hf-w-xs .hf-rodape-inventario { flex-wrap: wrap; }
+.hayd-ficha .hf-w-xs .hf-carga { flex-basis: 100%; }
+.hayd-ficha .hf-w-xs .hf-aba-diario { flex-direction: column; }
+.hayd-ficha .hf-w-xs .hf-diario-indice { flex: 0 0 auto; flex-direction: row; overflow-x: auto; }
+.hayd-ficha .hf-w-xs .hf-diario-indice button { flex: 0 0 auto; }
+
+/* ---- < 560 px: o mínimo -------------------------------------------------- */
+.hayd-ficha form.hf-w-xxs { --hf-ret: 96px; }
+.hayd-ficha .hf-w-xxs .hf-cabecalho { gap: 10px; padding: 12px 10px 10px; }
+.hayd-ficha .hf-w-xxs .hf-nome,
+.hayd-ficha .hf-w-xxs .hf-nome-input { font-size: 24px; }
+.hayd-ficha .hf-w-xxs .hf-sob-retrato .hf-estat-texto { display: none; }
+.hayd-ficha .hf-w-xxs .hf-abas { padding-left: calc(var(--hf-ret) + 50px); }
+.hayd-ficha .hf-w-xxs .hf-aba-botao { padding: 0 7px; }
+.hayd-ficha .hf-w-xxs .hf-pinos { grid-template-columns: 1fr; }
+
+/* ---- Listas: colunas secundárias somem antes do nome ---------------------- */
+@container (max-width: 640px) {
+    .hayd-ficha .hf-col-larga { width: 130px; }
+    .hayd-ficha .hf-col-rolagem { font-size: 14px; }
+}
+@container (max-width: 560px) {
+    .hayd-ficha .hf-col-origem { display: none; }
+    .hayd-ficha .hf-col-larga { width: 110px; }
+    .hayd-ficha .hf-col-rolagem { font-size: 13px; }
+}
+@container (max-width: 460px) {
+    .hayd-ficha .hf-col-espacos,
+    .hayd-ficha .hf-col-duracao { display: none; }
+    .hayd-ficha .hf-item-sub { display: none; }
+}
+
+/* ---- Janela baixa: a ficha inteira rola; as listas mantêm área útil ------ */
+.hayd-ficha .hf-h-baixa { overflow-y: auto; }
+.hayd-ficha .hf-h-baixa .hf-corpo { flex: 0 0 auto; height: 460px; }
+
+/* ---- Modo slim (configuração): abas na faixa toda e com o nome completo --- */
+.hayd-ficha .hf-slim .hf-aba-botao > span { display: inline; }
+.hayd-ficha .hf-slim .hf-aba-botao { padding: 0 5px; gap: 4px; }
+.hayd-ficha .hf-slim .hf-aba-botao i { font-size: 12px; }
+.hayd-ficha .hf-slim .hf-abas { padding-right: 8px; justify-content: space-between; }
+
+/* ==========================================================================
+   Refinamento visual (2026-09-30)
+   Mesma ficha, menos ruído: cabeçalho ~20% mais baixo, textura como marca
+   d'água, menos bordas redundantes e hierarquia por peso (não por remoção).
+   Toda cor nova deriva de --hf-acento; brancos/pretos são só neutros.
+   ========================================================================== */
+
+/* ---- Cabeçalho: espaço e ritmo ------------------------------------------- */
+.hayd-ficha .hf-cabecalho { padding: 12px 16px 2px; gap: 16px; }
+.hayd-ficha .hf-cabecalho-info {
+    /* Grade: o XP vai para a mesma linha dos chips (é informação secundária) */
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 12px;
+    row-gap: 6px;
+    align-content: start;
+}
+.hayd-ficha .hf-linha-nome,
+.hayd-ficha .hf-vitais,
+.hayd-ficha .hf-atributos { grid-column: 1 / -1; }
+.hayd-ficha .hf-subtitulo { grid-column: 1; align-self: center; }
+
+/* ---- Identidade: retrato e nome fortes, mas sem brilho competindo -------- */
+.hayd-ficha .hf-retrato {
+    padding: 2px;
+    background: linear-gradient(160deg, var(--hf-acento-claro), var(--hf-acento-escuro));
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+}
+.hayd-ficha .hf-nivel {
+    width: 46px;
+    height: 46px;
+    bottom: -11px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.7);
+}
+.hayd-ficha .hf-nivel-valor { font-size: 25px; text-shadow: none; }
+.hayd-ficha .hf-nivel-rotulo { top: 4px; left: 4px; font-size: 8px; }
+.hayd-ficha .hf-nome,
+.hayd-ficha .hf-nome-input {
+    font-size: 34px;
+    letter-spacing: 0.03em;
+    text-shadow: 0 2px 3px rgba(0, 0, 0, 0.85);
+}
+
+/* Chips: sem contorno individual; a forma inclinada e a superfície já separam */
+.hayd-ficha .hf-subtitulo { gap: 4px; }
+.hayd-ficha .hf-chip,
+.hayd-ficha .hf-chip-input {
+    height: 20px;
+    padding: 0 9px;
+    font-size: 11px;
+    border-color: transparent;
+    background: rgba(0, 0, 0, 0.5);
+}
+.hayd-ficha .hf-chip-classe {
+    background: color-mix(in srgb, var(--hf-acento) 26%, rgba(0, 0, 0, 0.55));
+    border-color: transparent;
+}
+.hayd-ficha .hf-chip-vazio { border-color: var(--hf-linha-forte); }
+.hayd-ficha .hf-chip-input { border-color: var(--hf-linha-forte); }
+.hayd-ficha a.hf-chip:hover { background: var(--hf-acento-bg-forte); border-color: transparent; }
+
+/* ---- XP: secundário, fino, na linha dos chips ---------------------------- */
+.hayd-ficha .hf-xp {
+    grid-column: 2;
+    align-self: center;
+    width: 150px;
+    height: 16px;
+    background: none;
+    border: 0;
+}
+.hayd-ficha .hf-xp::before {
+    /* trilho da barra */
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.1);
+}
+.hayd-ficha .hf-xp-barra {
+    top: auto;
+    bottom: 0;
+    height: 3px;
+    box-shadow: none;
+}
+.hayd-ficha .hf-xp-texto {
+    inset: 0 0 4px 0;
+    padding: 0;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--hf-texto-3);
+    text-shadow: none;
+}
+.hayd-ficha .hf-xp-texto input { color: var(--hf-texto-2); font-size: 9px; height: 11px; }
+
+/* ---- PV/PM: continuam no topo da hierarquia ------------------------------ */
+.hayd-ficha .hf-vitais { gap: 8px; }
+.hayd-ficha .hf-barra { height: 30px; }
+.hayd-ficha .hf-barra-valor { font-size: 19px; }
+
+/* ---- Atributos: mesmos hexágonos, menores e com moldura mais discreta ---- */
+.hayd-ficha .hf-atributos { gap: 4px; margin-top: 2px; }
+.hayd-ficha .hf-atributo-rolar { width: 56px; height: 62px; }
+.hayd-ficha .hf-atributo-rolar::after { inset: 3px; }
+.hayd-ficha .hf-atributo-rolar::before {
+    background:
+        linear-gradient(160deg, rgba(255, 255, 255, 0.32) 0%, transparent 28%),
+        linear-gradient(180deg, #7d8189 0%, #50545b 45%, #33363b 55%, #666a71 100%);
+}
+.hayd-ficha .hf-atributo-abbr { font-size: 8px; color: var(--hf-texto-2); margin-top: 1px; }
+.hayd-ficha .hf-atributo-valor { font-size: 21px; }
+.hayd-ficha .hf-atributo-edicao { width: 56px; }
+.hayd-ficha .hf-defesa { flex-basis: 70px; margin-top: -6px; } /* centro do escudo = centro dos hexágonos */
+.hayd-ficha .hf-escudo { width: 68px; height: 74px; padding-bottom: 3px; }
+.hayd-ficha .hf-defesa-valor { font-size: 22px; }
+.hayd-ficha .hf-selo-coluna { flex-basis: 68px; margin-top: -3px; }
+.hayd-ficha .hf-selo-cd { width: 68px; height: 68px; }
+.hayd-ficha .hf-selo-valor { font-size: 19px; }
+.hayd-ficha .hf-selo-trocar { width: 56px; }
+
+/* ---- Textura do cabeçalho: marca d'água, mais forte só onde não há texto -- */
+.hayd-ficha .hf-banner::before,
+.hayd-ficha .hf-banner-espelho,
+.hayd-ficha .hf-banner-espelho-dir { opacity: 0.5; }
+.hayd-ficha .hf-banner::before {
+    /* mais presente à direita (o olho), apagada atrás do nome e dos atributos */
+    -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.55) 40%, #000 72%);
+    mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.55) 40%, #000 72%);
+}
+.hayd-ficha .hf-banner-sombra::after { background: rgba(0, 0, 0, 0.22); }
+
+/* ---- Faixa das abas: chips sob o retrato sem contorno --------------------- */
+.hayd-ficha .hf-sob-retrato .hf-estat {
+    border: 0;
+    background: rgba(0, 0, 0, 0.55);
+    color: var(--hf-texto-2);
+}
+.hayd-ficha .hf-sob-retrato .hf-estat i { color: var(--hf-acento-claro); }
+
+/* ---- Lateral: abas sem contorno; ativa marcada por superfície + traço ----- */
+.hayd-ficha .hf-lateral-abas button {
+    border: 0;
+    background: rgba(255, 255, 255, 0.03);
+    box-shadow: inset 0 -2px 0 transparent;
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+.hayd-ficha .hf-lateral-abas button:hover { color: var(--hf-texto); background: rgba(255, 255, 255, 0.07); }
+.hayd-ficha .hf-lateral-abas button.ativa {
+    color: #fff;
+    background: var(--hf-acento-bg);
+    box-shadow: inset 0 -2px 0 var(--hf-acento);
+}
+
+/* ---- Seções de itens: uma superfície só, cabeçalho mais calmo ------------ */
+.hayd-ficha .hf-secao { border: 0; box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 4px 12px rgba(0, 0, 0, 0.3); }
+.hayd-ficha .hf-secao-cabecalho {
+    height: 30px;
+    background: linear-gradient(90deg, var(--hf-acento-bg-forte), var(--hf-acento-bg) 30%, rgba(0, 0, 0, 0.3) 70%);
+    border-bottom: 0;
+}
+.hayd-ficha .hf-secao-cabecalho::before { box-shadow: none; }
+.hayd-ficha .hf-secao-cabecalho h3 { font-size: 16px; letter-spacing: 0.07em; }
+.hayd-ficha .hf-item { border-bottom-color: rgba(255, 255, 255, 0.045); }
+.hayd-ficha .hf-item:hover > .hf-item-linha { background: linear-gradient(90deg, var(--hf-acento-bg), transparent 75%); }
+
+/* Fixados do Combate: só o traço de destaque à esquerda, sem moldura inteira */
+.hayd-ficha .hf-pino {
+    border: 0;
+    box-shadow: inset 2px 0 0 var(--hf-acento);
+    background: linear-gradient(90deg, var(--hf-acento-bg), rgba(0, 0, 0, 0.5) 55%);
+}
+.hayd-ficha .hf-pino:hover {
+    box-shadow: inset 2px 0 0 var(--hf-acento-claro);
+    background: linear-gradient(90deg, var(--hf-acento-bg-forte), rgba(0, 0, 0, 0.5) 60%);
+}
+.hayd-ficha .hf-pino-img { border-right: 0; }
+
+/* ---- Perícias: marcador de treino legível, sem brilho --------------------- */
+.hayd-ficha .hf-pericia { border-bottom-color: rgba(255, 255, 255, 0.045); }
+.hayd-ficha .hf-pericia.treinada .hf-pericia-treino { text-shadow: none; color: var(--hf-acento-claro); }
+
+/* ---- Estados interativos: foco visível por teclado, na cor do tema ------- */
+.hayd-ficha button:focus-visible,
+.hayd-ficha a:focus-visible,
+.hayd-ficha [role="button"]:focus-visible {
+    outline: 2px solid var(--hf-acento-claro);
+    outline-offset: 1px;
+    box-shadow: none;
+}
+.hayd-ficha .hf-aba-botao:hover::after { transform: scaleX(0.35); opacity: 0.6; }
+.hayd-ficha .hf-aba-botao.ativa:hover::after { transform: scaleX(1); opacity: 1; }
+
+/* ---- Responsivo: o XP segue o retrato na coluna 2 no modo estreito ------- */
+.hayd-ficha .hf-w-xs .hf-xp { width: auto; }
+/* Estreito: o retrato ocupa as 3 primeiras linhas + uma linha elástica, que
+   absorve a sobra de altura (senão nome, chips e XP se espalham pela altura dele) */
+.hayd-ficha .hf-w-xs .hf-cabecalho { grid-template-rows: auto auto auto 1fr auto auto; }
+.hayd-ficha .hf-w-xs .hf-retrato-coluna { grid-row: 1 / 5; }
+.hayd-ficha .hf-w-xs .hf-subtitulo,
+.hayd-ficha .hf-w-xs .hf-xp { align-self: start; }
+.hayd-ficha .hf-w-xs .hf-vitais { grid-row: 5; }
+.hayd-ficha .hf-w-xs .hf-atributos { grid-row: 6; }
+/* Estreito: retrato quase quadrado, da altura do nome + chips + XP ao lado */
+.hayd-ficha form.hf-w-xs { --hf-ret: 104px; }
+.hayd-ficha .hf-w-xs .hf-retrato { height: calc(var(--hf-ret) * 0.88); }
+.hayd-ficha form.hf-w-xxs { --hf-ret: 92px; }
+/* Estreito: deslocamento e tamanho sempre visíveis, mesmo com retrato menor
+   (saem da largura do retrato e usam o espaço até as abas) */
+.hayd-ficha .hf-w-xs .hf-sob-retrato { width: auto; right: auto; flex-wrap: nowrap; }
+.hayd-ficha .hf-w-xs .hf-abas { padding-left: 180px; }
+.hayd-ficha .hf-w-xs .hf-lateral-alternar { left: 146px; }
+.hayd-ficha .hf-w-xxs .hf-abas { padding-left: 128px; }
+.hayd-ficha .hf-w-xxs .hf-lateral-alternar { left: 96px; }
+/* Modo edição: o botão de paleta fica sob o selo; o logo encolhe para não cobri-lo */
+.hayd-ficha .hf-desbloqueada .hf-logo { height: 40px; bottom: -8px; }
+
+/* ---- Acabamento (2026-09-30) ---------------------------------------------- */
+/* XP: mesma altura da linha de chips (a barra assenta na base deles) e texto legível */
+.hayd-ficha .hf-xp { height: 20px; }
+.hayd-ficha .hf-xp::before { background: rgba(255, 255, 255, 0.16); }
+.hayd-ficha .hf-xp-texto {
+    inset: 0 0 5px 0;
+    font-size: 10px;
+    color: var(--hf-texto-2);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+.hayd-ficha .hf-xp-texto input { font-size: 10px; height: 12px; color: var(--hf-texto); }
+/* Chips: texto e ícones centrados na mesma linha óptica do XP */
+.hayd-ficha .hf-chip,
+.hayd-ficha .hf-chip-input { line-height: 20px; }
+.hayd-ficha .hf-chip-texto { color: var(--hf-texto-2); }
+.hayd-ficha .hf-chip-texto i { color: var(--hf-texto-3); }
+/* Ícone do deus da devoção (SVG inline, pinta com currentColor): na cor de
+   destaque, maior que os ícones dos outros chips e em pé dentro do chip inclinado. */
+.hayd-ficha .hf-deus-icone {
+    display: inline-flex;
+    vertical-align: middle;
+    margin: -6px 4px -6px 0;
+    color: var(--hf-acento-claro);
+    /* Sobe 2px: a caixa já é centrada no chip, mas o texto ao lado tem o
+       centro óptico acima do meio e o ícone parecia caído. */
+    transform: translateY(-2px) skewX(14deg);
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--hf-acento) 60%, transparent));
+}
+.hayd-ficha .hf-deus-icone svg { width: 28px; height: 28px; }
+/* Logo: identidade, não protagonista: um pouco menos saturado e opaco */
+.hayd-ficha .hf-logo { filter: saturate(0.8) brightness(0.92) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9)); opacity: 0.9; }
+/* Lateral recolhida vence qualquer largura das faixas responsivas (fora o modo gaveta) */
+.hayd-ficha form.hf-sem-lateral:not(.hf-w-xs) .hf-lateral {
+    flex-basis: 0;
+    width: 0;
+    min-width: 0;
+    opacity: 0;
+    border-right-color: transparent;
+}
+/* Olho do retrato: ícone no centro exato do círculo (sem o line-height/margem do botão padrão) */
+.hayd-ficha .hf-retrato-ver { line-height: 1; }
+.hayd-ficha .hf-retrato-ver i { margin: 0; width: 1em; line-height: 1; text-align: center; transform: translateX(-0.5px); }
+/* Losango do nível proporcional ao retrato (--hf-ret): 150 px → 45 px; 92 px → 28 px */
+.hayd-ficha form.hf-ficha .hf-nivel {
+    width: calc(var(--hf-ret) * 0.3);
+    height: calc(var(--hf-ret) * 0.3);
+    bottom: calc(var(--hf-ret) * -0.07);
+    border-width: 2px;
+}
+.hayd-ficha form.hf-ficha .hf-nivel-valor { font-size: calc(var(--hf-ret) * 0.165); }
+.hayd-ficha form.hf-ficha .hf-nivel-rotulo {
+    top: calc(var(--hf-ret) * 0.02);
+    left: calc(var(--hf-ret) * 0.02);
+    font-size: max(6px, calc(var(--hf-ret) * 0.053));
+}
+/* Muito pequeno: a sigla "NV" some (o número basta), sobra a arte */
+.hayd-ficha form.hf-w-xs .hf-nivel-rotulo { display: none; }
+/* Clique do mouse não deixa contorno de foco (o da Foundry ficava até clicar fora);
+   pelo teclado o :focus-visible acima continua mostrando o foco */
+.hayd-ficha button:focus:not(:focus-visible),
+.hayd-ficha a:focus:not(:focus-visible),
+.hayd-ficha [role="button"]:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
+}
+/* Condições: troca de estado suave (cor, fundo e ícone) */
+.hayd-ficha .hf-condicao { transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease; }
+.hayd-ficha .hf-condicao img { transition: filter 0.18s ease; }
+/* Condição à qual o personagem é imune ("imunidade a condições"): esmaecida,
+   riscada e com um escudo na cor do tema */
+.hayd-ficha .hf-condicao.imune { position: relative; border-style: dashed; border-color: var(--hf-acento-borda); background: rgba(0, 0, 0, 0.3); }
+.hayd-ficha .hf-condicao.imune span { text-decoration: line-through; text-decoration-color: var(--hf-acento-claro); opacity: 0.7; }
+.hayd-ficha .hf-condicao.imune img { opacity: 0.4; }
+.hayd-ficha .hf-condicao-imune { margin-left: auto; font-size: 11px; color: var(--hf-acento-claro); }
+
+/* ---- Hover dos atributos: transição contínua ------------------------------
+   Degradês não animam e filter com brilho pesa a cada quadro; então o miolo e
+   o aro usam cores registradas (@property), que o navegador interpola. */
+@property --hf-hex-luz { syntax: "<color>"; inherits: false; initial-value: #2a2a30; }
+@property --hf-hex-aro { syntax: "<color>"; inherits: false; initial-value: rgba(0, 0, 0, 0); }
+.hayd-ficha .hf-atributo-rolar {
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.8));
+    transition: transform 0.18s ease;
+}
+.hayd-ficha .hf-atributo-rolar:hover { filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.8)); transform: translateY(-2px); }
+.hayd-ficha .hf-atributo-rolar:active { transform: translateY(0) scale(0.96); transition-duration: 0.06s; }
+.hayd-ficha .hf-atributo-rolar::after,
+.hayd-ficha .hf-atributo-rolar:hover::after {
+    background: radial-gradient(circle at 50% 45%, var(--hf-hex-luz) 0%, #16161a 62%, #0d0d10 100%);
+    transition: --hf-hex-luz 0.18s ease;
+}
+.hayd-ficha .hf-atributo-rolar:hover::after { --hf-hex-luz: color-mix(in srgb, var(--hf-acento) 45%, #2a2a30); }
+.hayd-ficha .hf-atributo-rolar::before {
+    background:
+        linear-gradient(var(--hf-hex-aro), var(--hf-hex-aro)),
+        linear-gradient(160deg, rgba(255, 255, 255, 0.32) 0%, transparent 28%),
+        linear-gradient(180deg, #7d8189 0%, #50545b 45%, #33363b 55%, #666a71 100%);
+    transition: --hf-hex-aro 0.18s ease;
+}
+.hayd-ficha .hf-atributo-rolar:hover::before { --hf-hex-aro: color-mix(in srgb, var(--hf-acento) 55%, transparent); }
+.hayd-ficha .hf-atributo-rolar .hf-atributo-abbr { transition: color 0.18s ease; }
+.hayd-ficha .hf-atributo-rolar:hover .hf-atributo-abbr { color: #fff; }
+/* Armas: ataque, dano e crítico em subcolunas fixas (valores um embaixo do outro) */
+.hayd-ficha .hf-col-rolagem { display: flex; align-items: center; }
+.hayd-ficha .hf-col-rolagem > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
+.hayd-ficha .hf-rol-ataque { flex: 0 0 26%; }
+.hayd-ficha .hf-rol-dano { flex: 1 1 auto; }
+.hayd-ficha .hf-rol-critico { flex: 0 0 28%; }
+.hayd-ficha .hf-secao-colunas .hf-col-rolagem { font-family: inherit; font-size: inherit; color: inherit; letter-spacing: inherit; }
+
+/* ---- Perícias: organização em destaque (grupos com título) ---------------- */
+
+.hayd-ficha .hf-pericias-modo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px;
+    font-size: 11px;
+    color: var(--hf-texto-3);
+    border-bottom: 1px solid var(--hf-linha);
+}
+.hayd-ficha .hf-pericias-modo select { flex: 1; min-width: 0; height: 22px; font-size: 11px; }
+.hayd-ficha .hf-pericias-grupo {
+    padding: 8px 6px 3px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--hf-acento-claro);
+    border-bottom: 1px solid var(--hf-acento-borda);
+}
+.hayd-ficha .hf-pericias-grupo:first-child { padding-top: 4px; }
+
+/* ---- Perícias: modo manual (arrastar linhas e separadores) ---------------- */
+
+.hayd-ficha .hf-pericias-modo .hf-botao-icone { flex: 0 0 auto; width: 24px; height: 22px; }
+.hayd-ficha .hf-pericias .hf-arrastar {
+    flex: 0 0 auto;
+    font-size: 10px;
+    color: var(--hf-texto-3);
+    cursor: grab;
+}
+.hayd-ficha .hf-pericias .hf-arrastar:hover { color: var(--hf-texto); }
+.hayd-ficha .hf-pericias-grupo[data-grupo-id] { display: flex; align-items: center; gap: 6px; }
+.hayd-ficha .hf-pericias-grupo .hf-grupo-titulo {
+    flex: 1;
+    min-width: 0;
+    height: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--hf-acento-claro);
+}
+.hayd-ficha .hf-pericias-grupo a { color: var(--hf-texto-3); cursor: pointer; }
+.hayd-ficha .hf-pericias-grupo a:hover { color: var(--hf-texto); }
+.hayd-ficha .hf-pericias.hf-manual .hf-arrastado { opacity: 0.35; }
+
+/* ---- Perícias no modo edição: lateral mais larga ------------------------ */
+
+/* Lateral mais larga enquanto edita (vence as faixas responsivas; recolhida continua em 0) */
+.hayd-ficha form.hf-desbloqueada:not(.hf-sem-lateral):not(.hf-w-xs) .hf-lateral { flex-basis: 300px; width: 300px; }
+.hayd-ficha form.hf-desbloqueada.hf-w-xs .hf-lateral { width: 300px; }
+
+
+/* Ofício: a lista mostra só a especialidade, com o martelo no lugar de "Ofício" */
+.hayd-ficha .hf-pericia-oficio { margin-right: 4px; font-size: 9px; color: var(--hf-texto-3); }
+/* Janela sem o contorno na cor de destaque: fica só a sombra escura */
+.hayd-ficha {
+    border-color: rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 0 1px #000, 0 12px 40px rgba(0, 0, 0, 0.8);
+}
+/* Busca nas perícias: mesmo estilo da busca das listas, mais compacta */
+.hayd-ficha .hf-busca-pericias { margin: 0 0 6px; }
+.hayd-ficha .hf-busca-pericias input { height: 26px; font-size: 12px; }

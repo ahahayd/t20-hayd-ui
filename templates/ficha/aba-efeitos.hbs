@@ -1,0 +1,67 @@
+<div class="hf-aba hf-aba-efeitos {{#if (eq hf.aba 'efeitos')}}ativa{{/if}}" data-aba="efeitos">
+	{{#if hf.condicoes.length}}
+	<section class="hf-secao hf-recolhivel hf-condicoes {{#if hf.condicoesRecolhidas}}recolhida{{/if}}" data-recolhivel>
+		<header class="hf-secao-cabecalho" data-hf-secao="efeitos:condicoes">
+			<i class="hf-secao-seta fa-solid fa-chevron-down"></i>
+			<i class="hf-secao-icone fa-solid fa-skull-crossbones"></i>
+			<h3>{{localize 'T20A.Ficha.Condicoes'}}</h3>
+		</header>
+		<div class="hf-recolhivel-corpo"><div class="hf-recolhivel-interno">
+			<div class="hf-condicoes-grade">
+				{{#each hf.condicoes as |c|}}
+				<button type="button" class="hf-condicao {{#if c.ativa}}ativa{{/if}} {{#if c.imune}}imune{{/if}}" {{#if @root.hf.editavel}}data-hf-acao="condicao"{{else}}disabled{{/if}} data-condicao="{{c.id}}" data-tooltip="{{c.nome}}{{#if c.imune}} ({{localize 'T20A.Ficha.Imune'}}){{/if}}">
+					<img src="{{c.img}}" alt="">
+					<span>{{c.nome}}</span>
+					{{#if c.imune}}<i class="hf-condicao-imune fa-solid fa-shield-halved"></i>{{/if}}
+				</button>
+				{{/each}}
+			</div>
+		</div></div>
+	</section>
+	{{/if}}
+
+	{{#each effects as |section sid|}}
+	<section class="hf-secao hf-recolhivel {{#if (lookup @root.hf.efeitosRecolhidos (concat 'efeitos:' sid))}}recolhida{{/if}}" data-recolhivel>
+		<header class="hf-secao-cabecalho hf-efeitos-cabecalho" data-hf-secao="efeitos:{{sid}}">
+			<i class="hf-secao-seta fa-solid fa-chevron-down"></i>
+			<h3>{{section.label}}</h3>
+			<span class="hf-secao-contagem">{{section.effects.length}}</span>
+			<div class="hf-secao-colunas">
+				{{#unless (or (eq sid 'onuse') (eq sid 'onuseTemp'))}}
+					<span class="hf-col hf-col-fonte">{{localize 'T20.Source'}}</span>
+					<span class="hf-col hf-col-duracao">{{localize 'T20.Duration'}}</span>
+				{{/unless}}
+			</div>
+			{{!-- O sistema lê o tipo do efeito no li mais próximo do botão --}}
+			<ol class="hf-efeitos-criar-lista"><li data-effect-type="{{section.type}}">
+				{{#if @root.hf.editavel}}<a class="effect-control hf-criar" data-action="create" data-tooltip="{{localize 'T20.Add'}} {{localize 'T20.Effect'}}"><i class="fa-solid fa-plus"></i></a>{{/if}}
+			</li></ol>
+		</header>
+		<div class="hf-recolhivel-corpo"><div class="hf-recolhivel-interno">
+			<ol class="effects-list hf-efeitos">
+				{{#each section.effects as |effect|}}
+				<li class="effect hf-efeito {{#if effect.disabled}}desativado{{/if}}" data-effect-id="{{effect.id}}" data-effect-type="{{section.type}}">
+					<img class="hf-efeito-img" src="{{effect.img}}" alt="">
+					<div class="hf-efeito-nome">
+						{{#if (or (eq sid "onuse") (eq sid "onuseTemp"))}}<span>{{#if effect.flags.tormenta20.custo}}<b class="hf-efeito-custo">{{effect.flags.tormenta20.custo}} {{localize "T20.MP"}}</b> {{/if}}{{effect.name}}</span>{{else}}<span>{{effect.name}}</span>{{/if}}
+					</div>
+					{{#unless (or (eq sid 'onuse') (eq sid 'onuseTemp'))}}
+						<span class="hf-col hf-col-fonte">{{#if (ne effect.sourceName "None")}}{{effect.sourceName}}{{else}}—{{/if}}</span>
+						<span class="hf-col hf-col-duracao">{{#if effect.flags.tormenta20.durationScene}}{{localize "T20.TimeScene"}}{{else if (and effect.duration.label (ne effect.duration.label "None"))}}{{effect.duration.label}}{{else}}—{{/if}}</span>
+					{{/unless}}
+					{{#if @root.hf.editavel}}
+					<div class="hf-item-controles">
+						<a class="effect-control hf-controle {{#unless effect.disabled}}ativo{{/unless}}" data-action="toggle" data-tooltip="{{localize 'T20.Toggle'}}"><i class="fa-solid {{#if effect.disabled}}fa-toggle-off{{else}}fa-toggle-on{{/if}}"></i></a>
+						<a class="effect-control hf-controle" data-action="edit" data-tooltip="{{localize 'T20.Edit'}}"><i class="fa-solid fa-pen-to-square"></i></a>
+						<a class="effect-control hf-controle hf-perigo" data-action="delete" data-tooltip="{{localize 'T20.Delete'}}"><i class="fa-solid fa-trash"></i></a>
+					</div>
+					{{/if}}
+				</li>
+				{{else}}
+				<li class="hf-lista-vazia">{{localize 'T20A.Ficha.SecaoVazia'}}</li>
+				{{/each}}
+			</ol>
+		</div></div>
+	</section>
+	{{/each}}
+</div>

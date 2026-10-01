@@ -1,0 +1,42 @@
+<section class="hf-secao hf-recolhivel {{#if secao.recolhida}}recolhida{{/if}} hf-secao-{{secao.colunas}}" data-secao="{{secao.id}}" data-recolhivel>
+	<header class="hf-secao-cabecalho" data-hf-secao="{{secao.chave}}">
+		<i class="hf-secao-seta fa-solid fa-chevron-down"></i>
+		<i class="hf-secao-icone {{secao.icone}}"></i>
+		<h3>{{secao.rotulo}}</h3>
+		<span class="hf-secao-contagem">{{secao.itens.length}}</span>
+		{{#if secao.custo}}<span class="hf-secao-extra">{{secao.custo}} PM</span>{{/if}}
+		{{#if secao.livre}}<span class="hf-secao-dica"><i class="fa-solid fa-grip-lines"></i> {{localize 'T20A.Ficha.DicaOrdem'}}</span>{{/if}}
+		<div class="hf-secao-colunas">
+			{{#if (eq secao.colunas "armas")}}
+				<span class="hf-col hf-col-larga hf-col-rolagem"><span class="hf-rol-ataque">{{localize 'T20.Attack'}}</span><span class="hf-rol-dano">{{localize 'T20.Damage'}}</span><span class="hf-rol-critico">{{localize 'T20.Critical'}}</span></span>
+			{{else if (eq secao.colunas "inventario")}}
+				<span class="hf-col hf-col-qtd">{{localize 'T20.QuantityAbbr'}}</span>
+				<span class="hf-col hf-col-espacos">{{localize 'T20.SlotsAbbr'}}</span>
+			{{else if (eq secao.colunas "acoes")}}
+				<span class="hf-col hf-col-custo">{{localize 'T20A.Ficha.Custo'}}</span>
+			{{else if (eq secao.colunas "magias")}}
+				<span class="hf-col hf-col-ativacao">{{localize 'T20.Activation'}}</span>
+			{{else}}
+				<span class="hf-col hf-col-custo">{{localize 'T20A.Ficha.Custo'}}</span>
+				<span class="hf-col hf-col-ativacao">{{localize 'T20.Activation'}}</span>
+			{{/if}}
+			{{#if (and @root.hf.origemColuna (or (eq secao.colunas "poderes") (eq secao.colunas "magias")))}}
+				<span class="hf-col hf-col-origem">{{localize 'T20A.Ficha.Origem'}}</span>
+			{{/if}}
+			<span class="hf-item-controles-espaco"></span>
+		</div>
+		{{#if (and @root.hf.desbloqueada secao.criar)}}
+			<a class="hf-criar" data-hf-acao="criar" data-tipo="{{secao.criar}}" {{#if secao.criarTipo}}data-subtipo="{{secao.criarTipo}}"{{/if}} {{#if secao.criarCirculo}}data-circulo="{{secao.criarCirculo}}"{{/if}}
+				data-tooltip="{{localize 'T20.Add'}}"><i class="fa-solid fa-plus"></i></a>
+		{{/if}}
+	</header>
+	<div class="hf-recolhivel-corpo"><div class="hf-recolhivel-interno">
+		<ol class="item-list hf-lista">
+			{{#each secao.itens as |item|}}
+				{{> "modules/t20-hayd-ui/templates/ficha/linha-item.hbs" item=item colunas=../secao.colunas}}
+			{{else}}
+				<li class="hf-lista-vazia">{{localize 'T20A.Ficha.SecaoVazia'}}</li>
+			{{/each}}
+		</ol>
+	</div></div>
+</section>

@@ -1,0 +1,30 @@
+<div class="hf-aba hf-aba-combate {{#if (eq hf.aba 'combate')}}ativa{{/if}}" data-aba="combate">
+	{{> "modules/t20-hayd-ui/templates/ficha/ferramentas.hbs" aba="combate"}}
+
+	{{#if hf.fixados.length}}
+	<div class="hf-pinos">
+		{{#each hf.fixados as |f|}}
+		<div class="hf-pino" data-item-id="{{f.id}}" data-nome="{{f.nome}}" role="button" tabindex="0" data-tooltip="{{localize 'T20A.Ficha.Usar'}}" {{#if @root.hf.editavel}}draggable="true"{{/if}}>
+			<div class="hf-pino-img" style="background-image: url('{{f.img}}')"></div>
+			<div class="hf-pino-info">
+				<span class="hf-pino-nome">{{f.nome}}</span>
+				<span class="hf-pino-sub">{{#if f.detalhe}}{{f.detalhe}}{{else}}{{f.ativacao}}{{#if f.custo}} · {{f.custo}}{{/if}}{{/if}}</span>
+			</div>
+			{{#if (ne f.qtd null)}}<span class="hf-pino-qtd">×{{f.qtd}}</span>{{/if}}
+			{{#if @root.hf.editavel}}
+			<a class="hf-pino-soltar" data-hf-acao="fixar" data-tooltip="{{localize 'T20A.Ficha.Desafixar'}}"><i class="fa-solid fa-xmark"></i></a>
+			{{/if}}
+		</div>
+		{{/each}}
+	</div>
+	{{/if}}
+
+	{{#each hf.combate as |secao|}}
+		{{> "modules/t20-hayd-ui/templates/ficha/secao-itens.hbs" secao=secao}}
+	{{else}}
+		<div class="hf-estado-vazio">
+			<i class="fa-solid fa-swords"></i>
+			<p>{{localize 'T20A.Ficha.CombateVazio'}}</p>
+		</div>
+	{{/each}}
+</div>

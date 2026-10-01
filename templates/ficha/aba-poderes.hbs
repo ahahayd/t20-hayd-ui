@@ -1,0 +1,11 @@
+<div class="hf-aba hf-aba-poderes {{#if (eq hf.aba 'poderes')}}ativa{{/if}}" data-aba="poderes">
+	{{> "modules/t20-hayd-ui/templates/ficha/ferramentas.hbs" aba="poderes" organizavel=true origem="poder" compendio="tormenta20.poderes"}}
+	{{#each hf.poderes as |secao|}}
+		{{> "modules/t20-hayd-ui/templates/ficha/secao-itens.hbs" secao=secao}}
+	{{else}}
+		<div class="hf-estado-vazio">
+			<i class="fa-solid fa-fire-flame-curved"></i>
+			<p>{{localize 'T20A.Ficha.PoderesVazio'}}</p>
+		</div>
+	{{/each}}
+</div>

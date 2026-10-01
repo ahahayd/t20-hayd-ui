@@ -1,0 +1,52 @@
+<form class="hf-ficha {{#if hf.desbloqueada}}hf-desbloqueada{{else}}hf-bloqueada{{/if}} {{#unless hf.lateral}}hf-sem-lateral{{/unless}} {{#unless hf.editavel}}hf-somente-leitura{{/unless}} {{#if hf.slim}}hf-slim{{/if}} {{hf.classesTamanho}}" autocomplete="off">
+	{{!-- Cabeçalho e abas dividem o mesmo fundo: a arte corre por trás das abas, como no Tidy --}}
+	<div class="hf-topo {{#if hf.semArte}}hf-sem-arte{{/if}} {{#if hf.arteOriginal}}hf-arte-original{{/if}}">
+		<div class="hf-banner" style="--hf-banner: url('{{hf.banner}}');" aria-hidden="true"><div class="hf-banner-espelho"></div><div class="hf-banner-espelho-dir"></div><div class="hf-banner-sombra"></div></div>
+	{{> "modules/t20-hayd-ui/templates/ficha/cabecalho.hbs"}}
+
+	<nav class="hf-abas" aria-label="{{localize 'T20A.Ficha.Abas.Rotulo'}}">
+		<button type="button" class="hf-lateral-alternar" data-hf-acao="lateral" data-tooltip="{{localize 'T20A.Ficha.AlternarLateral'}}">
+			<i class="fa-solid {{#if hf.lateral}}fa-angles-left{{else}}fa-angles-right{{/if}}"></i>
+		</button>
+		{{!-- Sob o retrato (onde ficava o logo): deslocamento e tamanho --}}
+		<div class="hf-sob-retrato">
+			{{#if hf.deslocamento}}
+			<span class="hf-estat" data-tooltip="{{localize 'T20.Movement'}}{{#if hf.deslocamento.tipo}} ({{hf.deslocamento.tipo}}){{/if}}{{#if hf.deslocamento.todos}}: {{hf.deslocamento.todos}}{{/if}}">
+				<i class="fa-solid {{hf.deslocamento.icone}}"></i>
+				<span>{{hf.deslocamento.valor}}<small>{{hf.deslocamento.unidade}}</small></span>
+			</span>
+			{{/if}}
+			<span class="hf-estat" data-tooltip="{{localize 'T20.Size'}}">
+				<i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+				<span class="hf-estat-texto">{{lookup config.actorSizes system.tracos.tamanho}}</span>
+			</span>
+		</div>
+		{{#each hf.abas as |aba|}}
+			{{#unless (and (eq aba.id "magias") (not @root.hf.temMagias))}}
+			<button type="button" class="hf-aba-botao {{#if aba.ativa}}ativa{{/if}}" data-hf-aba="{{aba.id}}" data-tooltip="{{aba.rotulo}}">
+				<i class="{{aba.icone}}"></i>
+				<span>{{aba.rotulo}}</span>
+				{{#if aba.contagem}}<b class="hf-contagem">{{aba.contagem}}</b>{{/if}}
+			</button>
+			{{/unless}}
+		{{/each}}
+	</nav>
+	{{!-- Logo fora da faixa das abas (que rola de lado e cortaria o que passa da altura dela) --}}
+	{{#if hf.logo}}<img class="hf-logo" src="{{hf.logo}}" alt="Tormenta 20">{{/if}}
+	</div>
+
+	<section class="hf-corpo">
+		<aside class="hf-lateral">
+			{{> "modules/t20-hayd-ui/templates/ficha/lateral.hbs"}}
+		</aside>
+
+		<div class="hf-aba-conteudo">
+			{{> "modules/t20-hayd-ui/templates/ficha/aba-combate.hbs"}}
+			{{> "modules/t20-hayd-ui/templates/ficha/aba-inventario.hbs"}}
+			{{> "modules/t20-hayd-ui/templates/ficha/aba-poderes.hbs"}}
+			{{> "modules/t20-hayd-ui/templates/ficha/aba-magias.hbs"}}
+			{{> "modules/t20-hayd-ui/templates/ficha/aba-efeitos.hbs"}}
+			{{> "modules/t20-hayd-ui/templates/ficha/aba-diario.hbs"}}
+		</div>
+	</section>
+</form>

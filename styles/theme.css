@@ -309,7 +309,7 @@
     background-image:
         linear-gradient(var(--t20a-cor-destaque, #960505),
             var(--t20a-cor-destaque, #960505)),
-        url("../assets/header-tormenta.webp");
+        url("../assets/fundos/header-tormenta.webp");
     background-position: center 45%;
     background-size: cover;
     background-repeat: no-repeat;
@@ -331,7 +331,7 @@
 
 /* Opção "manter cores originais" (diálogo Cor da Ficha): só a arte. */
 .t20a.t20a-player-sheet.t20a-arte-original .sheet-header::before {
-    background-image: url("../assets/header-tormenta.webp");
+    background-image: url("../assets/fundos/header-tormenta.webp");
     background-blend-mode: normal;
 }
 
@@ -1709,14 +1709,14 @@ body.t20a-ui #context-menu.t20a-context-menu[popover] {
 
 /* Background image preenche toda a mensagem (header + conteúdo) */
 .t20a-chat-player {
-    background-image: url("../assets/background-light.webp") !important;
+    background-image: url("../assets/fundos/background-light.webp") !important;
     background-size: cover !important;
     background-position: center !important;
 }
 
 .t20a-chat-npc {
     background-color: #0f0f0f !important;
-    background-image: url("../assets/background-dark4.webp") !important;
+    background-image: url("../assets/fundos/background-dark4.webp") !important;
     background-size: cover !important;
     background-position: center !important;
 }
@@ -2754,3 +2754,17 @@ a.t20a-pn-badge.t20a-pn-bonus:hover {
     scrollbar-width: thin !important;
     scrollbar-color: var(--t20a-cor-destaque, #888) transparent !important;
 }
+
+/* Títulos das categorias nas configurações do módulo (mesmo visual do GM Tools) */
+.t20a-cfg-titulo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 14px 0 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--color-border-light-2, #999);
+    font-size: 1.05em;
+    font-weight: 600;
+}
+.t20a-cfg-titulo:first-child { margin-top: 4px; }
+.t20a-cfg-titulo i { opacity: 0.7; }

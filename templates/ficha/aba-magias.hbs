@@ -1,0 +1,30 @@
+<div class="hf-aba hf-aba-magias {{#if (eq hf.aba 'magias')}}ativa{{/if}}" data-aba="magias">
+	{{> "modules/t20-hayd-ui/templates/ficha/ferramentas.hbs" aba="magias" origem="magia" compendio="tormenta20.magias"}}
+
+	<div class="hf-conjuracao">
+		<div class="hf-conjuracao-bloco hf-conjuracao-cd">
+			<span class="hf-conjuracao-rotulo">{{localize 'T20.SpellDC'}}</span>
+			<span class="hf-conjuracao-valor">{{hf.cd}}</span>
+		</div>
+		<div class="hf-conjuracao-bloco hf-conjuracao-atr">
+			<span class="hf-conjuracao-rotulo">{{localize 'T20.KeyAbility'}}</span>
+			<div class="hf-conjuracao-campos">
+				<select name="system.attributes.conjuracao" {{#unless hf.editavel}}disabled{{/unless}}>
+					{{selectOptions config.atributos selected=system.attributes.conjuracao localize=true blank=''}}
+				</select>
+				{{#if hf.editavel}}
+				<a class="update-cd hf-botao-icone" data-atrres="{{system.attributes.conjuracao}}" data-tooltip="{{localize 'T20.UpdateSpellKeyAbility'}}"><i class="fa-solid fa-rotate"></i></a>
+				{{/if}}
+			</div>
+		</div>
+	</div>
+
+	{{#each hf.magias as |secao|}}
+		{{> "modules/t20-hayd-ui/templates/ficha/secao-itens.hbs" secao=secao}}
+	{{else}}
+		<div class="hf-estado-vazio">
+			<i class="fa-solid fa-wand-sparkles"></i>
+			<p>{{localize 'T20A.Ficha.MagiasVazio'}}</p>
+		</div>
+	{{/each}}
+</div>

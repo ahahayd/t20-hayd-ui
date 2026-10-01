@@ -29,6 +29,18 @@ Três temas visuais à escolha, por usuário:
 - **Light Mode**: a versão clara do Dark Mode — mesmo layout, mesma arte do cabeçalho e as mesmas fichas e janelas cobertas, com fundo claro e texto escuro.
 - **Dark Neon**: visual escuro com a cor de destaque bem presente — gradientes, brilho, cantos quadrados.
 
+### Ficha Hayd
+
+Uma ficha de personagem nova, com organização própria, inspirada na [Tidy 5e Sheets](https://github.com/kgar/foundry-vtt-tidy-5e-sheets). Para usar, abra a ficha, clique em **Configurar Ficha** no cabeçalho e escolha **Ficha Hayd**. Ela funciona mesmo com o tema desligado, e rolagens, efeitos, equipar e arrastar itens continuam sendo os do sistema.
+
+- **Cabeçalho**: retrato, nível, raça, classes, origem e divindade, barra de XP, PV e PM em barras que aceitam `+5`, `-3` ou um valor direto (Esc desfaz), Defesa, atributos (clique para rolar), deslocamento, CD de magias e tamanho.
+- **Cadeado**: bloqueada, a ficha só mostra o que se usa em jogo. Desbloqueada, aparecem os campos de edição, o treino e o atributo das perícias, a criação de itens por seção e os botões de editar e excluir.
+- **Barra lateral recolhível**: perícias (clique para rolar) e traços (tamanho, movimento, resistências, sentidos, idiomas, proficiências, recursos extras e anotações).
+- **Abas**: Combate (ataques e habilidades agrupados pela execução: padrão, movimento, reação…), Inventário (quantidade com − / +, guardar fora da carga, carga e moedas), Poderes (por tipo), Magias (por círculo, com CD e atributo-chave), Efeitos (condições em um clique e efeitos ativos) e Diário.
+- **Em todas as listas**: busca, seções recolhíveis, descrição que abre ao clicar no nome, **fixar** itens no topo do Combate e o botão ⋮ com o mesmo menu do clique direito.
+
+A aba aberta, a barra lateral e as seções recolhidas ficam guardadas por usuário.
+
 ### Cor da ficha
 
 Clique em **"Cor da Ficha"** no cabeçalho da ficha (donos e Mestre) e escolha entre a cor **automática** do jogador dono, a cor **padrão** do mundo ou uma **cor personalizada** pelo seletor de cores. O texto se ajusta sozinho para manter contraste legível sobre qualquer cor escolhida. Nas fichas de personagem, a arte do cabeçalho acompanha a cor de destaque; marque **"Manter as cores originais da arte do cabeçalho"** no mesmo diálogo para exibi-la sem recolorir, ou **"Ocultar a arte do cabeçalho"** para deixar o topo da ficha sem imagem.

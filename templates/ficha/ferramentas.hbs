@@ -1,0 +1,29 @@
+<div class="hf-barra-ferramentas">
+	<label class="hf-busca"><i class="fa-solid fa-magnifying-glass"></i>
+		<input type="search" data-hf-busca="{{aba}}" value="{{lookup @root.hf.busca aba}}" placeholder="{{localize 'T20A.Ficha.Buscar'}}">
+	</label>
+	<button type="button" class="hf-botao-icone" data-hf-acao="expandir-tudo" data-tooltip="{{localize 'T20A.Ficha.ExpandirTudo'}}"><i class="fa-solid fa-book-open-reader"></i></button>
+	{{#if organizavel}}
+		{{#if @root.hf.editavel}}
+		<button type="button" class="hf-botao-icone {{#if (eq (lookup @root.hf.organizacao aba) 'lista')}}ativo{{/if}}" data-hf-acao="organizacao" data-aba="{{aba}}"
+			data-tooltip="{{#if (eq (lookup @root.hf.organizacao aba) 'lista')}}{{localize 'T20A.Ficha.UsarCategorias'}}{{else}}{{localize 'T20A.Ficha.UsarLista'}}{{/if}}">
+			<i class="fa-solid {{#if (eq (lookup @root.hf.organizacao aba) 'lista')}}fa-layer-group{{else}}fa-list-ol{{/if}}"></i>
+		</button>
+		{{/if}}
+	{{/if}}
+	{{#if (and origem @root.hf.origemPoderes)}}
+	{{!-- origem="poder" ou "magia": a tela abre já na aba certa --}}
+	<button type="button" class="hf-botao-icone {{#if @root.hf.origemPoderesNovo}}hf-pulsando{{/if}}" data-hf-acao="origem-poderes" data-aba="{{origem}}"
+		data-tooltip="{{#if (eq origem 'magia')}}{{localize 'T20A.OrigemPoderes.BotaoMagias'}}{{else}}{{localize 'T20A.OrigemPoderes.Botao'}}{{/if}}"><i class="fa-solid fa-timeline"></i></button>
+	{{/if}}
+	{{#if compendio}}
+		{{#if @root.hf.editavel}}
+		<a class="hf-botao" data-hf-acao="compendio" data-pack="{{compendio}}"><i class="fa-solid fa-book"></i> {{localize 'T20A.Ficha.Compendio'}}</a>
+		{{/if}}
+	{{/if}}
+	{{#if criarItem}}
+		{{#if @root.hf.editavel}}
+		<a class="hf-botao item-dialog" data-type="gerais"><i class="fa-solid fa-plus"></i> {{localize 'T20A.Ficha.CriarItem'}}</a>
+		{{/if}}
+	{{/if}}
+</div>

@@ -1,0 +1,36 @@
+<div class="hf-aba hf-aba-inventario {{#if (eq hf.aba 'inventario')}}ativa{{/if}}" data-aba="inventario">
+	{{> "modules/t20-hayd-ui/templates/ficha/ferramentas.hbs" aba="inventario" organizavel=true criarItem=true}}
+
+	{{#each hf.inventario as |secao|}}
+		{{> "modules/t20-hayd-ui/templates/ficha/secao-itens.hbs" secao=secao}}
+	{{else}}
+		<div class="hf-estado-vazio">
+			<i class="fa-solid fa-sack"></i>
+			<p>{{localize 'T20A.Ficha.InventarioVazio'}}</p>
+		</div>
+	{{/each}}
+
+	<footer class="hf-rodape-inventario">
+		<div class="hf-carga {{#if hf.carga.encumbered}}sobrecarregado{{/if}}" style="--hf-pct: {{hf.carga.pctVisual}}%;" data-tooltip="{{localize 'T20A.Ficha.CargaDica'}}">
+			<div class="hf-carga-barra"></div>
+			<span class="hf-carga-texto"><i class="fa-solid fa-weight-hanging"></i> {{hf.carga.value}} / {{hf.carga.max}} <small>({{localize 'T20A.Ficha.Sobrecarga'}} {{hf.carga.limit}})</small></span>
+		</div>
+		{{!-- Mesma estrutura da ficha do sistema (.inventory-currency ul.currency): a loja
+		     (t20-hayd-loja) e o "Enviar dinheiro" (t20-hayd-gmtools) põem os botões deles
+		     no fim desta lista sozinhos, quando estão ativos. --}}
+		<div class="hf-moedas inventory-currency">
+			<ul class="currency">
+				{{#if mostrarPlatina}}
+				<li class="hf-moeda hf-moeda-tl" data-tooltip="{{localize 'T20.CurrencyPlat'}}"><label><img class="hf-moeda-icone" src="modules/t20-hayd-ui/assets/moedas/moeda-tl.webp" alt="{{localize 'T20.CurrencyPlatAbbr'}}">
+					<input type="text" data-hf-delta="system.dinheiro.tl" data-hf-min="0" value="{{system.dinheiro.tl}}" {{#unless hf.editavel}}disabled{{/unless}}></label></li>
+				{{/if}}
+				<li class="hf-moeda hf-moeda-to" data-tooltip="{{localize 'T20.CurrencyGold'}}"><label><img class="hf-moeda-icone" src="modules/t20-hayd-ui/assets/moedas/moeda-to.webp" alt="{{localize 'T20.CurrencyGoldAbbr'}}">
+					<input type="text" data-hf-delta="system.dinheiro.to" data-hf-min="0" value="{{system.dinheiro.to}}" {{#unless hf.editavel}}disabled{{/unless}}></label></li>
+				<li class="hf-moeda hf-moeda-tp" data-tooltip="{{localize 'T20.CurrencySilver'}}"><label><img class="hf-moeda-icone" src="modules/t20-hayd-ui/assets/moedas/moeda-tp.webp" alt="{{localize 'T20.CurrencySilverAbbr'}}">
+					<input type="text" data-hf-delta="system.dinheiro.tp" data-hf-min="0" value="{{system.dinheiro.tp}}" {{#unless hf.editavel}}disabled{{/unless}}></label></li>
+				<li class="hf-moeda hf-moeda-tc" data-tooltip="{{localize 'T20.CurrencyCopper'}}"><label><img class="hf-moeda-icone" src="modules/t20-hayd-ui/assets/moedas/moeda-tc.webp" alt="{{localize 'T20.CurrencyCopperAbbr'}}">
+					<input type="text" data-hf-delta="system.dinheiro.tc" data-hf-min="0" value="{{system.dinheiro.tc}}" {{#unless hf.editavel}}disabled{{/unless}}></label></li>
+			</ul>
+		</div>
+	</footer>
+</div>

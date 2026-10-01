@@ -1,0 +1,78 @@
+<li class="item hf-item hf-tipo-{{item.tipo}} {{#if item.equipado}}equipado{{/if}} {{#if item.guardado}}guardado{{/if}} {{#if item.expandido}}hf-expandido{{/if}}" data-item-id="{{item.id}}" data-nome="{{item.nome}}">
+	<div class="hf-item-linha">
+		{{#if item.preparavel}}
+			<a class="hf-controle preparation-toggle {{#if item.preparada}}ativo{{/if}}" data-tooltip="{{localize 'T20.SpellPrepPrepared'}}"><i class="fa-solid fa-sun"></i></a>
+		{{/if}}
+		<div class="item-image hf-item-img" role="button" tabindex="0" aria-label="{{localize 'T20A.Ficha.Usar'}} {{item.nome}}" data-tooltip="{{localize 'T20A.Ficha.Usar'}}" style="background-image: url('{{item.img}}')">
+			<i class="fa-solid fa-dice-d20"></i>
+		</div>
+		<div class="hf-item-nome" role="button" tabindex="0">
+			<span class="hf-item-titulo">
+				{{#if item.marcarEngenhoca}}<i class="hf-marca hf-marca-engenhoca fa-solid fa-gears" data-tooltip="{{localize 'T20A.Ficha.Engenhoca'}}"></i>{{/if}}
+				{{#if item.marcarMagia}}<i class="hf-marca hf-marca-magia fa-solid fa-wand-sparkles" data-tooltip="{{localize 'T20A.Ficha.MagiaRotulo'}}"></i>{{/if}}
+				{{item.nome}}{{#if item.guardado}} <i class="fa-solid fa-box-archive" data-tooltip="{{localize 'T20A.Ficha.Guardado'}}"></i>{{/if}}
+			</span>
+			{{#if (eq colunas "acoes")}}
+				{{#if (or item.alcance item.duracao)}}<span class="hf-item-sub">{{item.alcance}}{{#if (and item.alcance item.duracao)}} · {{/if}}{{item.duracao}}</span>{{/if}}
+			{{else if (eq colunas "magias")}}
+				<span class="hf-item-sub">{{#if item.engenhoca}}{{localize 'T20A.Ficha.Engenhoca'}}{{else}}{{item.escola}}{{/if}}{{#if item.alcance}} · {{item.alcance}}{{/if}}</span>
+			{{else if (eq colunas "poderes")}}
+				{{#if item.tipoLabel}}<span class="hf-item-sub">{{item.tipoLabel}}</span>{{/if}}
+			{{else if item.detalhe}}
+				<span class="hf-item-sub">{{item.detalhe}}</span>
+			{{/if}}
+		</div>
+
+		{{#if (eq colunas "armas")}}
+			<div class="hf-col hf-col-larga hf-col-rolagem"><span class="hf-rol-ataque">{{item.rolagem.ataque}}</span><span class="hf-rol-dano">{{item.rolagem.dano}}</span><span class="hf-rol-critico">{{item.rolagem.critico}}</span></div>
+		{{else if (eq colunas "inventario")}}
+			<div class="hf-col hf-col-qtd">
+				{{#if (ne item.qtd null)}}
+					{{#if @root.hf.editavel}}
+						<button type="button" class="hf-passo-mini" data-hf-passo="system.qtd" data-hf-doc="item" data-hf-valor="-1" data-hf-min="0"><i class="fa-solid fa-minus"></i></button>
+						<input type="text" class="hf-qtd" data-hf-delta="system.qtd" data-hf-doc="item" data-hf-min="0" value="{{item.qtd}}">
+						<button type="button" class="hf-passo-mini" data-hf-passo="system.qtd" data-hf-doc="item" data-hf-valor="1"><i class="fa-solid fa-plus"></i></button>
+					{{else}}{{item.qtd}}{{/if}}
+				{{/if}}
+			</div>
+			<div class="hf-col hf-col-espacos">{{#if (ne item.espacos null)}}{{item.espacos}}{{/if}}</div>
+		{{else if (eq colunas "acoes")}}
+			<div class="hf-col hf-col-custo">{{item.custo}}</div>
+		{{else if (eq colunas "magias")}}
+			<div class="hf-col hf-col-ativacao">{{item.ativacao}}</div>
+		{{else}}
+			<div class="hf-col hf-col-custo">{{item.custo}}</div>
+			<div class="hf-col hf-col-ativacao">{{item.ativacao}}</div>
+		{{/if}}
+		{{!-- Coluna da "Origem dos poderes" (opção do módulo), em Poderes e Magias --}}
+		{{#if (and @root.hf.origemColuna (or (eq colunas "poderes") (eq colunas "magias")))}}
+			<div class="hf-col hf-col-origem">{{#if item.origem}}<span class="hf-item-origem" data-tooltip="{{item.origem}}"><i class="fa-solid fa-timeline"></i> {{item.origem}}</span>{{/if}}</div>
+		{{/if}}
+
+		<div class="hf-item-controles">
+			{{#if @root.hf.editavel}}
+				{{#if item.equipavel}}
+					<a class="hf-controle hf-equipar {{#if item.equipado}}ativo{{/if}}" data-hf-acao="equipar"
+						data-tooltip="{{#if item.equipado}}{{localize 'T20.Unequip'}}{{else}}{{localize 'T20.Equip'}}{{/if}}">
+						{{#if (eq item.tipo "arma")}}<i class="fa-solid fa-hand-fist"></i>{{#if (gt item.maos 1)}}<b>2</b>{{/if}}{{else}}<i class="fa-solid fa-shield-halved"></i>{{/if}}
+					</a>
+				{{/if}}
+				{{#if (eq colunas "inventario")}}
+					<a class="hf-controle hf-guardar {{#if item.guardado}}ativo{{/if}}" data-hf-acao="guardar" data-tooltip="{{#if item.guardado}}{{localize 'T20A.Ficha.Carregar'}}{{else}}{{localize 'T20A.Ficha.Guardar'}}{{/if}}"><i class="fa-solid fa-box-archive"></i></a>
+				{{/if}}
+				<a class="hf-controle hf-fixar {{#if item.fixado}}ativo{{/if}}" data-hf-acao="fixar"
+					data-tooltip="{{#if item.fixado}}{{localize 'T20A.Ficha.Desafixar'}}{{else}}{{localize 'T20A.Ficha.Fixar'}}{{/if}}"><i class="fa-solid fa-thumbtack"></i></a>
+				<a class="hf-controle hf-favorito {{#if item.favorito}}ativo{{/if}}" data-hf-acao="favorito"
+					data-tooltip="{{#if item.favorito}}{{localize 'T20A.Ficha.Desfavoritar'}}{{else}}{{localize 'T20A.Ficha.Favoritar'}}{{/if}}"><i class="fa-solid fa-star"></i></a>
+				{{#if @root.hf.desbloqueada}}
+					<a class="hf-controle" data-hf-acao="editar" data-tooltip="{{localize 'T20.Edit'}}"><i class="fa-solid fa-pen-to-square"></i></a>
+					<a class="hf-controle hf-perigo" data-hf-acao="excluir" data-tooltip="{{localize 'T20A.Ficha.Excluir'}}"><i class="fa-solid fa-trash"></i></a>
+				{{/if}}
+			{{/if}}
+			<a class="hf-controle hf-menu" data-hf-acao="menu" data-tooltip="{{localize 'T20A.Ficha.MaisOpcoes'}}"><i class="fa-solid fa-ellipsis-vertical"></i></a>
+		</div>
+	</div>
+	{{#if item.descricao}}
+	<div class="hf-descricao"><div class="hf-descricao-interno"><div class="hf-descricao-caixa">{{{item.descricao}}}</div></div></div>
+	{{/if}}
+</li>

@@ -9,13 +9,19 @@ import {
     registrarConfiguracoes as registrarConfiguracoesPoderes,
     decorarFicha as decorarFichaPoderes
 } from "./origem-poderes.mjs";
+import {
+    registrarConfiguracoesFicha,
+    registrarFichaHayd,
+    ehFichaHayd,
+    CLASSE_FICHA
+} from "./ficha-hayd.mjs";
 
 const MODULE_ID = "t20-hayd-ui";
 const SYSTEM_ID = "tormenta20";
 const FLAG_COR = "configCor";
 const FLAG_ARTE_ORIGINAL = "arteOriginal"; // arte do cabeçalho sem recolorir pela cor de destaque
 const FLAG_SEM_ARTE = "semArte";           // ficha sem a arte do cabeçalho
-const LOGO_PATH = `modules/${MODULE_ID}/assets/logo-tormenta20.webp`;
+const LOGO_PATH = `modules/${MODULE_ID}/assets/icones/logo-tormenta20.webp`;
 const COR_PADRAO = "#960505"; // vermelho-sangue arcano (default)
 
 /** Classe de janela por tema visual e cor de texto de fallback usada no sweep de contraste. */
@@ -55,7 +61,8 @@ Hooks.once("init", () => {
         name: "T20A.Settings.TemaName",
         hint: "T20A.Settings.TemaHint",
         scope: "client",
-        config: true,
+        // Legado: hoje o tema vem do campo "Theme" do Configurar Ficha (ver temaAtual).
+        config: false,
         type: String,
         choices: {
             darkMode: "T20A.Settings.TemaDarkMode",
@@ -63,7 +70,7 @@ Hooks.once("init", () => {
             darkNeon: "T20A.Settings.TemaDarkNeon"
         },
         default: TEMA_PADRAO,
-        onChange: () => location.reload()
+        onChange: () => trocarTemaAoVivo()
     });
 
     game.settings.register(MODULE_ID, "corPadrao", {
@@ -80,13 +87,44 @@ Hooks.once("init", () => {
         name: "T20A.Settings.MostrarLogoName",
         hint: "T20A.Settings.MostrarLogoHint",
         scope: "client",
-        config: true,
+        config: false, // fica na janela "Configurar ficha" (botão Sheet) das fichas de personagem
         type: Boolean,
         default: true,
         onChange: () => reRenderTormentaSheets()
     });
 
+    // Tela de "jogo pausado": texto e ícone próprios (vazio = o padrão da Foundry)
+    game.settings.register(MODULE_ID, "pausaTexto", {
+        name: "T20A.Settings.PausaTextoName",
+        hint: "T20A.Settings.PausaTextoHint",
+        scope: "world",
+        config: true,
+        type: String,
+        default: "",
+        onChange: () => ui.pause?.render()
+    });
+    game.settings.register(MODULE_ID, "pausaIcone", {
+        name: "T20A.Settings.PausaIconeName",
+        hint: "T20A.Settings.PausaIconeHint",
+        scope: "world",
+        config: true,
+        type: String,
+        filePicker: "image",
+        default: "",
+        onChange: () => ui.pause?.render()
+    });
+    game.settings.register(MODULE_ID, "pausaGirar", {
+        name: "T20A.Settings.PausaGirarName",
+        hint: "T20A.Settings.PausaGirarHint",
+        scope: "world",
+        config: true,
+        type: Boolean,
+        default: true,
+        onChange: () => ui.pause?.render()
+    });
+
     registrarConfiguracoesPoderes(reRenderTormentaSheets);
+    registrarConfiguracoesFicha();
 
     game.settings.register(MODULE_ID, "chatRetrato", {
         name: "T20A.Settings.ChatRetratoName",
@@ -151,12 +189,27 @@ function estiloInterfaceAtivo() {
     catch (_) { return true; }
 }
 
-/** Chave do tema visual escolhido pelo usuário ("darkNeon" | "darkMode" | "lightMode"). */
-function temaAtual() {
+/**
+ * Chave do tema visual ("darkNeon" | "darkMode" | "lightMode") para um documento.
+ * Vem do campo "Theme" do diálogo Configurar Ficha (setting `core.sheetThemes`,
+ * por usuário): primeiro o tema desta ficha, depois o padrão do tipo. Sem
+ * documento (diálogos, body) vale o padrão da ficha de personagem. Por último,
+ * a escolha antiga feita nas configurações do módulo.
+ */
+function temaAtual(doc = null) {
     try {
-        const t = game.settings.get(MODULE_ID, "tema");
-        return TEMAS[t] ? t : TEMA_PADRAO;
-    } catch (_) { return TEMA_PADRAO; }
+        const temas = game.settings.get("core", "sheetThemes") ?? {};
+        const nome = doc?.documentName ?? "Actor";
+        const tipo = doc ? (doc.type ?? CONST.BASE_DOCUMENT_TYPE) : "character";
+        for (const t of [
+            doc ? temas.documents?.[doc.uuid] : null,
+            foundry.utils.getProperty(temas, `defaults.${nome}.${tipo}`),
+            game.settings.get(MODULE_ID, "tema")
+        ]) {
+            if (TEMAS[t]) return t;
+        }
+    } catch (_) { /* cai no padrão */ }
+    return TEMA_PADRAO;
 }
 
 /** Todas as classes de tema conhecidas — usado para limpar antes de reaplicar. */
@@ -172,9 +225,9 @@ const TODAS_CLASSES_TEMA = Object.values(TEMAS).map(t => t.classe);
  * `remove` de classe ausente e `add` de classe presente são no-ops, então no
  * caminho normal (tema já aplicado) esta função não suja estilo nenhum.
  */
-function aplicarClasseTema(el) {
+function aplicarClasseTema(el, doc = null) {
     if (!el) return;
-    const alvo = TEMAS[temaAtual()].classe;
+    const alvo = TEMAS[temaAtual(doc)].classe;
     for (const classe of TODAS_CLASSES_TEMA) {
         if (classe !== alvo) el.classList.remove(classe);
     }
@@ -193,6 +246,8 @@ function aplicarClasseCorpo() {
 
 Hooks.once("setup", () => {
     aplicarClasseCorpo();
+    // A Ficha Hayd é uma ficha à parte: vale mesmo com o tema desligado.
+    if (game.system.id === SYSTEM_ID) registrarFichaHayd();
 
     const CM = foundry.applications?.ux?.ContextMenu?.implementation
         ?? foundry.applications?.ux?.ContextMenu
@@ -202,7 +257,8 @@ Hooks.once("setup", () => {
     const original = CM.prototype._setPosition;
     CM.prototype._setPosition = function(menu, target, options = {}) {
         try {
-            const janelaTema = estiloInterfaceAtivo() ? target?.closest?.(".t20a-any") : null;
+            const janelaTema = target?.closest?.(`.${CLASSE_FICHA}`)
+                ?? (estiloInterfaceAtivo() ? target?.closest?.(".t20a-any") : null);
             // Marca o menu para o CSS: só menus abertos das janelas com tema
             // são estilizados; os do core e de outros módulos ficam intactos.
             menu.classList.toggle("t20a-context-menu", !!janelaTema);
@@ -228,6 +284,23 @@ Hooks.once("setup", () => {
 /* -------------------------------------------------------------------------- */
 
 Hooks.on("renderActorSheet",  (app, html) => aplicarTema(app, html));
+Hooks.on("renderGamePause", (_app, html) => aplicarPausa(html));
+
+/** Troca o texto e o ícone da tela de "jogo pausado" pelos das configurações. */
+function aplicarPausa(html) {
+    const root = html instanceof HTMLElement ? html : html?.[0];
+    if (!root) return;
+    const texto = game.settings.get(MODULE_ID, "pausaTexto")?.trim();
+    const icone = game.settings.get(MODULE_ID, "pausaIcone")?.trim();
+    const girar = game.settings.get(MODULE_ID, "pausaGirar");
+    const legenda = root.querySelector("figcaption");
+    if (texto && legenda) legenda.textContent = texto;
+    const img = root.querySelector("img");
+    if (img) {
+        if (icone) img.src = icone;
+        img.classList.toggle("fa-spin", girar);
+    }
+}
 Hooks.on("renderItemSheet",   (app, html) => aplicarTema(app, html));
 Hooks.on("renderApplication", (app, html) => aplicarTemaDialog(app, html));
 Hooks.on("renderApplication", (app, html) => manterJanelaDeUsoNaTela(app, html));
@@ -371,10 +444,16 @@ function aplicarTema(app, html) {
 
     const doc = documentoDoApp(app);
 
+    // A Ficha Hayd tem visual próprio: do tema ela só recebe a cor de destaque.
+    if (ehFichaHayd(app)) {
+        aplicarCorDeDestaque(app, root.closest?.(".window-app") ?? root);
+        return;
+    }
+
     // Tema visual das fichas: só quando a estilização de interface está ativa.
     if (estiloInterfaceAtivo()) {
         const windowApp = root.closest?.(".window-app") ?? root;
-        aplicarClasseTema(windowApp);
+        aplicarClasseTema(windowApp, doc);
         const ehFichaJogador = doc?.documentName === "Actor" && doc.type === "character";
         const formulario = root.matches?.("form.tormenta20")
             ? root
@@ -387,23 +466,7 @@ function aplicarTema(app, html) {
         windowApp.classList.toggle("t20a-sem-arte",
             ehFichaJogador && doc.getFlag(MODULE_ID, FLAG_SEM_ARTE) === true);
 
-        let cor;
-        try {
-            cor = resolverCorDeDestaque(app);
-        } catch (err) {
-            console.warn(`${MODULE_ID} | falha ao resolver cor:`, err);
-            cor = corPadraoConfigurada();
-        }
-        /* Só escreve se mudou: --t20a-cor-destaque é herdada e alimenta as
-         * variações derivadas (color-mix) usadas em toda a ficha, então
-         * reescrevê-la invalida o estilo computado da subárvore inteira —
-         * caro num render que acontece a cada update do ator. */
-        if (windowApp.style.getPropertyValue("--t20a-cor-destaque") !== cor) {
-            windowApp.style.setProperty("--t20a-cor-destaque", cor);
-            // Texto/ícone legível SOBRE a cor de destaque (preto no amarelo,
-            // branco no vermelho escuro), para botões preenchidos com ela.
-            windowApp.style.setProperty("--t20a-texto-sobre-destaque", textoContrastante(cor).texto);
-        }
+        aplicarCorDeDestaque(app, windowApp);
 
         // Barra de carga: o CSS divide a cor do texto no ponto em que a barra
         // termina, e só sabe onde é pela largura inline que o sistema põe nela.
@@ -436,6 +499,27 @@ function aplicarTema(app, html) {
     if (doc?.documentName === "Actor" && doc.type === "character") {
         try { decorarFichaPoderes(doc, root); }
         catch (err) { console.warn(`${MODULE_ID} | falha ao marcar a origem dos poderes:`, err); }
+    }
+}
+
+/** Põe na janela a cor de destaque da ficha (e a cor de texto legível sobre ela). */
+function aplicarCorDeDestaque(app, windowApp) {
+    let cor;
+    try {
+        cor = resolverCorDeDestaque(app);
+    } catch (err) {
+        console.warn(`${MODULE_ID} | falha ao resolver cor:`, err);
+        cor = corPadraoConfigurada();
+    }
+    /* Só escreve se mudou: --t20a-cor-destaque é herdada e alimenta as
+     * variações derivadas (color-mix) usadas em toda a ficha, então
+     * reescrevê-la invalida o estilo computado da subárvore inteira —
+     * caro num render que acontece a cada update do ator. */
+    if (windowApp.style.getPropertyValue("--t20a-cor-destaque") !== cor) {
+        windowApp.style.setProperty("--t20a-cor-destaque", cor);
+        // Texto/ícone legível SOBRE a cor de destaque (preto no amarelo,
+        // branco no vermelho escuro), para botões preenchidos com ela.
+        windowApp.style.setProperty("--t20a-texto-sobre-destaque", textoContrastante(cor).texto);
     }
 }
 
@@ -1002,7 +1086,72 @@ async function abrirDialogoCor(doc) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Reatividade                                                                */
+/*  Tema no campo "Theme" do diálogo "Configurar Ficha"                        */
+/* -------------------------------------------------------------------------- */
+
+/** Reaplica o tema sem recarregar: o CSS de todos os temas já está carregado. */
+function trocarTemaAoVivo() {
+    aplicarClasseCorpo();
+    reRenderTormentaSheets();
+}
+
+/**
+ * Oferece os temas do módulo no campo "Theme" do core para as fichas do
+ * sistema. A Ficha Hayd fica de fora: ela só tem o visual próprio.
+ */
+function registrarTemasNasFichas() {
+    const temas = {
+        darkMode: "T20A.Settings.TemaDarkMode",
+        lightMode: "T20A.Settings.TemaLightMode",
+        darkNeon: "T20A.Settings.TemaDarkNeon"
+    };
+    for (const nome of ["Actor", "Item"]) {
+        for (const porTipo of Object.values(CONFIG[nome]?.sheetClasses ?? {})) {
+            for (const [id, cfg] of Object.entries(porTipo)) {
+                if (id.startsWith(`${SYSTEM_ID}.`) && !cfg.cls?.FICHA_HAYD) cfg.themes = temas;
+            }
+        }
+    }
+}
+
+Hooks.once("ready", () => {
+    if (estiloInterfaceAtivo()) registrarTemasNasFichas();
+});
+
+/*
+ * O core desabilita o campo "Theme" em fichas AppV1 (as do sistema), porque
+ * ele mesmo só sabe aplicar tema em AppV2. Quem aplica aqui é o módulo, então
+ * reabilita o campo sempre que a ficha escolhida tem os nossos temas.
+ */
+Hooks.on("renderDocumentSheetConfig", (app, element) => {
+    if (!estiloInterfaceAtivo()) return;
+    const root = elementoRaiz(element);
+    const form = root?.matches?.("form") ? root : root?.querySelector?.("form");
+    const doc = app.document;
+    if (!form || !doc) return;
+    const porTipo = CONFIG[doc.documentName]?.sheetClasses?.[doc.type ?? CONST.BASE_DOCUMENT_TYPE] ?? {};
+    const temTemas = id => !!porTipo[id]?.themes?.darkMode;
+
+    const reabilitar = () => {
+        const padrao = form.elements.defaultClass?.value;
+        if (form.elements.theme) form.elements.theme.disabled = !temTemas(form.elements.sheetClass?.value || padrao);
+        if (form.elements.defaultTheme) form.elements.defaultTheme.disabled = !temTemas(padrao);
+    };
+    reabilitar();
+    // Roda depois do _onChangeForm do core, que desabilita de novo ao trocar a ficha.
+    if (!form.dataset.t20aTemas) {
+        form.dataset.t20aTemas = "1";
+        form.addEventListener("change", reabilitar);
+    }
+});
+
+/* O diálogo grava em core.sheetThemes; um padrão novo vale para as fichas já abertas. */
+Hooks.on("clientSettingChanged", key => {
+    if (key === "core.sheetThemes") trocarTemaAoVivo();
+});
+
+/* -------------------------------------------------------------------------- */
+/*  Reatividade                                                              */
 /* -------------------------------------------------------------------------- */
 
 Hooks.on("updateUser", (_user, changes) => {
@@ -1185,3 +1334,78 @@ function normalizarHex(str) {
     return null;
 }
 
+
+/* -------------------------------------------------------------------------- */
+/*  Aviso: o tema saiu das configurações do módulo                             */
+/* -------------------------------------------------------------------------- */
+
+/* Quem trocava o tema aqui antes encontra, no mesmo lugar, onde ele foi parar. */
+Hooks.on("renderSettingsConfig", (_app, element) => {
+    const root = elementoRaiz(element);
+    const ancora = root?.querySelector?.(`[name="${MODULE_ID}.estiloInterface"]`)?.closest(".form-group");
+    if (!ancora || root.querySelector(".t20a-aviso-tema")) return;
+    const aviso = document.createElement("div");
+    aviso.className = "form-group t20a-aviso-tema";
+    aviso.innerHTML = `
+        <label>${game.i18n.localize("T20A.Settings.TemaName")}</label>
+        <p class="hint"><i class="fa-solid fa-circle-info"></i> ${game.i18n.localize("T20A.Settings.TemaMovido")}</p>`;
+    ancora.after(aviso);
+});
+
+/* -------------------------------------------------------------------------- */
+/*  Configurações do módulo agrupadas por categoria (como no GM Tools)         */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Cada categoria recebe um título e as configurações dela são movidas para
+ * baixo dele. É só visual: não muda registro nem valor. O que não estiver em
+ * nenhuma categoria fica solto no topo, então toda configuração visível nova
+ * precisa entrar aqui.
+ */
+const CATEGORIAS_CONFIG = [
+    { rotulo: "CatAparencia", icone: "fa-palette",  chaves: ["enabled", "estiloInterface", "corPadrao"] },
+    { rotulo: "CatFicha",     icone: "fa-scroll",   chaves: ["origemPoderesMundo", "origemPoderes"] },
+    { rotulo: "CatChat",      icone: "fa-comments", chaves: ["chatRetrato", "chatFundo", "chatRetratoSemAtor"] },
+    { rotulo: "CatPausa",     icone: "fa-pause",    chaves: ["pausaTexto", "pausaIcone", "pausaGirar"] }
+];
+
+/** O `.form-group` de uma configuração do módulo (campo pelo name, submenu pelo data-key). */
+function grupoDaConfiguracao(root, chave) {
+    const id = CSS.escape(`${MODULE_ID}.${chave}`);
+    return root.querySelector(`[name="${id}"], button[data-key="${id}"]`)?.closest(".form-group") ?? null;
+}
+
+function organizarConfiguracoes(root) {
+    // Já organizado neste render (o Foundry re-renderiza ao trocar de aba)
+    if (root.querySelector(".t20a-cfg-titulo")) return;
+
+    let container = null;
+    const grupos = [];
+    for (const cat of CATEGORIAS_CONFIG) {
+        const itens = cat.chaves.map((chave) => ({ chave, grupo: grupoDaConfiguracao(root, chave) })).filter((p) => p.grupo);
+        if (!itens.length) continue;
+        container ??= itens[0].grupo.parentElement;
+        grupos.push({ cat, itens });
+    }
+    if (!container) return;
+
+    const aviso = root.querySelector(".t20a-aviso-tema");
+    for (const { cat, itens } of grupos) {
+        const titulo = document.createElement("h3");
+        titulo.className = "t20a-cfg-titulo";
+        titulo.innerHTML = `<i class="fa-solid ${cat.icone}"></i> ${foundry.utils.escapeHTML(game.i18n.localize(`T20A.Settings.${cat.rotulo}`))}`;
+        container.appendChild(titulo);
+        // appendChild MOVE o nó existente: agrupa e reordena numa passada só
+        for (const { chave, grupo } of itens) {
+            container.appendChild(grupo);
+            // O aviso de onde foi parar o tema acompanha a opção de estilizar fichas
+            if (chave === "estiloInterface" && aviso) container.appendChild(aviso);
+        }
+    }
+}
+
+// Registrado depois do aviso do tema: roda depois dele e já o encontra na página
+Hooks.on("renderSettingsConfig", (_app, element) => {
+    const root = elementoRaiz(element);
+    if (root) organizarConfiguracoes(root);
+});

@@ -107,7 +107,7 @@
     background-image:
         linear-gradient(var(--t20a-cor-destaque, #960505),
             var(--t20a-cor-destaque, #960505)),
-        url("../assets/header-tormenta.webp");
+        url("../assets/fundos/header-tormenta.webp");
     background-position: center 45%;
     background-size: cover;
     background-repeat: no-repeat;
@@ -131,7 +131,7 @@
 
 /* Opção "manter cores originais" (diálogo Cor da Ficha): só a arte. */
 .t20a-lm.t20a-player-sheet.t20a-arte-original .sheet-header::before {
-    background-image: url("../assets/header-tormenta.webp");
+    background-image: url("../assets/fundos/header-tormenta.webp");
     background-blend-mode: normal;
 }
 

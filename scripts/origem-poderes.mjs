@@ -203,20 +203,34 @@ function marcarOrganizador(actor, root) {
     const abrir = ev => {
         ev.preventDefault();
         ev.stopPropagation();
-        const janela = root.closest(".window-app") ?? root;
-        const mostrarAviso = !game.settings.get(MODULE_ID, "origemPoderesVisto");
-        if (mostrarAviso) {
-            document.querySelectorAll(".t20a-po-abrir.t20a-po-novo")
-                .forEach(b => b.classList.remove("t20a-po-novo"));
-            game.settings.set(MODULE_ID, "origemPoderesVisto", true);
-        }
-        abrirOrganizador(actor, janela, { aoAbrir: mostrarAviso ? avisarPrimeiroUso : null });
+        abrirOrganizadorComAviso(actor, root.closest(".window-app") ?? root);
     };
     botao.addEventListener("click", abrir);
     botao.addEventListener("keydown", ev => {
         if (ev.key === "Enter" || ev.key === " ") abrir(ev);
     });
     titulo.append(botao);
+}
+
+/**
+ * Abre o organizador; no primeiro uso tira o "pulsar" dos botões e mostra o
+ * aviso. Usado pelo botão da ficha do sistema e pelo da Ficha Hayd.
+ */
+export function abrirOrganizadorComAviso(actor, janela, aba = null) {
+    const mostrarAviso = !game.settings.get(MODULE_ID, "origemPoderesVisto");
+    if (mostrarAviso) {
+        document.querySelectorAll(".t20a-po-abrir.t20a-po-novo")
+            .forEach(b => b.classList.remove("t20a-po-novo"));
+        game.settings.set(MODULE_ID, "origemPoderesVisto", true);
+    }
+    return abrirOrganizador(actor, janela, { aoAbrir: mostrarAviso ? avisarPrimeiroUso : null, aba });
+}
+
+/** Etiqueta curta da origem anotada ("Nv 1 · Origem"), ou "" se não há anotação. */
+export function etiquetaDaOrigem(item) {
+    if (!TIPOS_ANOTAVEIS.has(item?.type)) return "";
+    const origem = origemDoItem(item);
+    return origem ? textoDaEtiqueta(origem) : "";
 }
 
 /* -------------------------------------------------------------------------- */
@@ -262,7 +276,11 @@ async function avisarPrimeiroUso(organizador) {
     await game.settings.set(MODULE_ID, "origemPoderes", "desligado");
 }
 
-export async function abrirOrganizador(actor, janela, { aoAbrir = null } = {}) {
+/**
+ * `aba` ("poder" | "magia") força a aba com que a tela abre; sem ela, abre na
+ * última usada nesta sessão.
+ */
+export async function abrirOrganizador(actor, janela, { aoAbrir = null, aba = null } = {}) {
     const itens = actor.items.filter(i => TIPOS_ANOTAVEIS.has(i.type));
     if (!itens.length) {
         ui.notifications.info(game.i18n.localize("T20A.OrigemPoderes.Vazio"));
@@ -300,7 +318,8 @@ export async function abrirOrganizador(actor, janela, { aoAbrir = null } = {}) {
     const abas = ["poder", "magia"]
         .map(tipo => ({ tipo, grupos: agrupar(tipo), total: linhas.filter(l => l.item.type === tipo).length }))
         .filter(aba => aba.total);
-    const abaInicial = abas.some(a => a.tipo === _ultimaAba) ? _ultimaAba : abas[0].tipo;
+    const preferida = aba ?? _ultimaAba;
+    const abaInicial = abas.some(a => a.tipo === preferida) ? preferida : abas[0].tipo;
 
     // Sugestões do campo: as de fábrica e as que o jogador já criou na ficha.
     // Categorias criadas pelo jogador: as desta ficha primeiro (a grafia dela

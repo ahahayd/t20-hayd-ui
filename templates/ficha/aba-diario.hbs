@@ -1,0 +1,22 @@
+<div class="hf-aba hf-aba-diario {{#if (eq hf.aba 'diario')}}ativa{{/if}}" data-aba="diario">
+	<nav class="hf-diario-indice">
+		{{#each hf.diario.entradas as |e|}}
+		<button type="button" class="{{#if e.ativa}}ativa{{/if}}" data-hf-diario="{{e.id}}">
+			<i class="fa-solid {{#if e.fixo}}fa-feather-pointed{{else}}fa-bookmark{{/if}}"></i>
+			<span>{{e.nome}}</span>
+		</button>
+		{{/each}}
+	</nav>
+	{{#each hf.diario.entradas as |e|}}
+	<article class="hf-diario-pagina {{#if e.ativa}}ativa{{/if}}" data-pagina="{{e.id}}">
+		{{#if (and e.campoNome @root.hf.editavel)}}
+			<input class="hf-diario-titulo-input" type="text" name="{{e.campoNome}}" value="{{e.valorNome}}" placeholder="{{e.placeholder}}">
+		{{else}}
+			<h2 class="hf-diario-titulo">{{e.nome}}</h2>
+		{{/if}}
+		<div class="hf-diario-editor">
+			{{editor e.html target=e.alvo button=true owner=@root.owner editable=@root.editable}}
+		</div>
+	</article>
+	{{/each}}
+</div>

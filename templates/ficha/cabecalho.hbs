@@ -1,0 +1,159 @@
+{{#*inline "barra"}}
+<div class="hf-barra hf-barra-{{id}}" data-hf-barra style="--hf-pct: {{dados.pct}}%; --hf-temp-pct: {{dados.tempPct}}%;">
+	<div class="hf-barra-preenchimento"></div>
+	{{#if dados.temp}}<div class="hf-barra-temp"></div>{{/if}}
+	<div class="hf-barra-rotulo">
+		<span class="hf-barra-sigla">{{sigla}}</span>
+		{{#if @root.hf.editavel}}
+			<input type="text" class="hf-barra-valor" data-hf-delta="system.attributes.{{id}}.value"
+				value="{{dados.value}}" data-hf-max="{{dados.max}}" aria-label="{{rotulo}}"
+				data-tooltip="{{localize 'T20A.Ficha.DicaDelta'}}">
+		{{else}}
+			<span class="hf-barra-valor">{{dados.value}}</span>
+		{{/if}}
+		<span class="hf-barra-sep">/</span>
+		{{#if (and @root.hf.desbloqueada (not @root.autoCalcResources))}}
+			<input type="number" class="hf-barra-max-input" name="system.attributes.{{id}}.max" value="{{dados.max}}">
+		{{else}}
+			<span class="hf-barra-max" data-tooltip="{{fieldBonuses (concat 'system.attributes.' id)}}">{{dados.max}}</span>
+		{{/if}}
+	</div>
+	<div class="hf-barra-extra">
+		{{#if @root.hf.editavel}}
+			<button type="button" class="hf-passo" data-hf-passo="system.attributes.{{id}}.value" data-hf-valor="-1" data-tooltip="{{localize 'T20A.Ficha.Menos'}}"><i class="fa-solid fa-minus"></i></button>
+			<button type="button" class="hf-passo" data-hf-passo="system.attributes.{{id}}.value" data-hf-valor="1" data-tooltip="{{localize 'T20A.Ficha.Mais'}}"><i class="fa-solid fa-plus"></i></button>
+		{{/if}}
+		<label class="hf-temp {{#if dados.temp}}ativo{{/if}}" data-tooltip="{{localize 'T20A.Ficha.Temporarios'}}">
+			<i class="fa-solid fa-shield-heart"></i>
+			{{#if @root.hf.editavel}}
+				<input type="text" data-hf-delta="system.attributes.{{id}}.temp" data-hf-min="0" value="{{dados.temp}}" placeholder="0">
+			{{else}}
+				<span>{{dados.temp}}</span>
+			{{/if}}
+		</label>
+	</div>
+</div>
+{{/inline}}
+
+<header class="hf-cabecalho">
+
+	<div class="hf-retrato-coluna">
+		<div class="hf-retrato {{#if hf.editavel}}editavel{{/if}}" {{#if hf.editavel}}data-hf-acao="imagem" data-tooltip="{{localize 'T20A.Ficha.TrocarImagem'}}"{{/if}}>
+			<img src="{{actor.img}}" alt="{{actor.name}}">
+			<button type="button" class="hf-retrato-ver" data-hf-acao="ver-arte" data-tooltip="{{localize 'T20A.Ficha.VerArte'}}" aria-label="{{localize 'T20A.Ficha.VerArte'}}"><i class="fa-solid fa-eye"></i></button>
+		</div>
+		<div class="hf-nivel" data-tooltip="{{localize 'T20.Level'}}">
+			<span class="hf-nivel-rotulo">{{localize 'T20A.Ficha.NivelAbbr'}}</span>
+			<span class="hf-nivel-valor">{{hf.nivel}}</span>
+		</div>
+	</div>
+
+	<div class="hf-cabecalho-info">
+		<div class="hf-linha-nome">
+			{{#if hf.desbloqueada}}
+				<input class="hf-nome-input" name="name" type="text" value="{{actor.name}}" placeholder="{{localize 'T20.Name'}}">
+			{{else}}
+				<h1 class="hf-nome" data-hf-acao="copiar-nome" data-tooltip="{{localize 'T20A.Ficha.CopiarNome'}}">{{actor.name}}</h1>
+			{{/if}}
+			<div class="hf-acoes-cabecalho">
+				{{#if hf.editavel}}
+				<a class="hf-botao-icone config-button" data-action="rest" data-tooltip="{{localize 'T20.Rest'}}"><i class="fa-solid fa-campground"></i></a>
+				<a class="hf-botao-icone config-button" data-action="resources" data-tooltip="{{localize 'T20A.Ficha.Recursos'}}"><i class="fa-solid fa-heart-pulse"></i></a>
+				<button type="button" class="hf-cadeado {{#if hf.desbloqueada}}aberto{{/if}}" data-hf-acao="cadeado"
+					data-tooltip="{{#if hf.desbloqueada}}{{localize 'T20A.Ficha.Bloquear'}}{{else}}{{localize 'T20A.Ficha.Desbloquear'}}{{/if}}">
+					<i class="fa-solid {{#if hf.desbloqueada}}fa-pen-to-square{{else}}fa-pencil{{/if}}"></i>
+				</button>
+				{{/if}}
+			</div>
+		</div>
+
+		<div class="hf-subtitulo">
+			{{#if hf.subtitulo.raca}}
+				<a class="hf-chip" data-hf-acao="classe" data-item-id="{{hf.subtitulo.raca.id}}">{{hf.subtitulo.raca.nome}}</a>
+			{{else if hf.editavel}}
+				<a class="hf-chip hf-chip-vazio" data-hf-acao="compendio" data-pack="tormenta20.racas"><i class="fa-solid fa-plus"></i> {{localize 'T20.Race'}}</a>
+			{{/if}}
+			{{#each hf.subtitulo.classes as |c|}}
+				<a class="hf-chip hf-chip-classe" data-hf-acao="classe" data-item-id="{{c.id}}" data-tooltip="{{c.nome}} {{c.niveis}}">{{c.rotulo}} <b>{{c.niveis}}</b></a>
+			{{/each}}
+			{{#if hf.desbloqueada}}
+				<a class="hf-chip hf-chip-vazio" data-hf-acao="compendio" data-pack="tormenta20.classes" data-tooltip="{{localize 'T20.Class'}}"><i class="fa-solid fa-plus"></i>{{#unless hf.subtitulo.classes.length}} {{localize 'T20.Class'}}{{/unless}}</a>
+			{{/if}}
+			{{#if hf.desbloqueada}}
+				<input class="hf-chip-input" type="text" name="system.detalhes.origem" value="{{system.detalhes.origem}}" placeholder="{{localize 'T20.Background'}}">
+				<input class="hf-chip-input" type="text" name="system.detalhes.divindade" value="{{system.detalhes.divindade}}" placeholder="{{localize 'T20.Deity'}}" list="{{hf.listaDeuses}}" autocomplete="off">
+				<datalist id="{{hf.listaDeuses}}">{{#each hf.deuses}}<option value="{{this}}"></option>{{/each}}</datalist>
+			{{else}}
+				<span class="hf-chip hf-chip-texto hf-chip-recolhivel {{#unless hf.subtitulo.origem}}vazio{{/unless}}" data-tooltip="{{localize 'T20.Background'}}: {{#if hf.subtitulo.origem}}{{hf.subtitulo.origem}}{{else}}—{{/if}}">
+					<i class="fa-solid fa-road"></i><span class="hf-chip-rotulo">{{#if hf.subtitulo.origem}}{{hf.subtitulo.origem}}{{else}}{{localize 'T20.Background'}}{{/if}}</span>
+				</span>
+				<span class="hf-chip hf-chip-texto hf-chip-recolhivel {{#unless hf.subtitulo.divindade}}vazio{{/unless}}" data-tooltip="{{localize 'T20.Deity'}}: {{#if hf.subtitulo.divindade}}{{hf.subtitulo.divindade}}{{else}}—{{/if}}">
+					{{#if hf.subtitulo.iconeDeus}}<span class="hf-deus-icone">{{{hf.subtitulo.iconeDeus}}}</span>{{else}}<i class="fa-solid fa-sun"></i>{{/if}}<span class="hf-chip-rotulo">{{#if hf.subtitulo.divindade}}{{hf.subtitulo.divindade}}{{else}}{{localize 'T20A.Ficha.SemDevocao'}}{{/if}}</span>
+				</span>
+			{{/if}}
+		</div>
+
+		{{#unless disableExperience}}
+		<div class="hf-xp" style="--hf-pct: {{hf.xp.pct}}%;">
+			<div class="hf-xp-barra"></div>
+			<span class="hf-xp-texto">
+				{{#if hf.editavel}}
+					<input type="text" data-hf-delta="system.attributes.nivel.xp.value" data-hf-min="0" value="{{hf.xp.value}}">
+				{{else}}{{hf.xp.value}}{{/if}}
+				/ {{hf.xp.proximo}} XP
+			</span>
+		</div>
+		{{/unless}}
+
+		<div class="hf-vitais">
+			{{> barra id="pv" dados=hf.pv sigla=(localize 'T20A.Ficha.PV') rotulo=(localize 'T20.HitPoints')}}
+			{{> barra id="pm" dados=hf.pm sigla=(localize 'T20A.Ficha.PM') rotulo=(localize 'T20.ManaPoints')}}
+		</div>
+
+		<div class="hf-atributos">
+			<div class="hf-defesa" style="--hf-escudo: url('{{hf.escudo}}');" data-tooltip="{{fieldBonuses 'system.attributes.defesa.bonus'}}">
+				<div class="hf-escudo">
+					<span class="hf-defesa-valor">{{system.attributes.defesa.value}}</span>
+					<span class="hf-defesa-rotulo">{{localize 'T20.Defense'}}</span>
+				</div>
+				{{#if hf.desbloqueada}}
+				<div class="hf-defesa-edicao">
+					<select name="system.attributes.defesa.atributo" data-tooltip="{{localize 'T20.AbilityBonus'}}">
+						{{selectOptions config.atributosAbr selected=system.attributes.defesa.atributo blank='—' localize=true}}
+					</select>
+					<input type="number" name="system.attributes.defesa.outros" value="{{system.attributes.defesa.outros}}" data-tooltip="{{localize 'T20.Other'}}">
+				</div>
+				{{/if}}
+			</div>
+
+			{{#each hf.atributos as |atr|}}
+			<div class="hf-atributo" data-item-id="{{atr.key}}">
+				<button type="button" class="hf-atributo-rolar rollable atributo-rollable" data-item-id="{{atr.key}}" data-tooltip="{{atr.label}}">
+					<span class="hf-atributo-abbr">{{atr.abbr}}</span>
+					<span class="hf-atributo-valor {{#if atr.negativo}}negativo{{/if}}"><small>{{atr.sinal}}</small>{{atr.valor}}</span>
+				</button>
+				{{#if @root.hf.desbloqueada}}
+				<div class="hf-atributo-edicao">
+					<input type="number" name="system.atributos.{{atr.key}}.base" value="{{atr.base}}" data-tooltip="{{localize 'T20.AbilityBase'}}">
+					{{#if @root.mostrarAtributoRacial}}<input type="number" name="system.atributos.{{atr.key}}.racial" value="{{atr.racial}}" data-tooltip="{{localize 'T20.AbilityRacial'}}">{{/if}}
+					{{#if @root.mostrarAtributoTemp}}<input type="number" name="system.atributos.{{atr.key}}.bonus" value="{{atr.bonus}}" data-tooltip="{{localize 'T20.AbilityBonus'}}">{{/if}}
+				</div>
+				{{/if}}
+			</div>
+			{{/each}}
+
+			{{!-- Selo rúnico com a CD de magias: só para quem tem magias --}}
+			{{#if hf.conjurador}}
+			<div class="hf-selo-coluna">
+				<div class="hf-selo-cd" style="--hf-selo: url('{{hf.selo}}');" data-tooltip="{{localize 'T20.SpellDC'}}">
+					<span class="hf-selo-valor">{{hf.cd}}</span>
+					<span class="hf-selo-rotulo">CD</span>
+				</div>
+				{{#if hf.desbloqueada}}
+				<button type="button" class="hf-selo-trocar" data-hf-acao="trocar-selo" data-tooltip="{{localize 'T20A.Ficha.TrocarSelo'}}"><i class="fa-solid fa-palette"></i></button>
+				{{/if}}
+			</div>
+			{{/if}}
+		</div>
+	</div>
+</header>
