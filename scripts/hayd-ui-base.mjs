@@ -38,7 +38,10 @@ function ehNossa(app, raiz) {
 
 function marcar(app, elemento) {
   const bruto = app?.element ?? elemento;
-  const raiz = bruto?.[0] ?? bruto;
+  // Desembrulha jQuery, mas NUNCA indexa um elemento: a raiz destas janelas
+  // costuma ser um <form>, e `form[0]` devolve o primeiro CAMPO do
+  // formulário — marcava o checkbox em vez da janela.
+  const raiz = bruto instanceof HTMLElement ? bruto : (bruto?.[0] ?? bruto);
   if (!(raiz instanceof HTMLElement) || raiz.classList.contains(CLASSE)) return;
   // A Ficha Hayd tem desenho próprio (styles/ficha-hayd.css) e fica de fora.
   if (raiz.classList.contains('hayd-ficha')) return;
