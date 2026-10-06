@@ -87,3 +87,83 @@ test("a ficha estende a do sistema e mantém as classes que os listeners dele us
     assert.match(templates["cabecalho.hbs"], /rollable atributo-rollable/);
     assert.match(templates["lateral.hbs"], /rollable pericia-rollable/);
 });
+
+const integracao = await ler("scripts/integracao-gmtools.mjs");
+
+test("os acessos do GMTools entram na ficha com o visual dela", () => {
+    // Engenhocas na barra da aba Magias; automações numa barra própria em Efeitos
+    assert.match(templates["aba-magias.hbs"], /engenhocas=true/);
+    assert.match(templates["ferramentas.hbs"], /data-hf-acao="engenhocas"/);
+    assert.match(templates["ferramentas.hbs"], /data-hf-acao="engenhocas-resetar"/);
+    assert.match(templates["aba-efeitos.hbs"], /data-hf-acao="automacoes"/);
+    // Os três botões precisam de listener, senão só decoram
+    for (const acao of ["engenhocas", "engenhocas-resetar", "automacoes"]) {
+        assert.ok(ficha.includes(`data-hf-acao='${acao}'`), `falta listener de ${acao}`);
+    }
+    assert.match(ficha, /hf\.gm = ferramentasGMTools\(actor\)/);
+    // O painel que o GMTools injetaria sozinho fica escondido: um acesso só
+    assert.match(css, /\.t20g-eng-painel,\s*\n\.hayd-ficha \.t20g-contadores-ficha \{\s*\n\s*display: none;/);
+});
+
+test("a aba Inventário mantém a estrutura de moedas que a Loja e o Enviar dinheiro procuram", () => {
+    // t20-hayd-loja usa `.inventory-currency ul.currency`; o gmtools, `ul.currency`
+    assert.match(templates["aba-inventario.hbs"], /class="hf-moedas inventory-currency"/);
+    assert.match(templates["aba-inventario.hbs"], /<ul class="currency">/);
+});
+
+test("a ponte com o GMTools não assume que o módulo está ativo", () => {
+    assert.match(integracao, /game\.modules\.get\(GMTOOLS_ID\)\?\.active/);
+    assert.match(integracao, /temConteudo\?\./);
+    assert.match(integracao, /temEngenhoqueiro\?\./);
+});
+
+test("os botões da barra de ferramentas não encolhem", () => {
+    // A aba Magias tem sete controles na barra; se os de 30px puderem encolher,
+    // a caixa aperta e o ícone sai do centro (foi o que aconteceu com o
+    // "Resetar engenhocas"). Quem cede espaço é a busca.
+    const regra = css.slice(css.indexOf(".hayd-ficha .hf-barra-ferramentas > .hf-botao-icone,"));
+    assert.ok(regra.startsWith(".hayd-ficha .hf-barra-ferramentas > .hf-botao-icone,"),
+        "falta a regra que impede os botões da barra de encolher");
+    assert.match(regra.slice(0, regra.indexOf("}")), /flex: 0 0 auto;/);
+    const busca = css.slice(css.indexOf(".hayd-ficha .hf-busca {"));
+    assert.match(busca.slice(0, busca.indexOf("}")), /min-width: 0;/);
+});
+
+test("en.json repete o texto em português, como o resto do módulo", () => {
+    // Este módulo é de mesa em português: lang/en.json existe só para o cliente
+    // em inglês não cair em chaves cruas, e por isso traz o MESMO texto do
+    // pt-BR. Traduzir uma chave só a faz aparecer em inglês no meio da ficha.
+    const achatar = (obj, prefixo = "") => Object.entries(obj).flatMap(([k, v]) =>
+        v && typeof v === "object" ? achatar(v, `${prefixo}${k}.`) : [[`${prefixo}${k}`, v]]);
+    const en = Object.fromEntries(achatar(idiomas.en));
+    for (const [chave, valor] of achatar(idiomas["pt-BR"])) {
+        assert.equal(en[chave], valor, `${chave} divergiu entre pt-BR e en`);
+    }
+});
+
+test("os rótulos dos acessos do GMTools existem nos dois idiomas", () => {
+    for (const [id, dados] of Object.entries(idiomas)) {
+        const ficha2 = dados.T20A.Ficha;
+        for (const chave of ["Engenhocas", "EngenhocasDica", "EngenhocasResetar",
+            "Automacoes", "AutomacoesDica", "AutomacoesErro"]) {
+            assert.ok(ficha2[chave], `falta T20A.Ficha.${chave} em ${id}`);
+        }
+    }
+});
+
+test("o ícone dos botões só-de-ícone fica centrado apesar da margem do core", () => {
+    // foundry2.css tem `body.game .app button > i { margin-right: 3px }` para
+    // botões com ícone e rótulo; em botão só-de-ícone ela desloca o glifo 3px
+    // para a esquerda. O seletor precisa passar de (0,2,3) — três classes —,
+    // senão a regra do core ganha e a correção não faz nada.
+    const i = css.indexOf(".hayd-ficha .hf-ficha .hf-botao-icone > i,");
+    assert.ok(i > 0, "falta o reset da margem do ícone");
+    const regra = css.slice(i, css.indexOf("}", i));
+    assert.match(regra, /\.hayd-ficha \.hf-ficha \.hf-cadeado > i/);
+    assert.match(regra, /\.hayd-ficha \.hf-ficha \.hf-botao > i/);
+    assert.match(regra, /margin: 0;/);
+    // Três classes em cada seletor: menos que isso perde para o core
+    for (const sel of regra.split(",").slice(0, 3)) {
+        assert.equal((sel.match(/\./g) ?? []).length, 3, `${sel.trim()} precisa de 3 classes`);
+    }
+});

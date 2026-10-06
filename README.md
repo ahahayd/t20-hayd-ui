@@ -2,7 +2,7 @@
 
 # T20 Hayd UI
 
-Tema visual moderno e sombrio para o sistema **Tormenta20** no FoundryVTT: fichas de personagem, NPC e itens, mensagens de chat e janelas de uso ganham um visual escuro glassmórfico, com a cor de destaque herdada automaticamente da cor do jogador dono da ficha.
+Tema visual reformulado para o sistema **Tormenta20** no FoundryVTT: fichas de personagem, NPC e itens, mensagens de chat e janelas de uso ganham um visual novo, com a cor de destaque herdada automaticamente da cor do jogador dono da ficha.
 
 ## Requisitos
 
@@ -31,15 +31,7 @@ Três temas visuais à escolha, por usuário:
 
 ### Ficha Hayd
 
-Uma ficha de personagem nova, com organização própria, inspirada na [Tidy 5e Sheets](https://github.com/kgar/foundry-vtt-tidy-5e-sheets). Para usar, abra a ficha, clique em **Configurar Ficha** no cabeçalho e escolha **Ficha Hayd**. Ela funciona mesmo com o tema desligado, e rolagens, efeitos, equipar e arrastar itens continuam sendo os do sistema.
-
-- **Cabeçalho**: retrato, nível, raça, classes, origem e divindade, barra de XP, PV e PM em barras que aceitam `+5`, `-3` ou um valor direto (Esc desfaz), Defesa, atributos (clique para rolar), deslocamento, CD de magias e tamanho.
-- **Cadeado**: bloqueada, a ficha só mostra o que se usa em jogo. Desbloqueada, aparecem os campos de edição, o treino e o atributo das perícias, a criação de itens por seção e os botões de editar e excluir.
-- **Barra lateral recolhível**: perícias (clique para rolar) e traços (tamanho, movimento, resistências, sentidos, idiomas, proficiências, recursos extras e anotações).
-- **Abas**: Combate (ataques e habilidades agrupados pela execução: padrão, movimento, reação…), Inventário (quantidade com − / +, guardar fora da carga, carga e moedas), Poderes (por tipo), Magias (por círculo, com CD e atributo-chave), Efeitos (condições em um clique e efeitos ativos) e Diário.
-- **Em todas as listas**: busca, seções recolhíveis, descrição que abre ao clicar no nome, **fixar** itens no topo do Combate e o botão ⋮ com o mesmo menu do clique direito.
-
-A aba aberta, a barra lateral e as seções recolhidas ficam guardadas por usuário.
+Uma ficha de personagem nova, com organização própria, inspirada na [Tidy 5e Sheets](https://github.com/kgar/foundry-vtt-tidy-5e-sheets). Para usar, abra a ficha, clique em **Configurar Ficha** no cabeçalho e escolha **Ficha Hayd**. Ela funciona mesmo com o tema desligado.
 
 ### Cor da ficha
 
@@ -55,7 +47,7 @@ Cada usuário pode trocar o padrão de fundo só para si: deixar todas as mensag
 
 Para lembrar em que nível e de onde veio cada poder e magia do personagem. Um ícone discreto ao lado do título **Poderes** abre uma tela com tudo agrupado por nível: em cada linha, uma **categoria** (Raça, Origem, Complicação, Devoção, Nível, Bônus ou qualquer outra que você digitar, como uma regra da sua mesa) e o **nível** em que foi obtido. Poderes que o sistema já marca como raciais, de origem, de complicação ou concedidos chegam com uma sugestão preenchida. Na ficha, cada poder anotado ganha só uma legenda pequena abaixo do nome (ex.: "Nv 1 · Origem").
 
-É só organização: nada muda nas regras, nas rolagens nem na ordem da lista. Cada usuário escolhe entre o organizador, o **selo legado** (o selo clicável antes do ícone de cada poder) ou nada; o Mestre pode desligar para o mundo inteiro. Desligar, em qualquer um dos dois, só esconde o botão, as etiquetas e o selo: as anotações continuam guardadas. As anotações feitas com o selo antigo continuam valendo.
+É só organização: nada muda nas regras, nas rolagens nem na ordem da lista.
 
 ### Configurações
 
@@ -64,7 +56,6 @@ Em *Configurar → Configurações → T20 Hayd UI*: ativar/desativar o tema (po
 ## Detalhes adicionais
 
 - Não modifica o código do sistema — apenas CSS sobreposto e hooks de renderização do Foundry; pode ser desativado a qualquer momento sem afetar dados.
-- Módulos compatíveis: **t20-hayd-loja**, **t20-hayd-bases** e **t20-hayd-dominios** detectam o tema e adotam o mesmo visual automaticamente (por ora, alinhados ao visual do Dark Neon).
 - Como a cor é resolvida: modo padrão usa a cor do mundo; modo automático usa a cor do primeiro dono jogador; mensagens de chat priorizam a cor do ator que fala; janelas de uso usam a cor do usuário logado.
 
 ---

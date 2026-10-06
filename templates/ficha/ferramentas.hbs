@@ -16,6 +16,17 @@
 	<button type="button" class="hf-botao-icone {{#if @root.hf.origemPoderesNovo}}hf-pulsando{{/if}}" data-hf-acao="origem-poderes" data-aba="{{origem}}"
 		data-tooltip="{{#if (eq origem 'magia')}}{{localize 'T20A.OrigemPoderes.BotaoMagias'}}{{else}}{{localize 'T20A.OrigemPoderes.Botao'}}{{/if}}"><i class="fa-solid fa-timeline"></i></button>
 	{{/if}}
+	{{#if (and engenhocas @root.hf.gm.engenhocas)}}
+	{{!-- Painel de Engenhocas (t20-hayd-gmtools): montado aqui com o visual da ficha --}}
+	<button type="button" class="hf-botao hf-gm-engenhocas" data-hf-acao="engenhocas"
+		data-tooltip="{{localize 'T20A.Ficha.EngenhocasDica'}}"><i class="fa-solid fa-gears"></i>
+		<span>{{localize 'T20A.Ficha.Engenhocas'}}</span>
+		<b class="hf-contagem">{{@root.hf.gm.engenhocas.quantidade}}</b></button>
+		{{#if @root.hf.gm.engenhocas.podeResetar}}
+		<button type="button" class="hf-botao-icone hf-gm-engenhocas-resetar" data-hf-acao="engenhocas-resetar"
+			data-tooltip="{{localize 'T20A.Ficha.EngenhocasResetar'}}"><i class="fa-solid fa-sun"></i></button>
+		{{/if}}
+	{{/if}}
 	{{#if compendio}}
 		{{#if @root.hf.editavel}}
 		<a class="hf-botao" data-hf-acao="compendio" data-pack="{{compendio}}"><i class="fa-solid fa-book"></i> {{localize 'T20A.Ficha.Compendio'}}</a>

@@ -1,4 +1,14 @@
 <div class="hf-aba hf-aba-efeitos {{#if (eq hf.aba 'efeitos')}}ativa{{/if}}" data-aba="efeitos">
+	{{#if hf.gm.automacoes}}
+	{{!-- "Gerenciar automações" (t20-hayd-gmtools): a aba Efeitos não tem busca
+	     (os efeitos não são itens), então ganha uma barra só para este acesso. --}}
+	<div class="hf-barra-ferramentas hf-barra-automacoes">
+		<button type="button" class="hf-botao hf-gm-automacoes" data-hf-acao="automacoes"
+			data-tooltip="{{localize 'T20A.Ficha.AutomacoesDica'}}"><i class="fa-solid fa-wand-magic-sparkles"></i>
+			<span>{{localize 'T20A.Ficha.Automacoes'}}</span></button>
+	</div>
+	{{/if}}
+
 	{{#if hf.condicoes.length}}
 	<section class="hf-secao hf-recolhivel hf-condicoes {{#if hf.condicoesRecolhidas}}recolhida{{/if}}" data-recolhivel>
 		<header class="hf-secao-cabecalho" data-hf-secao="efeitos:condicoes">

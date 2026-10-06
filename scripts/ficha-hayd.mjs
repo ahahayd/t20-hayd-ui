@@ -17,6 +17,9 @@
  */
 
 import { modoOrigemPoderes, abrirOrganizadorComAviso, etiquetaDaOrigem } from "./origem-poderes.mjs";
+import {
+    ferramentasGMTools, abrirPainelEngenhocas, resetarEngenhocas, abrirPainelAutomacoes
+} from "./integracao-gmtools.mjs";
 
 const MODULE_ID = "t20-hayd-ui";
 const TEMPLATES = `modules/${MODULE_ID}/templates/ficha`;
@@ -476,6 +479,8 @@ function criarClasseFicha(Base) {
             hf.origemColuna = this._origemPoderes;
             // Até o primeiro uso o botão pulsa, como na ficha do sistema
             hf.origemPoderesNovo = !game.settings.get(MODULE_ID, "origemPoderesVisto");
+            // Acessos do GMTools montados com o visual da ficha (ver integracao-gmtools.mjs)
+            hf.gm = ferramentasGMTools(actor);
             data.hf = hf;
             // A lista de perícias do sistema mostra os controles de edição
             // quando editMode é verdadeiro: o cadeado da ficha faz esse papel.
@@ -1157,6 +1162,21 @@ function criarClasseFicha(Base) {
             ligar("[data-hf-acao='classe']", "click", (ev) => this.actor.items.get(ev.currentTarget.dataset.itemId)?.sheet.render(true));
             ligar("[data-hf-acao='compendio']", "click", (ev) => game.packs.get(ev.currentTarget.dataset.pack)?.render(true));
             ligar("[data-hf-acao='imagem']", "click", (ev) => this._onEditarImagem(ev));
+            ligar("[data-hf-acao='engenhocas']", "click", (ev) => {
+                ev.preventDefault();
+                abrirPainelEngenhocas(this.actor);
+            });
+            ligar("[data-hf-acao='engenhocas-resetar']", "click", async (ev) => {
+                ev.preventDefault();
+                const botao = ev.currentTarget;
+                botao.disabled = true;
+                try { await resetarEngenhocas(this.actor); }
+                finally { if (botao.isConnected) botao.disabled = false; }
+            });
+            ligar("[data-hf-acao='automacoes']", "click", (ev) => {
+                ev.preventDefault();
+                abrirPainelAutomacoes(this.actor);
+            });
         }
 
         /**

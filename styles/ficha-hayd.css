@@ -118,6 +118,18 @@
     line-height: 1;
     font-size: 13px;
 }
+/* O core do Foundry tem `body.game .app button > i { margin-right: 3px }`
+   (foundry2.css), pensado para botão com ícone E rótulo. Em botão só-de-ícone
+   essa margem joga o glifo 3px para a esquerda do centro — invisível num
+   ícone largo, escancarado num redondo como o fa-sun do "Resetar engenhocas".
+   Nos que têm rótulo, quem dá o espaçamento é o `gap`, não a margem.
+   A especificidade precisa passar de (0,2,3): daí o `.hf-ficha` no meio. */
+.hayd-ficha .hf-ficha .hf-botao-icone > i,
+.hayd-ficha .hf-ficha .hf-cadeado > i,
+.hayd-ficha .hf-ficha .hf-botao > i {
+    margin: 0;
+}
+
 .hayd-ficha .hf-botao-icone:hover,
 .hayd-ficha .hf-cadeado:hover {
     color: #fff;
@@ -1104,9 +1116,19 @@
     align-items: center;
     gap: 6px;
 }
+/* Quem cede espaço na barra é a busca, nunca os botões: a aba Magias chega a
+   ter sete controles aqui e, no modo slim, os de 30px encolhiam abaixo disso —
+   a caixa espremida cortava o ícone e ele parecia descentralizado. */
+.hayd-ficha .hf-barra-ferramentas > .hf-botao-icone,
+.hayd-ficha .hf-barra-ferramentas > .hf-botao {
+    flex: 0 0 auto;
+}
 .hayd-ficha .hf-busca {
     position: relative;
     flex: 1;
+    /* Sem isto a busca não desce do tamanho do conteúdo e a sobra vira o
+       encolhimento dos botões de novo. */
+    min-width: 0;
     display: flex;
     align-items: center;
 }
@@ -2848,3 +2870,38 @@
 /* Busca nas perícias: mesmo estilo da busca das listas, mais compacta */
 .hayd-ficha .hf-busca-pericias { margin: 0 0 6px; }
 .hayd-ficha .hf-busca-pericias input { height: 26px; font-size: 12px; }
+
+/* ==========================================================================
+   Acessos do t20-hayd-gmtools (montados pela ficha, ver integracao-gmtools.mjs)
+   ========================================================================== */
+
+/* A aba Efeitos não tem busca para esticar, então o botão encosta na direita,
+   alinhado com os controles de cada seção logo abaixo. */
+.hayd-ficha .hf-barra-automacoes {
+    justify-content: flex-end;
+}
+
+/* O número de engenhocas vira parte do botão, como a contagem das abas */
+.hayd-ficha .hf-botao .hf-contagem {
+    margin-left: 2px;
+    background: rgba(0, 0, 0, 0.45);
+    border-color: var(--hf-acento-borda);
+}
+.hayd-ficha .hf-botao:hover .hf-contagem {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: var(--hf-acento-claro);
+}
+
+/* "Resetar engenhocas" é um dia novo inteiro: fica em ícone, ao lado do painel */
+.hayd-ficha .hf-gm-engenhocas-resetar[disabled] {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* O painel que o GMTools injetaria por conta própria não deve aparecer aqui:
+   a ficha já monta o acesso dela, e dois caminhos para a mesma janela
+   confundem (e o visual do outro módulo não acompanha o tema da ficha). */
+.hayd-ficha .t20g-eng-painel,
+.hayd-ficha .t20g-contadores-ficha {
+    display: none;
+}
