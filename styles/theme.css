@@ -1903,7 +1903,7 @@ body.t20a-ui #context-menu.t20a-context-menu[popover] {
     min-height: 40px !important;
     max-height: 40px !important;
     aspect-ratio: 1 / 1 !important;
-    object-fit: cover !important;
+    object-fit: cover !important; object-position: top !important;
     flex-shrink: 0;
     border: 1px solid rgba(0,0,0,0.25) !important;
     border-radius: 0 !important;
@@ -1952,7 +1952,7 @@ body.t20a-ui #context-menu.t20a-context-menu[popover] {
     margin-left: 13px !important;
     width: 28px !important;
     height: 28px !important;
-    object-fit: cover !important;
+    object-fit: cover !important; object-position: top !important;
     flex-shrink: 0;
 }
 
@@ -2612,7 +2612,7 @@ a.t20a-pn-badge.t20a-pn-bonus:hover {
     height: 26px;
     border: none;
     border-radius: 3px;
-    object-fit: cover;
+    object-fit: cover; object-position: top;
 }
 .t20a-po-nome {
     display: flex;

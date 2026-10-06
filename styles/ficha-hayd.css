@@ -285,8 +285,7 @@
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    object-position: top center;
+    object-fit: cover; object-position: top;
     border: 0;
     background: #000;
     /* Sem clip-path, filter nem transform aqui: qualquer um deles faz o
@@ -1872,6 +1871,8 @@
 .hayd-ficha .hf-diario-editor .editor-content { color: var(--hf-texto); }
 .hayd-ficha .hf-diario-editor .editor-edit {
     color: var(--hf-texto);
+    /* Branco ou preto conforme a luminosidade do acento (contraste automático) */
+    color: oklch(from var(--hf-acento) clamp(0, (0.62 - l) * 1000, 1) 0 0);
     background: var(--hf-acento);
     border: 0;
 }
