@@ -1,3 +1,8 @@
+/* Base visual compartilhada dos módulos Hayd. Entra por @import, e não pelo
+   manifesto, para uma atualização valer com F5. Vale para as JANELAS do
+   módulo; a Ficha Hayd tem o desenho dela em ficha-hayd.css. */
+@import url("hayd-ui-base.css");
+
 /* ==========================================================================
    Tormenta20 – Arcano • Tema (camada 'modules', vence 'system' no v13)
    Todos os seletores são prefixados com .t20a para isolar do resto do app.

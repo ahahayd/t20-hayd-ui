@@ -5,6 +5,7 @@
  * com opção do jogador escolher dono específico ou cor personalizada.
  */
 
+import './hayd-ui-base.mjs';
 import {
     registrarConfiguracoes as registrarConfiguracoesPoderes,
     decorarFicha as decorarFichaPoderes
