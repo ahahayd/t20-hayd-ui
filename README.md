@@ -4,6 +4,10 @@
 
 Tema visual reformulado para o sistema **Tormenta20** no FoundryVTT: fichas de personagem, NPC e itens, mensagens de chat e janelas de uso ganham um visual novo, com a cor de destaque herdada automaticamente da cor do jogador dono da ficha.
 
+<p align="center">
+  <img src="assets/screenshots/ui-ficha-hayd.png" alt="Ficha Hayd" width="800">
+</p>
+
 ## Requisitos
 
 - FoundryVTT **v13** ou **v14**
@@ -28,6 +32,11 @@ Três temas visuais à escolha, por usuário:
 - **Dark Mode** (padrão): visual vanilla do Foundry moderno — painéis translúcidos com desfoque, paleta neutra, cantos suaves e a cor de destaque usada só como um leve acento (aba ativa, foco, links, botão principal). Cobre exatamente as mesmas fichas e janelas de uso que o Dark Neon, com bom contraste garantido tanto na ficha normal quanto na ficha em abas.
 - **Light Mode**: a versão clara do Dark Mode — mesmo layout, mesma arte do cabeçalho e as mesmas fichas e janelas cobertas, com fundo claro e texto escuro.
 - **Dark Neon**: visual escuro com a cor de destaque bem presente — gradientes, brilho, cantos quadrados.
+
+<p align="center">
+  <img src="assets/screenshots/ui-sistema.png" alt="Ficha do sistema com o tema" width="520">
+  <img src="assets/screenshots/ui-chat.png" alt="Card de chat" width="280">
+</p>
 
 ### Ficha Hayd
 
