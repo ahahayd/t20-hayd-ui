@@ -29,7 +29,7 @@ Ative o módulo e pronto: fichas de personagem, NPC e itens passam para o tema e
 
 Três temas visuais à escolha, por usuário:
 
-- **Dark Mode** (padrão): visual vanilla do Foundry moderno — painéis translúcidos com desfoque, paleta neutra, cantos suaves e a cor de destaque usada só como um leve acento (aba ativa, foco, links, botão principal). Cobre exatamente as mesmas fichas e janelas de uso que o Dark Neon, com bom contraste garantido tanto na ficha normal quanto na ficha em abas.
+- **Dark Mode** (padrão): visual vanilla do Foundry moderno — painéis translúcidos com desfoque, paleta neutra, cantos suaves e a cor de destaque usada só como um leve acento (aba ativa, foco, links, botão principal).
 - **Light Mode**: a versão clara do Dark Mode — mesmo layout, mesma arte do cabeçalho e as mesmas fichas e janelas cobertas, com fundo claro e texto escuro.
 - **Dark Neon**: visual escuro com a cor de destaque bem presente — gradientes, brilho, cantos quadrados.
 
