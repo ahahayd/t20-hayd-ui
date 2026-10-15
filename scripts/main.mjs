@@ -409,7 +409,11 @@ function aplicarTemaDialog(_app, html) {
 
     const windowEl = root.closest?.(".window-app") ?? root;
     if (!windowEl.classList?.contains("tormenta20")) return;
-    if (!windowEl.classList?.contains("dialog")) return;
+    if (windowEl.classList.contains("sheet")) return;
+    // As janelas de configuração do sistema (nível/recursos, deslocamento,
+    // resistências) são formulários sem .dialog: ganham a classe para usar o
+    // mesmo bloco de CSS dos diálogos.
+    windowEl.classList.add("dialog");
 
     // Classe do tema selecionado — as regras de CSS do bloco de diálogos
     // exigem essa classe diretamente na janela (dá acesso às variáveis do

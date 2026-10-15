@@ -20,6 +20,7 @@ import { modoOrigemPoderes, abrirOrganizadorComAviso, etiquetaDaOrigem } from ".
 import {
     ferramentasGMTools, abrirPainelEngenhocas, resetarEngenhocas, abrirPainelAutomacoes
 } from "./integracao-gmtools.mjs";
+import { MOEDAS, gastar, receber, totalEmTC } from "./carteira.mjs";
 
 const MODULE_ID = "t20-hayd-ui";
 const TEMPLATES = `modules/${MODULE_ID}/templates/ficha`;
@@ -59,7 +60,7 @@ const rotaSelo = (chave) => foundry.utils.getRoute(`modules/${MODULE_ID}/assets/
  * destaque (numa <img> ficariam brancos).
  */
 const DEUSES = [
-    "Aharadak", "Alihanna", "Arsenal", "Azgher", "Hyninn", "Kallyadranoch", "Khalmyr",
+    "Aharadak", "Allihanna", "Arsenal", "Azgher", "Hyninn", "Kallyadranoch", "Khalmyr",
     "Lena", "Lin-Wu", "Marah", "Megalokk", "Nimb", "Oceano", "Sszzaas", "Tanna-Toh",
     "Tenebra", "Thwor", "Thyatis", "Valkaria", "Wynna"
 ];
@@ -1087,6 +1088,7 @@ function criarClasseFicha(Base) {
             if (!this.isEditable) return;
 
             ligar("[data-hf-acao='cadeado']", "click", () => this._alternarCadeado());
+            ligar("[data-hf-acao='ajustar-dinheiro']", "click", () => this._ajustarDinheiro());
             root.querySelectorAll("input[data-hf-delta]").forEach((el) => {
                 el.addEventListener("focus", (ev) => ev.currentTarget.select());
                 el.addEventListener("change", (ev) => this._onDelta(ev));
@@ -1294,6 +1296,86 @@ function criarClasseFicha(Base) {
                     else await this.actor.setFlag(MODULE_ID, FLAG_SELO_CD, chave);
                     dialogo.close();
                 }));
+            }, { once: true });
+            dialogo.render({ force: true });
+        }
+
+        /**
+         * Gastar ou receber dinheiro sem fazer conta de cabeça: o jogador diz
+         * quanto de cada moeda e a carteira se acerta, com troco (carteira.mjs).
+         */
+        _ajustarDinheiro() {
+            const ator = this.actor;
+            const abrev = { tl: "T20.CurrencyPlatAbbr", to: "T20.CurrencyGoldAbbr", tp: "T20.CurrencySilverAbbr", tc: "T20.CurrencyCopperAbbr" };
+            const comPlatina = ator.getFlag("tormenta20", "sheet.mostrarPlatina") || Number(ator.system.dinheiro?.tl) > 0;
+            const moedas = MOEDAS.filter((m) => m !== "tl" || comPlatina);
+            const campos = moedas.map((m) => `
+                <label class="hf-moeda hf-moeda-${m}" data-tooltip="${localizar(abrev[m])}">
+                    <img class="hf-moeda-icone" src="modules/${MODULE_ID}/assets/moedas/moeda-${m}.webp" alt="${localizar(abrev[m])}">
+                    <input type="number" name="${m}" min="0" step="1" placeholder="0" inputmode="numeric">
+                </label>`).join("");
+            let modo = "gastar";
+
+            const valorDigitado = () => Object.fromEntries(moedas.map((m) =>
+                [m, Math.max(0, Math.floor(Number(dialogo.element.querySelector(`input[name="${m}"]`)?.value) || 0))]));
+            /** Carteira depois da operação; null se não há valor ou não dá. */
+            const calcular = () => {
+                const valor = valorDigitado();
+                if (!totalEmTC(valor)) return null;
+                const atual = ator.system.dinheiro ?? {};
+                const novo = modo === "gastar" ? gastar(atual, valor) : receber(atual, valor);
+                return novo && Object.fromEntries(MOEDAS.map((m) => [m, novo[m]]));
+            };
+            const atualizarPrevia = () => {
+                const el = dialogo.element;
+                const previa = el.querySelector(".hf-dinheiro-previa");
+                const temValor = !!totalEmTC(valorDigitado());
+                const novo = calcular();
+                el.querySelector("[data-action='confirmar']").disabled = !novo;
+                previa.classList.toggle("insuficiente", temValor && !novo);
+                if (!temValor) previa.textContent = "";
+                else if (!novo) previa.textContent = localizar("T20A.Ficha.DinheiroInsuficiente");
+                else {
+                    const atual = ator.system.dinheiro ?? {};
+                    const partes = moedas.filter((m) => m !== "tl" || novo.tl).map((m) =>
+                        `<span class="${novo[m] !== (Number(atual[m]) || 0) ? "mudou" : ""}">${novo[m]} ${localizar(abrev[m])}</span>`);
+                    previa.innerHTML = `${localizar("T20A.Ficha.DinheiroFica")} ${partes.join(" · ")}`;
+                }
+            };
+
+            const dialogo = new foundry.applications.api.DialogV2({
+                window: { title: localizar("T20A.Ficha.Dinheiro"), icon: "fa-solid fa-coins" },
+                classes: [CLASSE_FICHA, "hf-dinheiro-dialogo"],
+                position: { width: 360 },
+                content: `
+                    <div class="hf-dinheiro-modo">
+                        <button type="button" data-modo="gastar" class="ativo"><i class="fa-solid fa-minus"></i> ${localizar("T20A.Ficha.DinheiroGastar")}</button>
+                        <button type="button" data-modo="receber"><i class="fa-solid fa-plus"></i> ${localizar("T20A.Ficha.DinheiroReceber")}</button>
+                    </div>
+                    <div class="hf-dinheiro-moedas">${campos}</div>
+                    <p class="hf-dinheiro-previa"></p>`,
+                buttons: [
+                    {
+                        action: "confirmar", label: localizar("T20A.Ficha.DinheiroConfirmar"), icon: "fa-solid fa-check", default: true,
+                        callback: async () => {
+                            const novo = calcular();
+                            // A opção faz o monitor de moedas da loja tratar como ajuste manual de jogador
+                            if (novo) await ator.update({ "system.dinheiro": novo }, { t20haydAjusteManual: true });
+                        }
+                    },
+                    { action: "cancelar", label: localizar("T20A.Cancel"), icon: "fa-solid fa-xmark" }
+                ]
+            });
+            dialogo.addEventListener("render", () => {
+                const el = dialogo.element;
+                el.querySelectorAll("[data-modo]").forEach((b) => b.addEventListener("click", () => {
+                    modo = b.dataset.modo;
+                    el.querySelectorAll("[data-modo]").forEach((x) => x.classList.toggle("ativo", x === b));
+                    atualizarPrevia();
+                }));
+                el.querySelectorAll(".hf-dinheiro-moedas input").forEach((i) => i.addEventListener("input", atualizarPrevia));
+                atualizarPrevia();
+                el.querySelector(".hf-dinheiro-moedas input[name='to']")?.focus();
             }, { once: true });
             dialogo.render({ force: true });
         }

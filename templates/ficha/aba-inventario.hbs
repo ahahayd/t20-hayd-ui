@@ -30,6 +30,9 @@
 					<input type="text" data-hf-delta="system.dinheiro.tp" data-hf-min="0" value="{{system.dinheiro.tp}}" {{#unless hf.editavel}}disabled{{/unless}}></label></li>
 				<li class="hf-moeda hf-moeda-tc" data-tooltip="{{localize 'T20.CurrencyCopper'}}"><label><img class="hf-moeda-icone" src="modules/t20-hayd-ui/assets/moedas/moeda-tc.webp" alt="{{localize 'T20.CurrencyCopperAbbr'}}">
 					<input type="text" data-hf-delta="system.dinheiro.tc" data-hf-min="0" value="{{system.dinheiro.tc}}" {{#unless hf.editavel}}disabled{{/unless}}></label></li>
+				{{#if hf.editavel}}
+				<li class="hf-dinheiro-ajuste"><a role="button" tabindex="0" data-hf-acao="ajustar-dinheiro" data-tooltip="{{localize 'T20A.Ficha.DinheiroDica'}}"><i class="fa-solid fa-coins" inert></i></a></li>
+				{{/if}}
 			</ul>
 		</div>
 	</footer>
