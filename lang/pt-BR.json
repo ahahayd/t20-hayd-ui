@@ -22,7 +22,7 @@
             "OrigemPoderesMundoName": "Origem dos poderes (para o mundo)",
             "OrigemPoderesMundoHint": "Permite anotar o nível e a origem de cada poder e magia. Desligar não apaga as anotações.",
             "OrigemPoderesName": "Origem dos poderes na ficha",
-            "OrigemPoderesHint": "Organizador: botão em Poderes e etiqueta em cada poder. Selo legado: selo antes do ícone. Vale só para você.",
+            "OrigemPoderesHint": "Organizador: botão em Poderes e etiqueta em cada poder. Selo legado: selo antes do ícone. Só muda na sua tela.",
             "OrigemPoderesOrganizador": "Organizador (padrão)",
             "OrigemPoderesLegado": "Selo legado",
             "OrigemPoderesDesligado": "Desligado",
@@ -31,10 +31,16 @@
             "ChatRetratoPersonagem": "Arte do personagem (ficha)",
             "ChatRetratoToken": "Arte do token",
             "ChatFundoName": "Fundo das mensagens do chat",
-            "ChatFundoHint": "Fundo das mensagens de jogadores e do Mestre. Vale só para você.",
+            "ChatFundoHint": "Fundo das mensagens de jogadores e do Mestre. Só muda na sua tela.",
             "ChatFundoPadrao": "Padrão (jogadores claro, Mestre escuro)",
             "ChatFundoEscuro": "Todas com fundo escuro",
             "ChatFundoClaro": "Todas com fundo claro",
+            "ChatCorUnicaName": "Cor única no chat",
+            "ChatCorUnicaHint": "Ignora a cor de cada personagem e pinta o cabeçalho de todas as mensagens com uma cor para jogadores e outra para o Mestre. Só muda na sua tela.",
+            "ChatCorJogadoresName": "Cor única: jogadores",
+            "ChatCorJogadoresHint": "Cor do cabeçalho das mensagens de jogadores quando a cor única está ligada.",
+            "ChatCorMestreName": "Cor única: Mestre",
+            "ChatCorMestreHint": "Cor do cabeçalho das mensagens do Mestre e dos NPCs quando a cor única está ligada.",
             "ChatRetratoSemAtorName": "Retrato sem personagem",
             "ChatRetratoSemAtorHint": "O que mostrar quando a mensagem não vem de um personagem: nenhum retrato, ou o avatar do jogador que enviou a mensagem.",
             "ChatRetratoSemAtorNada": "Não mostrar retrato",
@@ -61,7 +67,12 @@
             "SemArte": "Ocultar a arte do cabeçalho",
             "SemArteHint": "O topo da ficha fica sem a imagem de fundo.",
             "ArteOriginal": "Manter as cores originais da arte do cabeçalho",
-            "ArteOriginalHint": "A arte no topo da ficha deixa de mudar de cor junto com a cor de destaque."
+            "ArteOriginalHint": "A arte no topo da ficha deixa de mudar de cor junto com a cor de destaque.",
+            "ChatTitulo": "Cor no chat",
+            "ChatIgual": "Igual à da ficha",
+            "ChatIgualHint": "O cartão de chat usa a mesma cor de destaque da ficha.",
+            "ChatPropria": "Outra cor",
+            "ChatPropriaHint": "Uma cor só para o cartão de chat deste personagem:"
         },
         "Confirm": "Aplicar",
         "Cancel": "Cancelar",
@@ -214,7 +225,7 @@
             "Imune": "imune",
             "BuscarPericia": "Buscar perícia…",
             "BuscaPericiasNome": "Busca nas perícias",
-            "BuscaPericiasHint": "Barra no topo da lista de perícias para filtrar pelo nome ou pela sigla do atributo (ex.: \"sab\"). Some no modo de edição. Vale só para você."
+            "BuscaPericiasHint": "Barra no topo da lista de perícias para filtrar pelo nome ou pela sigla do atributo (ex.: \"sab\"). Some no modo de edição. Só muda na sua tela."
         }
     }
 }

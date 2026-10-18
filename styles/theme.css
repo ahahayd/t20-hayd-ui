@@ -1070,10 +1070,25 @@
     transition: border-color 140ms ease, background 140ms ease;
 }
 
-.t20a-color-dialog .t20a-dialog-mode.is-active {
+/* O destaque acompanha a opção marcada (as duas seções têm um radio cada). */
+.t20a-color-dialog .t20a-dialog-mode:has(input[type="radio"]:checked) {
     border-color: #4c4ab7;
     background: rgba(76, 74, 183, 0.18);
     box-shadow: 0 0 14px rgba(76, 74, 183, 0.35);
+}
+
+/* Título da seção "Cor no chat", separada das opções da ficha. */
+.t20a-color-dialog .t20a-dialog-secao {
+    margin: 6px 0 0;
+    padding-top: 10px;
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
+    font-family: "Signika", "Inter", system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #b4b1c4;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
 .t20a-color-dialog .t20a-radio-row {
@@ -1834,15 +1849,12 @@ body.t20a-ui #context-menu.t20a-context-menu[popover] {
     color: #eceaf2 !important;
 }
 
-/* Aplicadas somente pelo corretor WCAG a trechos cujo estilo próprio vindo de
-   macro/tabela não contrasta com o fundo efetivo. `!important` vence inclusive
+/* Aplicada somente pelo corretor de contraste (scripts/chat-contraste.mjs) a
+   trechos cuja cor não alcança o mínimo WCAG sobre o fundo efetivo; a cor é a
+   original escurecida/clareada na mesma matiz. `!important` vence inclusive
    cores inline comuns, sem tocar nos elementos que já estavam legíveis. */
-.t20a-chat-msg .t20a-chat-texto-claro {
-    color: #ffffff !important;
-}
-
-.t20a-chat-msg .t20a-chat-texto-escuro {
-    color: #000000 !important;
+.t20a-chat-msg .t20a-chat-legivel {
+    color: var(--t20a-chat-cor-legivel) !important;
 }
 
 /* O core força --color-dark-4 na descrição de RollTables. Corrige desde o

@@ -46,11 +46,15 @@ Uma ficha de personagem nova, com organização própria, inspirada na [Tidy 5e 
 
 Clique em **"Cor da Ficha"** no cabeçalho da ficha (donos e Mestre) e escolha entre a cor **automática** do jogador dono, a cor **padrão** do mundo ou uma **cor personalizada** pelo seletor de cores. O texto se ajusta sozinho para manter contraste legível sobre qualquer cor escolhida. Nas fichas de personagem, a arte do cabeçalho acompanha a cor de destaque; marque **"Manter as cores originais da arte do cabeçalho"** no mesmo diálogo para exibi-la sem recolorir, ou **"Ocultar a arte do cabeçalho"** para deixar o topo da ficha sem imagem.
 
+No mesmo diálogo, **"Cor no chat"** define a cor do cartão de chat do personagem: igual à da ficha (padrão) ou outra cor, só para o chat.
+
 ### Chat
 
 As mensagens viram cards temáticos: fundo claro para mensagens enviadas por jogadores e por atores pertencentes a eles; fundo escuro para NPCs, mensagens do Mestre sem ator e mensagens de sistema. O card também mostra o retrato do ator no cabeçalho, o nome do jogador abaixo do personagem e botões de ação (Aplicar Dano, Gastar Mana…) na cor de destaque.
 
 Cada usuário pode trocar o padrão de fundo só para si: deixar todas as mensagens escuras ou todas claras. Também dá para escolher se o retrato vem da arte do personagem ou do token e, em mensagens sem personagem, mostrar o avatar do jogador ou nenhum retrato.
+
+Quem preferir um chat uniforme pode ligar a **cor única no chat**: o cabeçalho de todas as mensagens passa a usar uma cor para jogadores e outra para o Mestre, escolhidas pelo próprio usuário. Só muda na tela de quem ligou.
 
 ### Origem dos poderes
 
@@ -65,7 +69,7 @@ Em *Configurar → Configurações → T20 Hayd UI*: ativar/desativar o tema (po
 ## Detalhes adicionais
 
 - Não modifica o código do sistema — apenas CSS sobreposto e hooks de renderização do Foundry; pode ser desativado a qualquer momento sem afetar dados.
-- Como a cor é resolvida: modo padrão usa a cor do mundo; modo automático usa a cor do primeiro dono jogador; mensagens de chat priorizam a cor do ator que fala; janelas de uso usam a cor do usuário logado.
+- Como a cor é resolvida: modo padrão usa a cor do mundo; modo automático usa a cor do primeiro dono jogador; mensagens de chat usam a cor única do usuário (se ligada), depois a cor de chat do personagem e, por fim, a cor da ficha do ator que fala; janelas de uso usam a cor do usuário logado.
 
 ---
 

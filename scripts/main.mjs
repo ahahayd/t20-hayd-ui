@@ -16,10 +16,12 @@ import {
     ehFichaHayd,
     CLASSE_FICHA
 } from "./ficha-hayd.mjs";
+import { aplicarTomDaMensagem, agendarCorrecaoContrasteChat } from "./chat-contraste.mjs";
 
 const MODULE_ID = "t20-hayd-ui";
 const SYSTEM_ID = "tormenta20";
 const FLAG_COR = "configCor";
+const FLAG_COR_CHAT = "corChat";        // cor do cartão de chat; ausente = a mesma da ficha
 const FLAG_ARTE_ORIGINAL = "arteOriginal"; // arte do cabeçalho sem recolorir pela cor de destaque
 const FLAG_SEM_ARTE = "semArte";           // ficha sem a arte do cabeçalho
 const LOGO_PATH = `modules/${MODULE_ID}/assets/icones/logo-tormenta20.webp`;
@@ -138,7 +140,7 @@ Hooks.once("init", () => {
             token: "T20A.Settings.ChatRetratoToken"
         },
         default: "personagem",
-        onChange: () => ui.chat?.render(true)
+        onChange: redesenharChat
     });
 
     game.settings.register(MODULE_ID, "chatFundo", {
@@ -153,7 +155,37 @@ Hooks.once("init", () => {
             claro: "T20A.Settings.ChatFundoClaro"
         },
         default: "padrao",
-        onChange: () => ui.chat?.render(true)
+        onChange: redesenharChat
+    });
+
+    game.settings.register(MODULE_ID, "chatCorUnica", {
+        name: "T20A.Settings.ChatCorUnicaName",
+        hint: "T20A.Settings.ChatCorUnicaHint",
+        scope: "client",
+        config: true,
+        type: Boolean,
+        default: false,
+        onChange: redesenharChat
+    });
+
+    game.settings.register(MODULE_ID, "chatCorJogadores", {
+        name: "T20A.Settings.ChatCorJogadoresName",
+        hint: "T20A.Settings.ChatCorJogadoresHint",
+        scope: "client",
+        config: true,
+        type: new foundry.data.fields.ColorField({ nullable: false, initial: "#2f5d8a" }),
+        default: "#2f5d8a",
+        onChange: redesenharChat
+    });
+
+    game.settings.register(MODULE_ID, "chatCorMestre", {
+        name: "T20A.Settings.ChatCorMestreName",
+        hint: "T20A.Settings.ChatCorMestreHint",
+        scope: "client",
+        config: true,
+        type: new foundry.data.fields.ColorField({ nullable: false, initial: COR_PADRAO }),
+        default: COR_PADRAO,
+        onChange: redesenharChat
     });
 
     game.settings.register(MODULE_ID, "chatRetratoSemAtor", {
@@ -167,7 +199,7 @@ Hooks.once("init", () => {
             avatar: "T20A.Settings.ChatRetratoSemAtorAvatar"
         },
         default: "nada",
-        onChange: () => ui.chat?.render(true)
+        onChange: redesenharChat
     });
 });
 
@@ -342,6 +374,18 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
     corrigirIconesDeEfeito(message, root);
     aplicarTemaChatMsg(message, root);
 });
+
+/**
+ * Redesenha as mensagens já exibidas no chat. `ui.chat.render(true)` não
+ * basta: no v13 ele mantém o HTML das mensagens, e as opções do chat só
+ * apareceriam nas mensagens novas.
+ */
+function redesenharChat() {
+    for (const li of document.querySelectorAll("#chat .chat-message[data-message-id]")) {
+        const message = game.messages.get(li.dataset.messageId);
+        if (message) ui.chat?.updateMessage?.(message);
+    }
+}
 
 /**
  * HTMLElement de um argumento de hook de render, venha ele como elemento ou
@@ -577,9 +621,23 @@ function aplicarTemaChatMsg(message, html) {
     // testUserPermission para decidir o fundo da mensagem.
     const donosJogadores = actor ? listarDonosJogadores(actor) : [];
 
-    // Resolve cor de destaque do header
+    // Claro quando quem enviou é jogador OU quando o ator pertence a algum
+    // jogador (inclusive se o Mestre rolou por ele). Todo o restante — NPCs do
+    // Mestre, mensagens do Mestre sem ator e mensagens de sistema — é escuro.
+    // Assim uma mensagem de jogador sem speaker nunca mais é confundida com
+    // uma mensagem de NPC só porque não havia ator para resolver.
+    const ehMensagemDeJogador = (!!autor && !autor.isGM) || donosJogadores.length > 0;
+
+    // Resolve cor de destaque do header. Ordem: cor única do usuário (opção
+    // só dele) → cor de chat do personagem → a mesma cor da ficha.
     let cor = null;
-    if (actor) {
+    if (game.settings.get(MODULE_ID, "chatCorUnica")) {
+        // ColorField devolve um Color (Number), não a string hex
+        const valor = game.settings.get(MODULE_ID, ehMensagemDeJogador ? "chatCorJogadores" : "chatCorMestre");
+        cor = normalizarHex(valor?.css ?? String(valor ?? ""));
+    }
+    if (!cor && actor) cor = lerCorDoChat(actor);
+    if (!cor && actor) {
         const modo = lerModoCor(actor);
         if (modo === "padrao") {
             cor = corPadraoConfigurada();
@@ -596,13 +654,6 @@ function aplicarTemaChatMsg(message, html) {
     if (!cor && autor) cor = corCSSDoUsuario(autor);
     if (!cor) cor = corPadraoConfigurada();
 
-    // Claro quando quem enviou é jogador OU quando o ator pertence a algum
-    // jogador (inclusive se o Mestre rolou por ele). Todo o restante — NPCs do
-    // Mestre, mensagens do Mestre sem ator e mensagens de sistema — é escuro.
-    // Assim uma mensagem de jogador sem speaker nunca mais é confundida com
-    // uma mensagem de NPC só porque não havia ator para resolver.
-    const ehMensagemDeJogador = (!!autor && !autor.isGM) || donosJogadores.length > 0;
-
     // Preferência do usuário: força todas as mensagens claras ou escuras.
     const fundo = game.settings.get(MODULE_ID, "chatFundo");
     const fundoClaro = fundo === "claro" ? true
@@ -612,6 +663,7 @@ function aplicarTemaChatMsg(message, html) {
     root.classList.add("t20a-chat-msg");
     root.classList.toggle("t20a-chat-player", fundoClaro);
     root.classList.toggle("t20a-chat-npc", !fundoClaro);
+    aplicarTomDaMensagem(root, fundoClaro);
     root.style.setProperty("--t20a-chat-cor", cor);
 
     /* Texto do header sempre legível: preto ou branco conforme a
@@ -643,103 +695,7 @@ function aplicarTemaChatMsg(message, html) {
         sender.appendChild(span);
     }
 
-    if (!fundoClaro) agendarCorrecaoContrasteChat(root);
-}
-
-/**
- * Macros e tabelas podem inserir cores próprias nos descendentes do conteúdo,
- * impedindo que eles herdem o texto claro da mensagem do GM. No próximo frame,
- * quando todo o HTML do chat já está montado, corrige somente os trechos abaixo
- * de 4.5:1 e preserva qualquer cor que já tenha contraste suficiente.
- */
-function agendarCorrecaoContrasteChat(root) {
-    requestAnimationFrame(() => {
-        if (!root?.isConnected || !root.classList.contains("t20a-chat-npc")) return;
-        const conteudo = root.querySelector(".message-content");
-        if (!conteudo) return;
-
-        const candidatos = [conteudo, ...conteudo.querySelectorAll("*")];
-        for (const el of candidatos) {
-            el.classList.remove("t20a-chat-texto-claro", "t20a-chat-texto-escuro");
-        }
-
-        for (const el of candidatos) {
-            if (!elementoPossuiTextoDireto(el)) continue;
-            if (el.matches("script, style, button, input, select, option, textarea, canvas, svg, svg *")) continue;
-
-            const estilo = getComputedStyle(el);
-            if (estilo.display === "none" || estilo.visibility === "hidden") continue;
-
-            const fundo = fundoEfetivoDoElemento(el, conteudo);
-            const cor = corCSSParaRGBA(estilo.color);
-            if (!cor) continue;
-
-            const corVisivel = comporRGBA(cor, fundo);
-            if (razaoContrasteRGB(corVisivel, fundo) >= 4.5) continue;
-
-            // Preto/branco puros garantem que ao menos uma opção alcance
-            // 4.5:1 para qualquer luminância de fundo (limite WCAG AA).
-            const claro = [255, 255, 255];
-            const escuro = [0, 0, 0];
-            const usarClaro = razaoContrasteRGB(claro, fundo) >= razaoContrasteRGB(escuro, fundo);
-            el.classList.add(usarClaro ? "t20a-chat-texto-claro" : "t20a-chat-texto-escuro");
-        }
-    });
-}
-
-function elementoPossuiTextoDireto(el) {
-    return [...el.childNodes].some(no =>
-        no.nodeType === Node.TEXT_NODE && no.textContent.trim().length > 0
-    );
-}
-
-/** Compõe os backgrounds declarados entre o conteúdo da mensagem e o texto. */
-function fundoEfetivoDoElemento(el, limite) {
-    const camadas = [];
-    for (let atual = el; atual; atual = atual.parentElement) {
-        camadas.push(atual);
-        if (atual === limite) break;
-    }
-
-    let fundo = [15, 15, 15]; // base das mensagens t20a-chat-npc
-    for (const camada of camadas.reverse()) {
-        const rgba = corCSSParaRGBA(getComputedStyle(camada).backgroundColor);
-        if (rgba && rgba[3] > 0) fundo = comporRGBA(rgba, fundo);
-    }
-    return fundo;
-}
-
-/** Converte a serialização rgb()/rgba() de getComputedStyle em [r, g, b, a]. */
-function corCSSParaRGBA(cor) {
-    if (typeof cor !== "string") return null;
-    const match = cor.match(/^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:\s*[,/]\s*([\d.]+)(%)?)?\s*\)$/i);
-    if (!match) return null;
-    const alpha = match[4] === undefined
-        ? 1
-        : Math.max(0, Math.min(1, Number(match[4]) / (match[5] ? 100 : 1)));
-    return [Number(match[1]), Number(match[2]), Number(match[3]), alpha];
-}
-
-function comporRGBA(frente, fundo) {
-    const alpha = frente[3] ?? 1;
-    return [
-        frente[0] * alpha + fundo[0] * (1 - alpha),
-        frente[1] * alpha + fundo[1] * (1 - alpha),
-        frente[2] * alpha + fundo[2] * (1 - alpha)
-    ];
-}
-
-function razaoContrasteRGB(a, b) {
-    const luminancia = (rgb) => {
-        const linear = rgb.map(c => {
-            const canal = c / 255;
-            return canal <= 0.04045 ? canal / 12.92 : Math.pow((canal + 0.055) / 1.055, 2.4);
-        });
-        return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
-    };
-    const l1 = luminancia(a);
-    const l2 = luminancia(b);
-    return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+    agendarCorrecaoContrasteChat(root);
 }
 
 /**
@@ -940,7 +896,9 @@ function injetarLogo(windowApp, root) {
 /*  Header button (Cor da Ficha)                                               */
 /* -------------------------------------------------------------------------- */
 
-Hooks.on("getApplicationHeaderButtons", (app, buttons) => {
+/* No v13 o "getApplicationHeaderButtons" não dispara nas fichas AppV1 do
+   sistema: o hook que chega até elas é o da classe ActorSheet. */
+Hooks.on("getActorSheetHeaderButtons", (app, buttons) => {
     if (game.system.id !== SYSTEM_ID) return;
     if (!game.settings.get(MODULE_ID, "enabled")) return;
 
@@ -975,6 +933,7 @@ async function abrirDialogoCor(doc) {
     const ehPersonagem = doc.type === "character";
     const arteOriginal = doc.getFlag?.(MODULE_ID, FLAG_ARTE_ORIGINAL) === true;
     const semArte = doc.getFlag?.(MODULE_ID, FLAG_SEM_ARTE) === true;
+    const corChatAtual = lerCorDoChat(doc);
 
     const content = `
         <div class="t20a-color-dialog">
@@ -1014,6 +973,30 @@ async function abrirDialogoCor(doc) {
                             <span class="t20a-padrao-chip" style="background:${corPadraoAtual}"></span>
                             <code>${corPadraoAtual}</code>
                         </em>
+                    </span>
+                </label>
+            </div>
+            <h4 class="t20a-dialog-secao">${game.i18n.localize("T20A.Dialog.ChatTitulo")}</h4>
+            <div class="t20a-dialog-mode">
+                <label class="t20a-radio-row">
+                    <input type="radio" name="modoChat" value="ficha" ${corChatAtual ? "" : "checked"} />
+                    <span class="t20a-radio-label">
+                        <strong>${game.i18n.localize("T20A.Dialog.ChatIgual")}</strong>
+                        <em>${game.i18n.localize("T20A.Dialog.ChatIgualHint")}</em>
+                    </span>
+                </label>
+            </div>
+            <div class="t20a-dialog-mode">
+                <label class="t20a-radio-row">
+                    <input type="radio" name="modoChat" value="custom" ${corChatAtual ? "checked" : ""} />
+                    <span class="t20a-radio-label">
+                        <strong>${game.i18n.localize("T20A.Dialog.ChatPropria")}</strong>
+                        <em>${game.i18n.localize("T20A.Dialog.ChatPropriaHint")}</em>
+                        <span class="t20a-custom-picker">
+                            <input type="color" name="corChat" value="${corChatAtual ?? corCustomAtual}" />
+                            <input type="text" name="corChatHex" value="${corChatAtual ?? corCustomAtual}"
+                                   maxlength="7" pattern="#?[0-9a-fA-F]{6}" spellcheck="false" />
+                        </span>
                     </span>
                 </label>
             </div>
@@ -1062,17 +1045,22 @@ async function abrirDialogoCor(doc) {
                 inputSemArte?.addEventListener("change", sincronizarArte);
                 sincronizarArte();
                 // Picker e campo hex andam juntos; mexer neles seleciona o modo
-                picker?.addEventListener("input", () => {
-                    hexInput.value = picker.value;
-                    if (radioCustom) radioCustom.checked = true;
-                });
-                hexInput?.addEventListener("change", () => {
-                    const bruto = hexInput.value.trim();
-                    const hex = normalizarHex(bruto.startsWith("#") ? bruto : `#${bruto}`);
-                    if (hex) { picker.value = hex; hexInput.value = hex; }
-                    else hexInput.value = picker.value;
-                    if (radioCustom) radioCustom.checked = true;
-                });
+                const ligarPicker = (picker, hexInput, radio) => {
+                    picker?.addEventListener("input", () => {
+                        hexInput.value = picker.value;
+                        if (radio) radio.checked = true;
+                    });
+                    hexInput?.addEventListener("change", () => {
+                        const bruto = hexInput.value.trim();
+                        const hex = normalizarHex(bruto.startsWith("#") ? bruto : `#${bruto}`);
+                        if (hex) { picker.value = hex; hexInput.value = hex; }
+                        else hexInput.value = picker.value;
+                        if (radio) radio.checked = true;
+                    });
+                };
+                ligarPicker(picker, hexInput, radioCustom);
+                ligarPicker(el.querySelector('[name="corChat"]'), el.querySelector('[name="corChatHex"]'),
+                    el.querySelector('input[name="modoChat"][value="custom"]'));
             },
             ok: {
                 label: game.i18n.localize("T20A.Confirm"),
@@ -1083,7 +1071,10 @@ async function abrirDialogoCor(doc) {
                     // null = ficha sem as checkboxes (não-personagem): não mexe nas flags
                     const arte = {
                         arteOriginal: form?.elements?.arteOriginal?.checked ?? null,
-                        semArte: form?.elements?.semArte?.checked ?? null
+                        semArte: form?.elements?.semArte?.checked ?? null,
+                        corChat: form?.elements?.modoChat?.value === "custom"
+                            ? form?.elements?.corChat?.value
+                            : null
                     };
                     if (mode === "custom") {
                         return { mode: "custom", cor: form?.elements?.corCustom?.value, ...arte };
@@ -1185,6 +1176,12 @@ Hooks.on("updateActor", (actor, changes) => {
         const doc = documentoDoApp(app);
         if (doc?.documentName === "Item" && doc.parent === actor) app.render(false);
     }
+    // Cor da ficha ou do chat mudou: redesenha as mensagens desse personagem.
+    const cores = changes.flags?.[MODULE_ID] ?? {};
+    if (!(FLAG_COR in cores) && !(FLAG_COR_CHAT in cores)) return;
+    for (const message of game.messages ?? []) {
+        if (message.speakerActor === actor) ui.chat?.updateMessage?.(message);
+    }
 });
 
 function reRenderTormentaSheets() {
@@ -1262,8 +1259,14 @@ function lerCorPersonalizada(doc) {
     return null;
 }
 
+/** Cor própria do cartão de chat do personagem, ou null para usar a da ficha. */
+function lerCorDoChat(doc) {
+    const raw = doc.getFlag?.(MODULE_ID, FLAG_COR_CHAT);
+    return raw && typeof raw === "object" ? normalizarHex(raw.cor) : null;
+}
+
 /** Grava modo de cor e (se informadas) as opções da arte num único update — um só re-render. */
-async function salvarModoCor(doc, modo, cor = null, { arteOriginal = null, semArte = null } = {}) {
+async function salvarModoCor(doc, modo, cor = null, { arteOriginal = null, semArte = null, corChat } = {}) {
     const valor = (modo === "custom")
         ? { mode: "custom", cor: normalizarHex(cor) ?? corPadraoConfigurada() }
         : ((modo === "padrao") ? "padrao" : "auto");
@@ -1273,6 +1276,11 @@ async function salvarModoCor(doc, modo, cor = null, { arteOriginal = null, semAr
     }
     if (typeof semArte === "boolean") {
         update[`flags.${MODULE_ID}.${FLAG_SEM_ARTE}`] = semArte;
+    }
+    // undefined = não mexe; null = volta a usar a cor da ficha no chat
+    if (corChat !== undefined) {
+        const hex = normalizarHex(corChat);
+        update[`flags.${MODULE_ID}.${FLAG_COR_CHAT}`] = hex ? { cor: hex } : "ficha";
     }
     await doc.update(update);
 }
@@ -1383,7 +1391,7 @@ Hooks.on("renderSettingsConfig", (_app, element) => {
 const CATEGORIAS_CONFIG = [
     { rotulo: "CatAparencia", icone: "fa-palette",  chaves: ["enabled", "estiloInterface", "corPadrao"] },
     { rotulo: "CatFicha",     icone: "fa-scroll",   chaves: ["origemPoderesMundo", "origemPoderes"] },
-    { rotulo: "CatChat",      icone: "fa-comments", chaves: ["chatRetrato", "chatFundo", "chatRetratoSemAtor"] },
+    { rotulo: "CatChat",      icone: "fa-comments", chaves: ["chatRetrato", "chatFundo", "chatCorUnica", "chatCorJogadores", "chatCorMestre", "chatRetratoSemAtor"] },
     { rotulo: "CatPausa",     icone: "fa-pause",    chaves: ["pausaTexto", "pausaIcone", "pausaGirar"] }
 ];
 
