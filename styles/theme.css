@@ -1832,6 +1832,27 @@ body.t20a-ui #context-menu.t20a-context-menu[popover] {
     color: var(--t20a-chat-cor-legivel) !important;
 }
 
+/* O menu de contexto do chat nasce dentro da mensagem. Com o tom da mensagem
+   oposto ao do log, as regras do core `.themed.theme-X #context-menu` empatam
+   em especificidade e a do tema claro vence pela ordem: fundo claro com texto
+   claro. Repetimos as variáveis do core com uma classe a mais, para o menu
+   seguir o tom da própria mensagem. */
+.t20a-chat-msg.themed.theme-dark #context-menu {
+    --background-color: var(--color-cool-5);
+    --border-color: var(--color-cool-3);
+    --group-separator: var(--color-cool-4);
+    --hover-entry-border: var(--color-cool-4);
+    --hover-entry-background: var(--color-dark-1);
+}
+
+.t20a-chat-msg.themed.theme-light #context-menu {
+    --background-color: #d9d8c8;
+    --border-color: #999;
+    --group-separator: #999;
+    --hover-entry-border: #999;
+    --hover-entry-background: #f0f0e0;
+}
+
 /* O core força --color-dark-4 na descrição de RollTables. Corrige desde o
    primeiro paint; o verificador adaptativo cuida do HTML livre dos resultados. */
 .t20a-chat-npc .table-draw .table-description,

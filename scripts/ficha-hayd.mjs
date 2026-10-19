@@ -185,21 +185,6 @@ export function registrarConfiguracoesFicha() {
         default: true,
         onChange: () => { for (const app of Object.values(ui.windows)) if (ehFichaHayd(app)) app.render(false); }
     });
-    game.settings.register(MODULE_ID, "fichaSlim", {
-        name: "T20A.Settings.FichaSlimName",
-        hint: "T20A.Settings.FichaSlimHint",
-        scope: "client",
-        config: false, // fica na janela "Configurar ficha" (botão Sheet), não nas do módulo
-        type: Boolean,
-        default: false,
-        onChange: (slim) => {
-            for (const app of Object.values(ui.windows)) {
-                if (!ehFichaHayd(app)) continue;
-                app.setPosition({ width: slim ? LARGURA_SLIM : LARGURA_PADRAO });
-                app.render(false);
-            }
-        }
-    });
 }
 
 /**
@@ -218,10 +203,10 @@ Hooks.on("renderDocumentSheetConfig", (app, html) => {
     grupo.className = "form-group hf-config-slim";
     grupo.innerHTML = `
         <label>${game.i18n.localize("T20A.Settings.FichaSlimName")}</label>
-        <div class="form-fields"><input type="checkbox" ${modoSlim() ? "checked" : ""}></div>
+        <div class="form-fields"><input type="checkbox" ${modoSlim(doc) ? "checked" : ""}></div>
         <p class="hint">${game.i18n.localize("T20A.Settings.FichaSlimHint")}</p>`;
     grupo.querySelector("input").addEventListener("change", (ev) => {
-        game.settings.set(MODULE_ID, "fichaSlim", ev.currentTarget.checked);
+        doc.setFlag(MODULE_ID, FLAG_SLIM, ev.currentTarget.checked);
     });
     seletor.closest(".form-group").after(grupo);
     // Arte do cabeçalho: flags do ator (todos veem a mesma), gravadas ao escolher
@@ -287,9 +272,18 @@ const estiloInterfaceLigado = () => {
 
 const LARGURA_PADRAO = 980;
 const LARGURA_SLIM = 795;
-const modoSlim = () => {
-    try { return game.settings.get(MODULE_ID, "fichaSlim") === true; } catch (_) { return false; }
-};
+// Modo slim: flag do ator (vale para todos que abrirem essa ficha)
+const FLAG_SLIM = "fichaSlim";
+const modoSlim = (actor) => actor?.getFlag?.(MODULE_ID, FLAG_SLIM) === true;
+
+// Ao trocar o slim de um ator, ajusta a largura das fichas dele já abertas
+Hooks.on("updateActor", (actor, mudancas) => {
+    if (!foundry.utils.hasProperty(mudancas, `flags.${MODULE_ID}.${FLAG_SLIM}`)) return;
+    const slim = modoSlim(actor);
+    for (const app of Object.values(ui.windows)) {
+        if (ehFichaHayd(app) && app.actor === actor) app.setPosition({ width: slim ? LARGURA_SLIM : LARGURA_PADRAO });
+    }
+});
 
 /**
  * Registra a ficha. Precisa rodar depois do init do sistema, que é quem
@@ -413,9 +407,14 @@ function criarClasseFicha(Base) {
         /** Busca digitada em cada aba (só na memória da janela). */
         _busca = {};
 
+        constructor(...args) {
+            super(...args);
+            if (modoSlim(this.actor)) this.position.width = LARGURA_SLIM;
+        }
+
         static get defaultOptions() {
             const opcoes = foundry.utils.mergeObject(super.defaultOptions, {
-                width: modoSlim() ? LARGURA_SLIM : LARGURA_PADRAO,
+                width: LARGURA_PADRAO, // o slim (flag do ator) ajusta no construtor
                 height: 860,
                 tabs: [],
                 scrollY: [".hf-lateral-painel", ".hf-aba"],
@@ -487,9 +486,9 @@ function criarClasseFicha(Base) {
                 deuses: DEUSES,
                 listaDeuses: `hf-deuses-${this.id}`,
                 // Logo na ponta direita da faixa das abas (opção "Mostrar logo do Tormenta 20")
-                slim: modoSlim(),
+                slim: modoSlim(actor),
                 buscaPericias: game.settings.get(MODULE_ID, "fichaBuscaPericias") !== false,
-                logo: !modoSlim() && game.settings.get(MODULE_ID, "mostrarLogo")
+                logo: !modoSlim(actor) && game.settings.get(MODULE_ID, "mostrarLogo")
                     ? foundry.utils.getRoute(`modules/${MODULE_ID}/assets/icones/logo-tormenta20.webp`) : null,
                 // Opções do diálogo "Cor da Ficha" (as mesmas marcações que o tema antigo lê)
                 semArte: actor.getFlag(MODULE_ID, "semArte") === true,
