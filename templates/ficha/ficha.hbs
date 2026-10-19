@@ -1,7 +1,7 @@
 <form class="hf-ficha {{#if hf.desbloqueada}}hf-desbloqueada{{else}}hf-bloqueada{{/if}} {{#unless hf.lateral}}hf-sem-lateral{{/unless}} {{#unless hf.editavel}}hf-somente-leitura{{/unless}} {{#if hf.slim}}hf-slim{{/if}} {{hf.classesTamanho}}" autocomplete="off">
 	{{!-- Cabeçalho e abas dividem o mesmo fundo: a arte corre por trás das abas, como no Tidy --}}
 	<div class="hf-topo hf-arte-{{hf.arte}} {{#if hf.semArte}}hf-sem-arte{{/if}} {{#if hf.arteOriginal}}hf-arte-original{{/if}}">
-		<div class="hf-banner" style="--hf-banner: url('{{hf.banner}}');" aria-hidden="true"><div class="hf-banner-espelho"></div><div class="hf-banner-espelho-dir"></div><div class="hf-banner-sombra"></div></div>
+		<div class="hf-banner" style="--hf-banner: url('{{hf.banner}}');" aria-hidden="true"><div class="hf-banner-sombra"></div></div>
 	{{> "modules/t20-hayd-ui/templates/ficha/cabecalho.hbs"}}
 
 	<nav class="hf-abas" aria-label="{{localize 'T20A.Ficha.Abas.Rotulo'}}">

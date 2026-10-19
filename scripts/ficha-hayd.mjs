@@ -24,7 +24,7 @@ import { MOEDAS, gastar, receber, totalEmTC } from "./carteira.mjs";
 
 const MODULE_ID = "t20-hayd-ui";
 const TEMPLATES = `modules/${MODULE_ID}/templates/ficha`;
-const BANNER = `modules/${MODULE_ID}/assets/fundos/header-tormenta-lateral.webp`;
+const BANNER = `modules/${MODULE_ID}/assets/fundos/header-tormenta-horizontal.webp`;
 /** Arte do cabeçalho (flag do ator, escolhida em "Configurar ficha"). */
 const FLAG_ARTE_CABECALHO = "arteCabecalho";
 const ARTES_CABECALHO = ["tormenta", "deuses-positivo", "deuses-negativo"];

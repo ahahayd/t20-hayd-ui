@@ -192,50 +192,23 @@
     overflow: hidden;
     background: #050405;
 }
-/* Fundo: a arte deitada (header-tormenta-lateral.webp, 1624×1216) no
-   enquadramento escolhido: olho à direita, com ~80% da altura do cabeçalho,
-   e os ornamentos correndo para a esquerda. Nesse tamanho (716×535) o olho
-   fica em 350×268 px da imagem. */
+/* Fundo: a faixa horizontal (header-tormenta-horizontal.webp, 2256×448, com
+   o olho no meio) no enquadramento da arte antiga: olho à direita, com ~80%
+   da altura do cabeçalho (o olho tem ~49% da altura da imagem, daí 163%), e
+   os ornamentos correndo para a esquerda. A arte é simétrica, então repetida
+   lado a lado emenda sem costura: a caixa tem três cópias, centrada no olho,
+   e cobre até as janelas largas. */
 .hayd-ficha .hf-banner::before {
     content: "";
     position: absolute;
-    left: calc(72% - 350px);
-    top: calc(55% - 284px); /* 16 px acima do centro do olho no cabeçalho */
-    width: 716px;
-    height: 535px;
-    background: var(--hf-banner) center / 100% 100% no-repeat;
+    left: 72%;
+    top: calc(55% - 16px); /* centro do olho */
+    height: 163%;
+    aspect-ratio: 6768 / 448;
+    transform: translate(-50%, -50%);
+    background: var(--hf-banner) center / auto 100% repeat-x;
     opacity: 0.8;
 }
-/* Continuação à esquerda: a mesma arte espelhada, emendada na borda (sem costura) */
-.hayd-ficha .hf-banner-espelho {
-    position: absolute;
-    left: calc(72% - 350px - 716px);
-    top: calc(55% - 284px);
-    width: 716px;
-    height: 535px;
-    background: var(--hf-banner) center / 100% 100% no-repeat;
-    transform: scaleX(-1);
-    opacity: 0.8;
-    /* Só a faixa de ornamentos junto à emenda: o olho da cópia (a 350 px) não aparece.
-       As coordenadas são de antes do espelhamento (x = 0 é a emenda). */
-    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 220px, transparent 320px);
-    mask-image: linear-gradient(90deg, #000 0, #000 220px, transparent 320px);
-}
-/* Continuação à direita, para janelas largas: mesma ideia, emendada na borda
-   direita da arte (aqui a emenda é o x = 716 de antes do espelhamento) */
-.hayd-ficha .hf-banner-espelho-dir {
-    position: absolute;
-    left: calc(72% - 350px + 716px);
-    top: calc(55% - 284px);
-    width: 716px;
-    height: 535px;
-    background: var(--hf-banner) center / 100% 100% no-repeat;
-    transform: scaleX(-1);
-    opacity: 0.8;
-    -webkit-mask-image: linear-gradient(270deg, #000 0, #000 220px, transparent 320px);
-    mask-image: linear-gradient(270deg, #000 0, #000 220px, transparent 320px);
-}
-.hayd-ficha .hf-sem-arte .hf-banner-espelho-dir { display: none; }
 /* Sombra só de cima para baixo: o topo respira, a base encontra as abas */
 .hayd-ficha .hf-banner-sombra {
     position: absolute;
@@ -2354,9 +2327,8 @@
 }
 
 /* Opções do diálogo "Cor da Ficha" */
-/* Ocultar a arte: some a arte (e a cópia espelhada); fica o degradê na cor do jogador */
-.hayd-ficha .hf-sem-arte .hf-banner::before,
-.hayd-ficha .hf-sem-arte .hf-banner-espelho { display: none; }
+/* Ocultar a arte: some a arte; fica o degradê na cor do jogador */
+.hayd-ficha .hf-sem-arte .hf-banner::before { display: none; }
 .hayd-ficha .hf-sem-arte .hf-banner {
     background: linear-gradient(135deg, var(--hf-acento-escuro), #070507 70%);
 }
@@ -2634,15 +2606,28 @@
 .hayd-ficha .hf-selo-trocar { width: 56px; }
 
 /* ---- Textura do cabeçalho: marca d'água, mais forte só onde não há texto -- */
-.hayd-ficha .hf-banner::before,
-.hayd-ficha .hf-banner-espelho,
-.hayd-ficha .hf-banner-espelho-dir { opacity: 0.5; }
 .hayd-ficha .hf-banner::before {
-    /* mais presente à direita (o olho), apagada atrás do nome e dos atributos */
-    -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.55) 40%, #000 72%);
-    mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.55) 40%, #000 72%);
+    opacity: 0.5;
+    /* mais presente à direita (o olho, no centro da caixa), apagada atrás do nome e dos atributos */
+    -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.55) calc(50% - 64px), #000 calc(50% + 165px));
+    mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.55) calc(50% - 64px), #000 calc(50% + 165px));
 }
 .hayd-ficha .hf-banner-sombra::after { background: rgba(0, 0, 0, 0.22); }
+/* Gravuras nas cores originais: o vermelho da Tormenta é o objetivo, então o
+   escurecimento é bem mais leve (arte mais opaca, película e sombra mais claras) */
+.hayd-ficha .hf-arte-tormenta.hf-arte-original .hf-banner::before {
+    opacity: 0.85;
+    -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.75) calc(50% - 64px), #000 calc(50% + 165px));
+    mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.75) calc(50% - 64px), #000 calc(50% + 165px));
+}
+.hayd-ficha .hf-arte-tormenta.hf-arte-original .hf-banner-sombra {
+    background: linear-gradient(180deg,
+        rgba(6, 5, 7, 0.25) 0%,
+        rgba(6, 5, 7, 0.15) 35%,
+        rgba(6, 5, 7, 0.35) 75%,
+        rgba(6, 5, 7, 0.4) 100%);
+}
+.hayd-ficha .hf-arte-tormenta.hf-arte-original .hf-banner-sombra::after { background: rgba(0, 0, 0, 0.08); }
 
 /* ---- Faixa das abas: chips sob o retrato sem contorno --------------------- */
 .hayd-ficha .hf-sob-retrato .hf-estat {
@@ -2955,6 +2940,7 @@
     top: 0;
     width: 100%;
     height: 100%;
+    transform: none;
     background-position: center top;
     background-size: max(100%, calc(var(--hf-topo-h, 265px) * var(--hf-arte-proporcao))) auto;
     background-repeat: no-repeat;
@@ -2975,11 +2961,7 @@
     filter: brightness(1.7) saturate(1.1);
 }
 .hayd-ficha .hf-arte-deuses-negativo .hf-banner::before { opacity: 1; }
-.hayd-ficha .hf-arte-deuses-positivo .hf-banner-espelho,
-.hayd-ficha .hf-arte-deuses-positivo .hf-banner-espelho-dir,
 .hayd-ficha .hf-arte-deuses-positivo .hf-banner::after,
-.hayd-ficha .hf-arte-deuses-negativo .hf-banner-espelho,
-.hayd-ficha .hf-arte-deuses-negativo .hf-banner-espelho-dir,
 .hayd-ficha .hf-arte-deuses-negativo .hf-banner::after { display: none; }
 
 /* Um toque: a arte desce um pouco além do cabeçalho, por trás do conteúdo,
