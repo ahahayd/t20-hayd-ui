@@ -27,6 +27,12 @@
 			data-tooltip="{{localize 'T20A.Ficha.EngenhocasResetar'}}"><i class="fa-solid fa-sun"></i></button>
 		{{/if}}
 	{{/if}}
+	{{#if (and engenhocas @root.hf.gm.escriba)}}
+	{{!-- Escriba Arcano (t20-hayd-gmtools): aprender magias de pergaminhos e grimórios --}}
+	<button type="button" class="hf-botao hf-gm-escriba" data-hf-acao="escriba"
+		data-tooltip="{{localize 'T20A.Ficha.EscribaDica'}}"><i class="fa-solid fa-feather-pointed"></i>
+		<span>{{localize 'T20A.Ficha.Escriba'}}</span></button>
+	{{/if}}
 	{{#if compendio}}
 		{{#if @root.hf.editavel}}
 		<a class="hf-botao" data-hf-acao="compendio" data-pack="{{compendio}}"><i class="fa-solid fa-book"></i> {{localize 'T20A.Ficha.Compendio'}}</a>

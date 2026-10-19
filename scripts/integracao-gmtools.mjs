@@ -51,8 +51,15 @@ export function ferramentasGMTools(actor) {
     // decide isso, e sem o botão a barra da aba Efeitos não aparece.
     const automacoes = !!(actor.isOwner && a.contadores?.temConteudo?.(actor));
 
-    if (!engenhocas && !automacoes) return null;
-    return { engenhocas, automacoes };
+    // Escriba Arcano: o botão "Aprender magias" na aba Magias (versões novas)
+    const escriba = !!(actor.isOwner && a.escriba?.temEscriba?.(actor));
+
+    if (!engenhocas && !automacoes && !escriba) return null;
+    return { engenhocas, automacoes, escriba };
+}
+
+export function abrirEscriba(actor) {
+    api()?.escriba?.abrir?.(actor);
 }
 
 export function abrirPainelEngenhocas(actor) {

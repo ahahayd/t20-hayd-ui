@@ -18,7 +18,7 @@
 
 import { modoOrigemPoderes, abrirOrganizadorComAviso, etiquetaDaOrigem } from "./origem-poderes.mjs";
 import {
-    ferramentasGMTools, abrirPainelEngenhocas, resetarEngenhocas, abrirPainelAutomacoes
+    ferramentasGMTools, abrirPainelEngenhocas, resetarEngenhocas, abrirPainelAutomacoes, abrirEscriba
 } from "./integracao-gmtools.mjs";
 import { MOEDAS, gastar, receber, totalEmTC } from "./carteira.mjs";
 
@@ -1226,6 +1226,10 @@ function criarClasseFicha(Base) {
             ligar("[data-hf-acao='engenhocas']", "click", (ev) => {
                 ev.preventDefault();
                 abrirPainelEngenhocas(this.actor);
+            });
+            ligar("[data-hf-acao='escriba']", "click", (ev) => {
+                ev.preventDefault();
+                abrirEscriba(this.actor);
             });
             ligar("[data-hf-acao='engenhocas-resetar']", "click", async (ev) => {
                 ev.preventDefault();
