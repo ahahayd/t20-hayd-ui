@@ -44,7 +44,9 @@ Uma ficha de personagem nova, com organização própria, inspirada na [Tidy 5e 
 
 ### Cor da ficha
 
-Clique em **"Cor da Ficha"** no cabeçalho da ficha (donos e Mestre) e escolha entre a cor **automática** do jogador dono, a cor **padrão** do mundo ou uma **cor personalizada** pelo seletor de cores. O texto se ajusta sozinho para manter contraste legível sobre qualquer cor escolhida. Nas fichas de personagem, a arte do cabeçalho acompanha a cor de destaque; marque **"Manter as cores originais da arte do cabeçalho"** no mesmo diálogo para exibi-la sem recolorir, ou **"Ocultar a arte do cabeçalho"** para deixar o topo da ficha sem imagem.
+Clique em **"Cor da Ficha"** no cabeçalho da ficha (donos e Mestre) e escolha entre a cor **automática** do jogador dono, a cor **padrão** do mundo ou uma **cor personalizada** pelo seletor de cores. O texto se ajusta sozinho para manter contraste legível sobre qualquer cor escolhida. Nas fichas de personagem, a arte do cabeçalho acompanha a cor de destaque.
+
+A arte em si se escolhe em **Configurar ficha** (botão "Sheet" no cabeçalho), no campo **"Arte do cabeçalho"**: **Gravuras da Tormenta (Cor da ficha)** (padrão, recolorida pela cor de destaque), **Gravuras da Tormenta** (nas cores originais), **Deuses: Positivo** e **Deuses: Negativo** (só na Ficha Hayd, sempre nas cores originais) ou **Sem arte**. A escolha vale para todos que abrirem a ficha.
 
 No mesmo diálogo, **"Cor no chat"** define a cor do cartão de chat do personagem: igual à da ficha (padrão) ou outra cor, só para o chat.
 
@@ -70,6 +72,10 @@ Em *Configurar → Configurações → T20 Hayd UI*: ativar/desativar o tema (po
 
 - Não modifica o código do sistema — apenas CSS sobreposto e hooks de renderização do Foundry; pode ser desativado a qualquer momento sem afetar dados.
 - Como a cor é resolvida: modo padrão usa a cor do mundo; modo automático usa a cor do primeiro dono jogador; mensagens de chat usam a cor única do usuário (se ligada), depois a cor de chat do personagem e, por fim, a cor da ficha do ator que fala; janelas de uso usam a cor do usuário logado.
+
+## Créditos
+
+- Arte dos Deuses (opções **Deuses: Positivo** e **Deuses: Negativo** do cabeçalho): [@boneesart_](https://www.instagram.com/boneesart_/), [@danramosart](https://www.instagram.com/danramosart/) e Leonardo Wyrnist.
 
 ---
 

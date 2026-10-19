@@ -1,0 +1,26 @@
+<form class="ha-ficha {{#if ha.desbloqueada}}ha-desbloqueada{{/if}} {{#unless ha.editavel}}ha-somente-leitura{{/unless}}" autocomplete="off" style="--ha-arte: url('{{ha.arte}}');">
+	{{!-- O panteão sombrio corre por trás do topo e some num degradê; no corpo fica só a textura --}}
+	<div class="ha-topo">
+		<div class="ha-topo-arte" aria-hidden="true"></div>
+		{{> "modules/t20-hayd-ui/templates/ameaca/cabecalho.hbs"}}
+		<nav class="ha-abas">
+			{{#each ha.abas as |aba|}}
+			<button type="button" class="ha-aba-botao {{#if aba.ativa}}ativa{{/if}}" data-ha-aba="{{aba.id}}">
+				<i class="{{aba.icone}}"></i><span>{{aba.rotulo}}</span>{{#if aba.contagem}}<b class="ha-aba-contagem">{{aba.contagem}}</b>{{/if}}
+			</button>
+			{{/each}}
+		</nav>
+	</div>
+	<div class="ha-corpo">
+		{{> "modules/t20-hayd-ui/templates/ameaca/aba-ameaca.hbs"}}
+		{{> "modules/t20-hayd-ui/templates/ameaca/aba-pericias.hbs"}}
+		{{> "modules/t20-hayd-ui/templates/ameaca/aba-inventario.hbs"}}
+		{{> "modules/t20-hayd-ui/templates/ameaca/aba-efeitos.hbs"}}
+		<div class="ha-aba ha-aba-diario {{#if (eq ha.aba 'diario')}}ativa{{/if}} {{#unless htmlFields.biography}}vazio{{/unless}}" data-aba="diario">
+			{{editor htmlFields.biography target="system.detalhes.biography.value" button=true owner=owner editable=editable}}
+			{{#unless htmlFields.biography}}
+			<p class="ha-diario-vazio"><i class="fa-solid fa-feather-pointed"></i><span>{{localize 'T20A.Ameaca.DiarioVazio'}}</span></p>
+			{{/unless}}
+		</div>
+	</div>
+</form>

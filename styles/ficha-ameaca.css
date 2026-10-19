@@ -1,0 +1,1816 @@
+/* ==========================================================================
+   Ficha Hayd de Ameaça — bloco de estatísticas dos NPCs.
+   Tudo preso a .hayd-ameaca: não vaza para nenhuma outra janela.
+   A cor de destaque vem de --t20a-cor-destaque (posta pelo main.mjs); a arte
+   "Deuses (negativo)" fica sempre nas cores originais.
+   ========================================================================== */
+
+.hayd-ameaca {
+    --ha-acento: var(--t20a-cor-destaque, #960505);
+    --ha-sobre-acento: var(--t20a-texto-sobre-destaque, #fff);
+    --ha-acento-claro: color-mix(in srgb, var(--ha-acento) 50%, #fff);
+    --ha-acento-escuro: color-mix(in srgb, var(--ha-acento) 55%, #000);
+    --ha-acento-bg: color-mix(in srgb, var(--ha-acento) 16%, transparent);
+    --ha-acento-bg-forte: color-mix(in srgb, var(--ha-acento) 36%, transparent);
+    --ha-acento-borda: color-mix(in srgb, var(--ha-acento) 70%, transparent);
+    --ha-acento-glow: color-mix(in srgb, var(--ha-acento) 60%, transparent);
+
+    --ha-fundo: #0c0b0e;
+    --ha-painel: rgba(20, 18, 23, 0.82);
+    --ha-painel-2: rgba(30, 26, 33, 0.9);
+    --ha-linha: rgba(255, 255, 255, 0.07);
+    --ha-linha-forte: rgba(255, 255, 255, 0.14);
+    --ha-texto: #ece6dd;
+    --ha-texto-2: #b9b0a6;
+    --ha-texto-3: #847b72;
+    --ha-ouro: #d8b26a;
+    --ha-pv-escuro: #7a1418;
+    --ha-pv-claro: #d8353b;
+    --ha-pm-escuro: #1a3f86;
+    --ha-pm-claro: #3d7fe0;
+    --ha-vermelho: #ff6b5c;
+    --ha-azul: #7fb3ff;
+
+    --ha-fonte-display: "Modesto Condensed", "Palatino Linotype", serif;
+    --ha-fonte: "Signika", "Segoe UI", sans-serif;
+    --ha-corte: 10px;
+    --ha-corte-sm: 6px;
+    --ha-chanfro: polygon(var(--ha-corte) 0, 100% 0, 100% calc(100% - var(--ha-corte)), calc(100% - var(--ha-corte)) 100%, 0 100%, 0 var(--ha-corte));
+    --ha-chanfro-sm: polygon(var(--ha-corte-sm) 0, 100% 0, 100% calc(100% - var(--ha-corte-sm)), calc(100% - var(--ha-corte-sm)) 100%, 0 100%, 0 var(--ha-corte-sm));
+
+    min-width: 460px;
+    min-height: 420px;
+    color: var(--ha-texto);
+    font-family: var(--ha-fonte);
+    background: var(--ha-fundo);
+    border: 1px solid var(--ha-acento-borda);
+    border-radius: 0;
+    box-shadow: 0 0 0 1px #000, 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 28px var(--ha-acento-bg-forte);
+}
+
+/* ---- Moldura da janela --------------------------------------------------- */
+
+.hayd-ameaca .window-header {
+    background: linear-gradient(90deg, var(--ha-acento-escuro), #0d0b10 70%);
+    border-bottom: 1px solid var(--ha-acento-borda);
+    color: var(--ha-texto);
+    font-family: var(--ha-fonte-display);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+.hayd-ameaca .window-header .header-button,
+.hayd-ameaca .window-header a { color: var(--ha-texto-2); }
+.hayd-ameaca .window-header a:hover { color: #fff; text-shadow: 0 0 8px var(--ha-acento-glow); }
+
+.hayd-ameaca .window-content {
+    padding: 0;
+    overflow: hidden;
+    color: var(--ha-texto);
+    background:
+        radial-gradient(ellipse at 50% -10%, var(--ha-acento-bg) 0%, transparent 60%),
+        url("../assets/fundos/background-dark4.webp") center / cover,
+        var(--ha-fundo);
+}
+
+.hayd-ameaca form.ha-ficha {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    isolation: isolate;
+    container-type: inline-size;
+}
+/* Textura do corpo: a mesma pintura, quase apagada, sem competir com o texto */
+.hayd-ameaca form.ha-ficha::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--ha-arte) center 35% / cover no-repeat;
+    opacity: 0.07;
+    filter: saturate(0.6) blur(1.5px);
+    pointer-events: none;
+}
+
+/* ---- Controles genéricos ------------------------------------------------- */
+
+.hayd-ameaca .ha-ficha input,
+.hayd-ameaca .ha-ficha select {
+    height: 26px;
+    color: var(--ha-texto);
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--ha-linha-forte);
+    border-radius: 0;
+    font-family: var(--ha-fonte);
+    font-size: 13px;
+}
+.hayd-ameaca .ha-ficha input[type="number"] { text-align: center; }
+.hayd-ameaca .ha-ficha input:focus,
+.hayd-ameaca .ha-ficha select:focus {
+    outline: none;
+    border-color: var(--ha-acento);
+    box-shadow: 0 0 0 1px var(--ha-acento), 0 0 10px var(--ha-acento-glow);
+}
+.hayd-ameaca .ha-ficha select option { background: #1b181f; color: var(--ha-texto); }
+.hayd-ameaca .ha-ficha button:where(:not(.header-control)) {
+    width: auto;
+    margin: 0;
+    font-family: var(--ha-fonte);
+    line-height: normal;
+}
+.hayd-ameaca .ha-ficha button > i { margin: 0; }
+.hayd-ameaca .ha-ficha a { color: inherit; }
+.hayd-ameaca .ha-ficha label { font-weight: inherit; }
+.hayd-ameaca .ha-aba { scrollbar-width: thin; scrollbar-color: var(--ha-acento-escuro) transparent; }
+
+/* ==========================================================================
+   Topo: arte, retrato, identidade, vitais e testes
+   ========================================================================== */
+
+.hayd-ameaca .ha-topo {
+    position: relative;
+    flex: 0 0 auto;
+    padding: 16px 16px 0;
+    overflow: hidden;
+}
+.hayd-ameaca .ha-topo-arte {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--ha-arte) center 30% / cover no-repeat;
+    opacity: 0.95;
+    /* Escurecida e menos saturada: a pintura é ambiente, o foco fica no bloco */
+    filter: brightness(0.5) saturate(0.7) contrast(1.05);
+    -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+}
+/* Escurece só onde há texto: atrás do retrato e do nome, e no rodapé dos testes */
+.hayd-ameaca .ha-topo-arte::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg, rgba(12, 11, 14, 0.9) 0%, rgba(12, 11, 14, 0.6) 22%, rgba(12, 11, 14, 0.18) 55%, rgba(12, 11, 14, 0.05) 78%, rgba(12, 11, 14, 0.4) 100%),
+        linear-gradient(to top, rgba(12, 11, 14, 0.85) 0%, rgba(12, 11, 14, 0.35) 38%, transparent 62%);
+}
+
+.hayd-ameaca .ha-cabecalho {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr) 82px;
+    gap: 16px;
+    align-items: start;
+}
+
+/* Retrato com cantos cortados e o losango do ND, como o do nível na Ficha Hayd */
+.hayd-ameaca .ha-retrato-coluna {
+    position: relative;
+    padding-bottom: 18px;
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 10px var(--ha-acento-bg-forte));
+}
+.hayd-ameaca .ha-retrato {
+    width: 112px;
+    height: 112px;
+    padding: 2px;
+    background: linear-gradient(135deg, var(--ha-acento-claro), var(--ha-acento) 40%, var(--ha-acento-escuro));
+    clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+}
+.hayd-ameaca .ha-retrato img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    border: 0;
+    background: radial-gradient(circle at 50% 35%, #2a2430, #0b0a0d);
+    clip-path: polygon(13px 0, 100% 0, 100% calc(100% - 13px), calc(100% - 13px) 100%, 0 100%, 0 13px);
+}
+.hayd-ameaca .ha-retrato { position: relative; }
+/* Olho para ver a arte inteira: surge no canto quando o mouse chega ao retrato */
+.hayd-ameaca .ha-ficha .ha-retrato-ver {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+    line-height: 1;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    cursor: zoom-in;
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 0.18s, transform 0.25s cubic-bezier(0.3, 1.6, 0.5, 1), background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.hayd-ameaca .ha-ficha .ha-retrato-ver > i { margin: 0; width: 1em; text-align: center; }
+.hayd-ameaca .ha-ficha .ha-retrato:hover .ha-retrato-ver,
+.hayd-ameaca .ha-ficha .ha-retrato-ver:focus-visible { opacity: 1; transform: none; }
+.hayd-ameaca .ha-ficha .ha-retrato-ver:hover { background: var(--ha-acento); border-color: var(--ha-acento-claro); box-shadow: 0 0 10px var(--ha-acento-glow); }
+.hayd-ameaca .ha-ficha .ha-retrato-ver:active { transform: scale(0.9); }
+.hayd-ameaca .ha-retrato img[data-edit] { cursor: pointer; }
+.hayd-ameaca .ha-retrato img[data-edit]:hover { filter: brightness(1.15); }
+
+/* Brasão do patamar sob o retrato; o ND fica no círculo escuro do meio
+   (o círculo está no centro da arte, um pouco acima por causa das estrelas) */
+.hayd-ameaca .ha-retrato-coluna { padding-bottom: 30px; }
+.hayd-ameaca .ha-nd {
+    position: absolute;
+    left: 50%;
+    bottom: -8px;
+    width: 80px;
+    height: 80px;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding-bottom: 3px;
+    background: var(--ha-brasao) center / contain no-repeat;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.85));
+    transition: transform 0.35s cubic-bezier(0.3, 1.5, 0.5, 1), filter 0.3s;
+}
+.hayd-ameaca .ha-retrato-coluna:hover .ha-nd { transform: translateX(-50%) scale(1.08); }
+.hayd-ameaca .ha-nd-rotulo {
+    font-size: 8px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.14em;
+    color: var(--ha-ouro);
+    text-shadow: 0 1px 2px #000;
+}
+.hayd-ameaca .ha-nd-valor {
+    font-family: var(--ha-fonte-display);
+    font-size: 21px;
+    line-height: 1;
+    color: #fff;
+    text-shadow: 0 0 8px rgba(0, 0, 0, 0.9), 0 0 2px #000;
+    white-space: nowrap;
+}
+/* Cada patamar acende na cor do próprio metal */
+.hayd-ameaca .ha-retrato-coluna:hover .ha-nd-iniciante { filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 8px rgba(205, 140, 80, 0.55)); }
+.hayd-ameaca .ha-retrato-coluna:hover .ha-nd-veterano { filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 8px rgba(200, 205, 215, 0.45)); }
+.hayd-ameaca .ha-retrato-coluna:hover .ha-nd-campeao { filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 10px rgba(225, 232, 245, 0.6)); }
+.hayd-ameaca .ha-retrato-coluna:hover .ha-nd-lenda { filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 12px rgba(240, 190, 80, 0.7)); }
+.hayd-ameaca .ha-nd-lenda .ha-nd-rotulo { color: #ffe3a0; }
+/* Lenda+: brasa que respira devagar, sem chamar atenção demais */
+.hayd-ameaca .ha-nd-lenda-plus { animation: ha-brasa 3.2s ease-in-out infinite; }
+.hayd-ameaca .ha-nd-lenda-plus .ha-nd-rotulo { color: #ff9a8a; }
+@keyframes ha-brasa {
+    0%, 100% { filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 4px rgba(255, 40, 40, 0.35)); }
+    50% { filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 12px rgba(255, 40, 40, 0.75)); }
+}
+/* Na edição, o ND é um campo: fundo escuro e contorno dourado deixam claro que dá para digitar */
+.hayd-ameaca .ha-ficha input.ha-nd-valor {
+    width: 32px;
+    height: 22px;
+    padding: 0;
+    font-size: 17px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.75);
+    border: 1px solid var(--ha-ouro);
+    box-shadow: 0 0 6px rgba(216, 178, 106, 0.45);
+    cursor: text;
+}
+.hayd-ameaca .ha-ficha input.ha-nd-valor:hover { background: #000; box-shadow: 0 0 9px rgba(216, 178, 106, 0.7); }
+.hayd-ameaca .ha-ficha input.ha-nd-valor:focus { border-color: var(--ha-ouro); box-shadow: 0 0 0 1px var(--ha-ouro), 0 0 12px rgba(216, 178, 106, 0.7); }
+
+/* Nome, papel e tipo */
+.hayd-ameaca .ha-identidade {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+.hayd-ameaca .ha-linha-nome {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+}
+.hayd-ameaca .ha-nome {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-family: var(--ha-fonte-display);
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 2px 10px #000, 0 0 2px #000;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.hayd-ameaca .ha-ficha input.ha-nome-input {
+    flex: 1;
+    min-width: 0;
+    height: 36px;
+    font-family: var(--ha-fonte-display);
+    font-size: 26px;
+    text-transform: uppercase;
+}
+
+.hayd-ameaca .ha-cadeado {
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 30px;
+    height: 30px;
+    padding: 0;
+    color: var(--ha-texto-2);
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid var(--ha-linha-forte);
+    border-radius: 0;
+    clip-path: var(--ha-chanfro-sm);
+    font-size: 13px;
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s;
+}
+.hayd-ameaca .ha-cadeado:hover { color: #fff; background: var(--ha-acento-bg-forte); border-color: var(--ha-acento); }
+.hayd-ameaca .ha-cadeado.aberto { color: var(--ha-sobre-acento); background: var(--ha-acento); border-color: var(--ha-acento); }
+
+.hayd-ameaca .ha-subtitulo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+}
+.hayd-ameaca .ha-chip,
+.hayd-ameaca .ha-papel {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 22px;
+    padding: 0 8px;
+    font-size: 12px;
+    line-height: 1;
+    color: var(--ha-texto);
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid var(--ha-linha-forte);
+    white-space: nowrap;
+}
+.hayd-ameaca .ha-chip > i { font-size: 10px; color: var(--ha-acento-claro); }
+.hayd-ameaca .ha-chip em { font-style: normal; color: var(--ha-texto-2); }
+.hayd-ameaca .ha-chip-xp { color: var(--ha-texto-2); border-style: dashed; }
+
+/* Papel: Solo em destaque, Lacaio discreto, Especial em ouro */
+.hayd-ameaca .ha-papel {
+    font-family: var(--ha-fonte-display);
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    clip-path: var(--ha-chanfro-sm);
+}
+.hayd-ameaca .ha-papel > i { font-size: 11px; }
+.hayd-ameaca .ha-papel-solo {
+    color: var(--ha-sobre-acento);
+    background: linear-gradient(90deg, var(--ha-acento), var(--ha-acento-escuro));
+    border-color: var(--ha-acento);
+}
+.hayd-ameaca .ha-papel-lackey { color: var(--ha-texto-2); }
+.hayd-ameaca .ha-papel-special {
+    color: #1a1208;
+    background: linear-gradient(90deg, #e9c983, #b48b3e);
+    border-color: #e9c983;
+}
+
+.hayd-ameaca .ha-subtitulo-edicao {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: 6px;
+}
+.hayd-ameaca .ha-campo { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.hayd-ameaca .ha-campo > span {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ha-texto-3);
+}
+.hayd-ameaca .ha-campo > :is(input, select) { width: 100%; }
+
+/* ---- Barras de PV e PM --------------------------------------------------- */
+
+/* Cada barra tem no mínimo a largura do próprio conteúdo (números nunca cortam) e
+   divide o que sobra, o PV com mais peso; se não couberem lado a lado, o PM desce */
+.hayd-ameaca .ha-vitais {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 2px;
+}
+.hayd-ameaca .ha-vitais > .ha-barra { flex: 1 1 0; min-width: max-content; }
+.hayd-ameaca .ha-vitais > .ha-barra-pv { flex-grow: 1.4; }
+.hayd-ameaca .ha-barra {
+    --cor-escura: var(--ha-pv-escuro);
+    --cor-clara: var(--ha-pv-claro);
+    position: relative;
+    height: 36px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.65);
+    border: 1px solid var(--ha-linha-forte);
+    clip-path: var(--ha-chanfro-sm);
+    cursor: text;
+}
+.hayd-ameaca .ha-barra-pm { --cor-escura: var(--ha-pm-escuro); --cor-clara: var(--ha-pm-claro); }
+.hayd-ameaca .ha-barra-preenchimento {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--ha-pct);
+    background: linear-gradient(90deg, var(--cor-escura), var(--cor-clara));
+    transition: width 0.32s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.2s;
+}
+/* Rastro do dano: fica no valor antigo um instante e esvazia atrás da barra */
+.hayd-ameaca .ha-barra-rastro {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--ha-rastro, var(--ha-pct));
+    background: linear-gradient(90deg, rgba(255, 214, 170, 0.35), rgba(255, 236, 214, 0.6));
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.6, 1);
+}
+.hayd-ameaca .ha-barra.ha-sem-transicao :is(.ha-barra-preenchimento, .ha-barra-rastro) { transition: none; }
+.hayd-ameaca .ha-barra:hover .ha-barra-preenchimento { filter: brightness(1.12); }
+.hayd-ameaca .ha-barra-preenchimento::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 50% 0;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.16), transparent);
+}
+.hayd-ameaca .ha-barra-temp {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: var(--ha-temp-pct);
+    height: 4px;
+    background: var(--ha-ouro);
+    box-shadow: 0 0 6px var(--ha-ouro);
+}
+.hayd-ameaca .ha-barra-conteudo {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 100%;
+    padding: 0 6px 0 10px;
+}
+.hayd-ameaca .ha-barra-sigla {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.75);
+}
+.hayd-ameaca .ha-barra-numeros {
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+    font-family: var(--ha-fonte-display);
+    font-size: 22px;
+    line-height: 1;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+.hayd-ameaca .ha-barra-sep { font-size: 16px; color: rgba(255, 255, 255, 0.55); }
+.hayd-ameaca .ha-barra-max { font-size: 16px; color: rgba(255, 255, 255, 0.8); }
+.hayd-ameaca .ha-ficha .ha-barra input {
+    height: 26px;
+    padding: 0 2px;
+    font-family: var(--ha-fonte-display);
+    color: #fff;
+    background: transparent;
+    border: 1px solid transparent;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+.hayd-ameaca .ha-ficha .ha-barra input:hover { border-color: rgba(255, 255, 255, 0.25); }
+.hayd-ameaca .ha-ficha .ha-barra input:focus { background: rgba(0, 0, 0, 0.6); }
+/* Largura pelos dígitos (--ha-digitos, do JS): de "5" a "40000" sem cortar nem sobrar */
+.hayd-ameaca .ha-ficha .ha-barra input.ha-barra-valor { width: calc(var(--ha-digitos, 3) * 0.62em + 8px); font-size: 22px; text-align: right; }
+.hayd-ameaca .ha-ficha .ha-barra input.ha-barra-max { width: calc(var(--ha-digitos, 3) * 0.62em + 10px); font-size: 16px; text-align: left; border-color: rgba(255, 255, 255, 0.25); }
+.hayd-ameaca .ha-barra-numeros { flex: 0 0 auto; white-space: nowrap; }
+.hayd-ameaca .ha-temp {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: auto;
+    padding: 0 4px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.45);
+    background: rgba(0, 0, 0, 0.45);
+    cursor: text;
+}
+.hayd-ameaca .ha-temp.ativo { color: var(--ha-ouro); }
+/* Temporários quase sempre 0: o campo cresce só quando tem número maior */
+.hayd-ameaca .ha-ficha .ha-temp input { width: calc(var(--ha-temp-digitos, 1) * 0.62em + 8px); min-width: 18px; height: 22px; font-family: var(--ha-fonte); font-size: 13px; text-align: center; }
+
+/* ---- Defesa: o escudo da Ficha Hayd -------------------------------------- */
+
+.hayd-ameaca .ha-defesa {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 82px;
+    height: 92px;
+    background: var(--ha-escudo) center / contain no-repeat;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 8px var(--ha-acento-bg-forte));
+}
+.hayd-ameaca .ha-defesa-valor {
+    margin-top: -4px;
+    font-family: var(--ha-fonte-display);
+    font-size: 34px;
+    line-height: 1;
+    color: #fff;
+    text-shadow: 0 0 10px var(--ha-acento-glow), 0 2px 3px #000;
+}
+.hayd-ameaca .ha-defesa-rotulo {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ha-texto-2);
+}
+.hayd-ameaca .ha-ficha input.ha-defesa-base {
+    position: absolute;
+    bottom: -20px;
+    width: 46px;
+    height: 22px;
+}
+
+/* ---- Testes: iniciativa e percepção | resistências | CD ------------------ */
+
+.hayd-ameaca .ha-testes {
+    display: flex;
+    gap: 6px;
+    margin-top: 14px;
+}
+.hayd-ameaca .ha-teste {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 48px;
+    padding: 4px 2px 3px;
+    color: var(--ha-texto);
+    background: linear-gradient(180deg, rgba(28, 24, 31, 0.92), rgba(10, 9, 12, 0.94));
+    border: 1px solid var(--ha-linha-forte);
+    border-top: 2px solid var(--ha-acento-borda);
+    border-radius: 0;
+    clip-path: var(--ha-chanfro-sm);
+    transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+.hayd-ameaca button.ha-teste { cursor: pointer; }
+.hayd-ameaca button.ha-teste:hover {
+    background: linear-gradient(180deg, var(--ha-acento-bg-forte), rgba(10, 9, 12, 0.94));
+    border-color: var(--ha-acento);
+    transform: translateY(-1px);
+}
+/* Iniciativa e Percepção: botões comuns, sem o traço de destaque */
+.hayd-ameaca .ha-teste-menor { flex: 0.85 1 0; border-top-color: var(--ha-linha-forte); }
+.hayd-ameaca .ha-teste-menor .ha-teste-valor { font-size: 20px; }
+/* Fortitude, Reflexos e Vontade: só um pouco mais marcados (losango com ícone, leve tom do destaque) */
+.hayd-ameaca .ha-teste-fort { margin-left: 6px; }
+.hayd-ameaca .ha-teste-res {
+    flex: 1.15 1 0;
+    flex-direction: row;
+    justify-content: center;
+    gap: 9px;
+    padding: 0 8px;
+    background: linear-gradient(135deg, var(--ha-acento-bg), rgba(12, 10, 14, 0.94) 60%);
+}
+.hayd-ameaca .ha-teste-icone {
+    display: grid;
+    place-items: center;
+    flex: 0 0 20px;
+    height: 20px;
+    font-size: 9px;
+    color: var(--ha-sobre-acento);
+    background: var(--ha-acento-escuro);
+    border: 1px solid var(--ha-acento-borda);
+    transform: rotate(45deg);
+}
+.hayd-ameaca .ha-teste-icone::before { display: block; transform: rotate(-45deg); }
+.hayd-ameaca .ha-teste-texto {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    min-width: 0;
+}
+.hayd-ameaca .ha-teste-cd { flex: 0 0 62px; margin-left: 6px; }
+.hayd-ameaca .ha-teste-rotulo {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ha-texto-2);
+}
+.hayd-ameaca .ha-teste-valor {
+    font-family: var(--ha-fonte-display);
+    font-size: 24px;
+    line-height: 1;
+    color: #fff;
+}
+.hayd-ameaca .ha-teste-valor small,
+.hayd-ameaca .ha-atributo-valor small { font-size: 0.7em; color: var(--ha-texto-2); margin-right: 1px; }
+.hayd-ameaca .ha-teste-valor.negativo,
+.hayd-ameaca .ha-atributo-valor.negativo { color: var(--ha-vermelho); }
+.hayd-ameaca .ha-teste-valor.negativo small,
+.hayd-ameaca .ha-atributo-valor.negativo small { color: inherit; }
+.hayd-ameaca .ha-teste-cd {
+    border-top-color: var(--ha-ouro);
+    background: linear-gradient(180deg, rgba(216, 178, 106, 0.14), rgba(10, 9, 12, 0.94));
+}
+.hayd-ameaca .ha-teste-cd .ha-teste-valor { color: var(--ha-ouro); }
+.hayd-ameaca .ha-ficha .ha-teste-cd input.ha-teste-valor { width: 44px; height: 24px; font-family: var(--ha-fonte-display); font-size: 18px; color: var(--ha-ouro); }
+
+/* ---- Abas ---------------------------------------------------------------- */
+
+.hayd-ameaca .ha-abas {
+    display: flex;
+    gap: 2px;
+    margin: 12px -16px 0;
+    padding: 0 12px;
+    border-bottom: 1px solid var(--ha-linha-forte);
+    background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.45));
+}
+.hayd-ameaca .ha-ficha .ha-aba-botao {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 36px;
+    padding: 0 14px;
+    color: var(--ha-texto-3);
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    font-family: var(--ha-fonte-display);
+    font-size: 16px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.18s, text-shadow 0.18s;
+}
+/* Sublinhado que cresce do centro: some na aba que sai, cresce na que entra */
+.hayd-ameaca .ha-ficha .ha-aba-botao::after {
+    content: "";
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: -1px;
+    height: 2px;
+    background: var(--ha-acento);
+    box-shadow: 0 0 8px var(--ha-acento-glow);
+    transform: scaleX(0);
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.hayd-ameaca .ha-ficha .ha-aba-botao:hover::after { transform: scaleX(0.35); opacity: 0.6; }
+.hayd-ameaca .ha-ficha .ha-aba-botao.ativa::after { transform: scaleX(1); opacity: 1; }
+.hayd-ameaca .ha-ficha .ha-aba-botao > i { font-size: 12px; transition: color 0.18s, transform 0.25s; }
+.hayd-ameaca .ha-ficha .ha-aba-botao:hover { color: var(--ha-texto); box-shadow: none; }
+.hayd-ameaca .ha-ficha .ha-aba-botao:hover > i { transform: translateY(-1px); }
+.hayd-ameaca .ha-ficha .ha-aba-botao.ativa {
+    color: #fff;
+    text-shadow: 0 0 10px var(--ha-acento-glow);
+}
+.hayd-ameaca .ha-ficha .ha-aba-botao.ativa > i { color: var(--ha-acento-claro); }
+.hayd-ameaca .ha-aba-contagem {
+    min-width: 18px;
+    padding: 1px 5px;
+    font-family: var(--ha-fonte);
+    font-size: 10px;
+    color: var(--ha-sobre-acento);
+    background: var(--ha-acento);
+}
+
+/* ==========================================================================
+   Corpo
+   ========================================================================== */
+
+.hayd-ameaca .ha-corpo {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+.hayd-ameaca .ha-aba {
+    display: none;
+    height: 100%;
+    padding: 14px 16px 22px;
+    overflow-y: auto;
+}
+/* Sem animação aqui: redesenhar a ficha não pode parecer que a página recarregou.
+   A entrada anima só quando você troca de aba (classe posta pelo JS). */
+.hayd-ameaca .ha-aba.ativa { display: block; }
+.hayd-ameaca .ha-aba.ha-anim-entrar { animation: ha-entrar 0.24s cubic-bezier(0.2, 0.8, 0.2, 1); }
+@keyframes ha-entrar {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+}
+
+/* ---- Busca (aba Ameaça) --------------------------------------------------- */
+
+/* [hidden] precisa vencer os display: grid/flex das linhas e seções */
+.hayd-ameaca .ha-ficha [hidden] { display: none !important; }
+
+/* Fica presa no topo enquanto a aba rola, sobre um vidro escuro */
+.hayd-ameaca .ha-busca {
+    position: sticky;
+    top: -14px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    margin: -14px -16px 12px;
+    padding: 10px 16px;
+    background: linear-gradient(to bottom, rgba(12, 11, 14, 0.92), rgba(12, 11, 14, 0.72));
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--ha-linha);
+}
+.hayd-ameaca .ha-busca > i {
+    position: absolute;
+    left: 27px;
+    font-size: 12px;
+    color: var(--ha-texto-3);
+    pointer-events: none;
+    transition: color 0.2s, transform 0.25s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.hayd-ameaca .ha-ficha .ha-busca input {
+    width: 100%;
+    height: 30px;
+    padding-left: 30px;
+    font-size: 13px;
+    background: rgba(0, 0, 0, 0.55);
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.hayd-ameaca .ha-busca:focus-within > i { color: var(--ha-acento-claro); transform: scale(1.15); }
+.hayd-ameaca .ha-buscando .ha-busca input { border-color: var(--ha-acento-borda); background: rgba(0, 0, 0, 0.7); }
+
+/* Buscando: o que não é pesquisável sai de cena, e seção recolhida abre */
+.hayd-ameaca .ha-buscando :is(.ha-atributos, .ha-tracos-mini, .ha-dica-vazia, p.ha-linha-ataque, input.ha-linha-ataque),
+.hayd-ameaca .ha-buscando > dl.ha-tracos { display: none; }
+.hayd-ameaca .ha-buscando .ha-secao.recolhida > .ha-secao-corpo { grid-template-rows: 1fr; opacity: 1; }
+/* Perícias que não aparecem na aba (não treinadas, iniciativa, resistências…) só surgem achadas pela busca */
+.hayd-ameaca .ha-aba:not(.ha-buscando) .ha-so-busca { display: none; }
+.hayd-ameaca .ha-buscando .ha-ver-todas { display: none; }
+/* Na busca a seção mostra qualquer perícia: o título deixa de dizer "treinadas" */
+.hayd-ameaca .ha-titulo-busca,
+.hayd-ameaca .ha-buscando .ha-secao-cabecalho:has(.ha-titulo-busca) .ha-titulo { display: none; }
+.hayd-ameaca .ha-buscando .ha-titulo-busca { display: inline; }
+.hayd-ameaca .ha-ficha .ha-chip-rolavel.nao-treinada { color: var(--ha-texto-2); border-style: dashed; }
+.hayd-ameaca .ha-chip-rolavel.nao-treinada b { color: var(--ha-texto); }
+.hayd-ameaca .ha-buscando .ha-secao:first-of-type { margin-top: 0; }
+.hayd-ameaca mark.ha-achado {
+    padding: 0 1px;
+    color: #fff;
+    background: var(--ha-acento-bg-forte);
+    box-shadow: inset 0 -2px 0 var(--ha-acento);
+}
+.hayd-ameaca .ha-sem-resultado {
+    margin: 18px 0 0;
+    padding: 18px;
+    font-size: 13px;
+    text-align: center;
+    color: var(--ha-texto-3);
+    border: 1px dashed var(--ha-linha-forte);
+    animation: ha-surgir 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.hayd-ameaca .ha-sem-resultado b { color: var(--ha-texto); font-weight: 600; }
+
+/* ---- Atributos ----------------------------------------------------------- */
+
+.hayd-ameaca .ha-atributos {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 6px;
+}
+.hayd-ameaca .ha-atributo { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
+.hayd-ameaca .ha-ficha .ha-atributo-rolar {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    height: 34px;
+    padding: 0 10px;
+    color: var(--ha-texto);
+    background: linear-gradient(180deg, rgba(36, 32, 42, 0.95), rgba(14, 12, 16, 0.95));
+    border: 0;
+    border-radius: 0;
+    clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0 50%);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.hayd-ameaca .ha-ficha .ha-atributo-rolar:hover {
+    background: linear-gradient(180deg, var(--ha-acento-bg-forte), rgba(14, 12, 16, 0.95));
+    box-shadow: none;
+}
+.hayd-ameaca .ha-atributo-abbr {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ha-texto-3);
+}
+.hayd-ameaca .ha-atributo-valor {
+    font-family: var(--ha-fonte-display);
+    font-size: 21px;
+    line-height: 34px;
+    color: #fff;
+}
+.hayd-ameaca .ha-ficha .ha-atributo input { width: 52px; height: 22px; }
+
+/* ---- Linha discreta: iniciativa, percepção, deslocamento, sentidos -------- */
+
+.hayd-ameaca .ha-tracos-mini {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 16px;
+    margin-top: 10px;
+    padding: 0 4px;
+    font-size: 12px;
+    color: var(--ha-texto-2);
+}
+.hayd-ameaca .ha-mini { display: inline-flex; align-items: center; gap: 6px; }
+.hayd-ameaca .ha-mini > i { font-size: 10px; color: var(--ha-texto-3); }
+
+/* ---- Traços (resistências; na edição também sentidos, deslocamento, idiomas) */
+
+.hayd-ameaca .ha-tracos {
+    display: flex;
+    flex-direction: column;
+    margin: 12px 0 0;
+    background: var(--ha-painel);
+    border: 1px solid var(--ha-linha);
+    border-left: 2px solid var(--ha-acento-borda);
+}
+.hayd-ameaca .ha-traco {
+    display: grid;
+    grid-template-columns: 132px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    min-height: 34px;
+    padding: 5px 10px;
+}
+.hayd-ameaca .ha-traco + .ha-traco { border-top: 1px solid var(--ha-linha); }
+.hayd-ameaca .ha-traco dt,
+.hayd-ameaca .ha-traco dt > a {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ha-texto-2);
+}
+.hayd-ameaca .ha-traco dt > i,
+.hayd-ameaca .ha-traco dt > a > i:first-child { width: 14px; text-align: center; color: var(--ha-acento-claro); }
+.hayd-ameaca .ha-traco dt label { cursor: inherit; }
+.hayd-ameaca .ha-traco dt > a { cursor: pointer; }
+.hayd-ameaca .ha-traco dt > a:hover { color: #fff; }
+.hayd-ameaca .ha-engrenagem { font-size: 9px; opacity: 0.6; }
+.hayd-ameaca .ha-traco dd {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    min-width: 0;
+    font-size: 13px;
+}
+.hayd-ameaca .ha-tracos .ha-chip { background: rgba(0, 0, 0, 0.35); }
+.hayd-ameaca .ha-chip-imune { color: var(--ha-ouro); border-color: rgba(216, 178, 106, 0.45); }
+.hayd-ameaca .ha-chip-imune > i { color: inherit; }
+/* Imunidade a condição: violeta, para não se confundir com a imunidade a dano (dourada) */
+.hayd-ameaca .ha-chip-condicao { color: #cdb4ff; border-color: rgba(190, 160, 255, 0.45); }
+.hayd-ameaca .ha-chip-condicao > i { color: inherit; }
+.hayd-ameaca .ha-traco dt > .fa-shield-virus,
+.hayd-ameaca .ha-traco dt > a > .fa-shield-virus { color: #cdb4ff; }
+.hayd-ameaca .ha-chip-rd { color: var(--ha-azul); border-color: rgba(127, 179, 255, 0.4); }
+.hayd-ameaca .ha-chip-rd > i { color: inherit; }
+.hayd-ameaca .ha-chip-vulneravel { color: var(--ha-vermelho); border-color: rgba(255, 107, 92, 0.45); }
+.hayd-ameaca .ha-chip-vulneravel > i { color: inherit; }
+.hayd-ameaca .ha-chip-forte { font-family: var(--ha-fonte-display); font-size: 15px; letter-spacing: 0.03em; }
+.hayd-ameaca .ha-texto-livre { color: var(--ha-texto-2); }
+.hayd-ameaca .ha-texto-longo {
+    position: relative;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    cursor: pointer;
+    -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+    mask-image: linear-gradient(to bottom, #000 55%, transparent);
+    transition: color 0.15s;
+}
+.hayd-ameaca .ha-texto-longo:hover { color: var(--ha-texto); }
+.hayd-ameaca .ha-texto-longo.aberto { display: block; -webkit-line-clamp: unset; -webkit-mask-image: none; mask-image: none; }
+.hayd-ameaca .ha-texto-longo:focus-visible { outline: 1px solid var(--ha-acento-borda); outline-offset: 2px; }
+.hayd-ameaca .ha-vazio { color: var(--ha-texto-3); }
+.hayd-ameaca .ha-ficha input.ha-linha-livre { flex: 1 1 160px; min-width: 120px; }
+
+/* ---- Seções -------------------------------------------------------------- */
+
+.hayd-ameaca .ha-secao { margin-top: 16px; }
+.hayd-ameaca .ha-secao-cabecalho {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 30px;
+    padding: 0 8px 0 10px;
+    background: linear-gradient(90deg, var(--ha-acento-bg-forte), var(--ha-acento-bg) 30%, rgba(0, 0, 0, 0.3) 70%);
+    background-size: 100% 100%;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s, filter 0.2s;
+}
+.hayd-ameaca .ha-secao-cabecalho:hover { filter: brightness(1.25); }
+.hayd-ameaca .ha-secao-cabecalho::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--ha-acento);
+    transition: width 0.2s, box-shadow 0.2s;
+}
+.hayd-ameaca .ha-secao-cabecalho:hover::before { width: 4px; box-shadow: 0 0 10px var(--ha-acento-glow); }
+.hayd-ameaca .ha-secao-seta {
+    width: 10px;
+    font-size: 9px;
+    color: var(--ha-texto-3);
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.2s;
+}
+.hayd-ameaca .ha-secao-cabecalho:hover .ha-secao-seta { color: var(--ha-acento-claro); }
+.hayd-ameaca .ha-secao.recolhida .ha-secao-seta { transform: rotate(-90deg); }
+.hayd-ameaca .ha-secao-icone { font-size: 12px; color: var(--ha-acento-claro); transition: transform 0.25s; }
+.hayd-ameaca .ha-secao-cabecalho:hover .ha-secao-icone { transform: scale(1.12); }
+/* Corpo que encolhe junto com o espaço (grid 1fr → 0fr), sem pulo no fim */
+.hayd-ameaca .ha-secao-corpo {
+    display: grid;
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transition: grid-template-rows 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.22s;
+}
+.hayd-ameaca .ha-secao.recolhida > .ha-secao-corpo { grid-template-rows: 0fr; opacity: 0; }
+.hayd-ameaca .ha-secao-interno { min-height: 0; overflow: hidden; }
+.hayd-ameaca .ha-secao.recolhida .ha-secao-cabecalho { opacity: 0.85; }
+.hayd-ameaca .ha-secao.vazia .ha-secao-contagem { opacity: 0.5; }
+.hayd-ameaca .ha-secao-cabecalho h3 {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-family: var(--ha-fonte-display);
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #fff;
+}
+.hayd-ameaca .ha-secao-contagem { font-size: 11px; color: var(--ha-texto-3); }
+.hayd-ameaca .ha-secao-criar {
+    display: inline-grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--ha-texto-2);
+    border: 1px solid var(--ha-linha-forte);
+    background: rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s, border-color 0.15s, transform 0.15s;
+}
+.hayd-ameaca .ha-secao-criar > i { transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.hayd-ameaca .ha-secao-criar:hover { color: var(--ha-sobre-acento); background: var(--ha-acento); border-color: var(--ha-acento); box-shadow: 0 0 10px var(--ha-acento-glow); }
+.hayd-ameaca .ha-secao-criar:hover > i { transform: rotate(90deg); }
+.hayd-ameaca .ha-secao-criar:active { transform: scale(0.9); }
+.hayd-ameaca .ha-efeitos-criar { display: contents; list-style: none; margin: 0; padding: 0; }
+.hayd-ameaca .ha-efeitos-criar > li { display: contents; }
+
+.hayd-ameaca .ha-grupo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 10px 0 2px;
+    padding: 0 4px;
+    border: 0;
+    font-family: var(--ha-fonte);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ha-texto-3);
+}
+.hayd-ameaca .ha-grupo > i { color: var(--ha-acento-claro); font-size: 10px; }
+.hayd-ameaca .ha-grupo .ha-secao-criar { width: 18px; height: 18px; font-size: 9px; }
+.hayd-ameaca .ha-circulo {
+    font-family: var(--ha-fonte-display);
+    font-size: 15px;
+    letter-spacing: 0;
+    color: var(--ha-acento-claro);
+}
+.hayd-ameaca .ha-grupo-custo { margin-left: auto; color: var(--ha-azul); letter-spacing: 0.04em; }
+
+.hayd-ameaca .ha-lista { list-style: none; margin: 0; padding: 0; }
+.hayd-ameaca .ha-lista-vazia { padding: 10px 12px; font-size: 12px; font-style: italic; color: var(--ha-texto-3); }
+
+/* ---- Linhas de item ------------------------------------------------------ */
+
+.hayd-ameaca .ha-item {
+    position: relative;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.045);
+    background-image: linear-gradient(90deg, var(--ha-acento-bg-forte), transparent 70%);
+    background-repeat: no-repeat;
+    background-size: 0% 100%;
+    transition: background-size 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+/* O realce entra varrendo da esquerda, e um filete de destaque acende na borda */
+.hayd-ameaca .ha-item:hover { background-size: 100% 100%; }
+.hayd-ameaca .ha-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--ha-acento);
+    transform: scaleY(0);
+    transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.hayd-ameaca .ha-item:hover::before { transform: scaleY(1); }
+
+/* Ícone do item: arte de fundo; no hover tinge e um d20 aparece girando */
+.hayd-ameaca .ha-item-img {
+    position: relative;
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+    background-color: #000;
+    background-size: cover;
+    background-position: center;
+    border: 1px solid var(--ha-linha-forte);
+    cursor: pointer;
+    transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s;
+}
+.hayd-ameaca .ha-item-img::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--ha-acento-bg-forte);
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+.hayd-ameaca .ha-item-img > i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1em;
+    height: 1em;
+    margin: -0.5em 0 0 -0.5em;
+    line-height: 1;
+    text-align: center;
+    font-size: 15px;
+    color: #fff;
+    text-shadow: 0 0 6px #000;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+.hayd-ameaca .item-image.ha-item-img:hover { border-color: var(--ha-acento); box-shadow: 0 0 10px var(--ha-acento-glow); }
+.hayd-ameaca .item-image.ha-item-img:hover::before { opacity: 1; }
+.hayd-ameaca .item-image.ha-item-img:hover > i { opacity: 1; animation: ha-girar 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.hayd-ameaca .item-image.ha-item-img:active { transform: scale(0.92); }
+@keyframes ha-girar { from { transform: rotate(-120deg) scale(0.6); } }
+
+.hayd-ameaca .ha-item-nome {
+    min-width: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ha-texto);
+    cursor: pointer;
+    transition: color 0.15s;
+}
+.hayd-ameaca .ha-item-nome:hover { color: var(--ha-acento-claro); text-shadow: none; }
+.hayd-ameaca .ha-multiplo {
+    display: inline-block;
+    padding: 0 4px;
+    font-size: 11px;
+    color: var(--ha-sobre-acento);
+    background: var(--ha-acento);
+}
+.hayd-ameaca .ha-controles { display: inline-flex; gap: 2px; flex: 0 0 46px; justify-content: flex-end; }
+.hayd-ameaca .ha-controle {
+    display: inline-grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+    color: var(--ha-texto-3);
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s, transform 0.15s;
+}
+.hayd-ameaca .ha-controle:hover { color: #fff; background: rgba(255, 255, 255, 0.06); }
+.hayd-ameaca .ha-controle:active { transform: scale(0.85); }
+/* Controles ficam discretos e acendem quando a linha recebe o mouse */
+.hayd-ameaca .ha-item .ha-controle,
+.hayd-ameaca .ha-efeito .ha-controle:not(.ha-alternador) { opacity: 0.45; }
+.hayd-ameaca .ha-item:hover .ha-controle,
+.hayd-ameaca .ha-efeito:hover .ha-controle { opacity: 1; }
+.hayd-ameaca .ha-controle.ativo { color: var(--ha-acento-claro); }
+.hayd-ameaca .ha-controle.ha-perigo:hover { color: var(--ha-vermelho); }
+
+/* Ataques: tabela compacta */
+.hayd-ameaca .ha-colunas,
+.hayd-ameaca .ha-ataque {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 62px 104px 54px;
+    align-items: center;
+    gap: 8px;
+}
+.hayd-ameaca .ha-ataque { grid-template-columns: 32px minmax(0, 1fr) 62px 104px 54px; padding: 6px 8px; }
+.hayd-ameaca .ha-desbloqueada .ha-ataque { grid-template-columns: 32px minmax(0, 1fr) 62px 104px 54px 46px; }
+.hayd-ameaca .ha-colunas { padding: 4px 8px 0; }
+.hayd-ameaca .ha-desbloqueada .ha-colunas { padding-right: 62px; }
+.hayd-ameaca .ha-colunas .ha-col {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--ha-texto-3);
+}
+.hayd-ameaca .ha-item-texto { display: flex; flex-direction: column; min-width: 0; }
+.hayd-ameaca .ha-item-texto .ha-item-nome { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hayd-ameaca .ha-item-sub { font-size: 11px; color: var(--ha-texto-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hayd-ameaca .ha-ataque .ha-col {
+    font-family: var(--ha-fonte-display);
+    font-size: 18px;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+}
+.hayd-ameaca .ha-col-acerto { color: #fff; }
+.hayd-ameaca .ha-col-dano { color: var(--ha-texto); }
+.hayd-ameaca .ha-col-critico { color: var(--ha-texto-2); }
+.hayd-ameaca .ha-linha-ataque { margin: 4px 0 0; }
+.hayd-ameaca p.ha-linha-ataque { padding: 4px 8px; font-size: 13px; }
+.hayd-ameaca .ha-ficha input.ha-linha-ataque { width: 100%; }
+
+/* Ações, habilidades e magias: nome, etiquetas e a regra logo abaixo */
+.hayd-ameaca .ha-poder,
+.hayd-ameaca .ha-magia-item { padding: 7px 8px; }
+.hayd-ameaca .ha-poder-topo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+.hayd-ameaca .ha-poder-topo .ha-item-img { width: 26px; height: 26px; }
+.hayd-ameaca .ha-poder-topo .ha-controles { margin-left: auto; }
+.hayd-ameaca .ha-poder-topo > .ha-item-texto { flex: 1 1 auto; gap: 1px; }
+.hayd-ameaca .ha-item-cabeca { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.hayd-ameaca .ha-item-cabeca .ha-item-nome { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Prévia: começo da regra numa linha, para lembrar o que é sem abrir; some quando a regra abre */
+.hayd-ameaca .ha-previa {
+    max-height: 1.4em;
+    overflow: hidden;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--ha-texto-3);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: opacity 0.2s, max-height 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.hayd-ameaca .ha-expansivel.aberta .ha-previa { max-height: 0; opacity: 0; }
+.hayd-ameaca .ha-expansivel:hover .ha-previa { color: var(--ha-texto-2); }
+
+/* Etiquetas da magia no topo da regra aberta, como na Ficha Hayd */
+.hayd-ameaca .ha-descricao-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 6px;
+}
+.hayd-ameaca .ha-descricao-tags span {
+    padding: 0 6px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 18px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ha-texto);
+    background: var(--ha-acento-bg-forte);
+    border: 1px solid var(--ha-acento-borda);
+}
+.hayd-ameaca .ha-etiqueta {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex: 0 0 auto;
+    height: 18px;
+    padding: 0 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+/* Execução: neutra (Padrão, Movimento…); cor só no que muda o turno — Reação, Livre e Completa.
+   Antes tudo era vermelho e a palavra "Padrão" repetida virava ruído. */
+.hayd-ameaca .ha-etiqueta-exec { color: var(--ha-texto-2); background: rgba(255, 255, 255, 0.04); border: 1px solid var(--ha-linha-forte); }
+.hayd-ameaca .ha-etiqueta-exec.ha-exec-reaction { color: #ffad7a; background: rgba(255, 140, 80, 0.1); border-color: rgba(255, 150, 100, 0.45); }
+.hayd-ameaca .ha-etiqueta-exec.ha-exec-free { color: #8fe0aa; background: rgba(95, 191, 106, 0.1); border-color: rgba(120, 210, 140, 0.4); }
+.hayd-ameaca .ha-etiqueta-exec.ha-exec-full { color: #ffd98a; background: rgba(216, 178, 106, 0.1); border-color: rgba(230, 195, 120, 0.45); }
+.hayd-ameaca .ha-etiqueta-pm { color: var(--ha-azul); background: rgba(61, 127, 224, 0.14); border: 1px solid rgba(127, 179, 255, 0.4); }
+.hayd-ameaca .ha-descricao {
+    margin: 4px 0 2px 34px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--ha-texto-2);
+}
+.hayd-ameaca .ha-descricao p { margin: 0 0 4px; }
+.hayd-ameaca .ha-descricao p:last-child { margin-bottom: 0; }
+.hayd-ameaca .ha-descricao :is(strong, b) { color: var(--ha-texto); }
+.hayd-ameaca .ha-descricao a.content-link,
+.hayd-ameaca .ha-descricao a.inline-roll { color: var(--ha-texto); background: rgba(0, 0, 0, 0.4); border-color: var(--ha-linha-forte); }
+/* Ações em combate ganham o traço de destaque */
+.hayd-ameaca .ha-secao-acoes .ha-poder { border-left: 2px solid var(--ha-acento-borda); }
+
+/* Habilidades e magias: a regra fica recolhida até clicar na linha, e
+   desliza aberta numa caixa com o traço do destaque (como na Ficha Hayd) */
+.hayd-ameaca .ha-expansivel > .ha-poder-topo { cursor: pointer; }
+.hayd-ameaca .ha-expansivel > .ha-poder-topo:hover .ha-item-nome { color: var(--ha-acento-claro); }
+.hayd-ameaca .ha-seta {
+    width: 10px;
+    font-size: 9px;
+    color: var(--ha-texto-3);
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.2s;
+}
+.hayd-ameaca .ha-expansivel > .ha-poder-topo:hover .ha-seta { color: var(--ha-acento-claro); }
+.hayd-ameaca .ha-expansivel.aberta .ha-seta { transform: rotate(90deg); color: var(--ha-acento-claro); }
+/* Sem regra para mostrar: a seta some (o espaço fica, para os nomes seguirem alinhados) */
+.hayd-ameaca .ha-seta.ha-seta-vazia { visibility: hidden; }
+.hayd-ameaca .ha-expansivel:not(:has(.ha-descricao-corpo)) > .ha-poder-topo { cursor: default; }
+.hayd-ameaca .ha-expansivel.aberta { background-size: 100% 100%; background-image: linear-gradient(90deg, var(--ha-acento-bg), transparent 80%); }
+.hayd-ameaca .ha-descricao-corpo {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows 0.26s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s;
+}
+.hayd-ameaca .ha-expansivel.aberta > .ha-descricao-corpo { grid-template-rows: 1fr; opacity: 1; }
+.hayd-ameaca .ha-descricao-interno { min-height: 0; overflow: hidden; }
+/* Margens moram dentro da parte que encolhe: nada sobra quando fecha */
+.hayd-ameaca .ha-descricao-interno > .ha-descricao {
+    margin: 6px 0 2px 52px;
+    padding: 7px 11px;
+    background: rgba(0, 0, 0, 0.42);
+    border-left: 2px solid var(--ha-acento);
+    transform: translateY(-4px);
+    transition: transform 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.hayd-ameaca .ha-expansivel.aberta .ha-descricao-interno > .ha-descricao { transform: none; }
+
+/* ---- Perícias ------------------------------------------------------------ */
+
+.hayd-ameaca .ha-chips-rolaveis { display: flex; flex-wrap: wrap; gap: 5px; padding: 8px 4px 0; }
+.hayd-ameaca .ha-ficha .ha-chip-rolavel {
+    height: 26px;
+    padding: 0 10px;
+    font-size: 13px;
+    color: var(--ha-texto);
+    background: var(--ha-painel-2);
+    border: 1px solid var(--ha-linha-forte);
+    border-radius: 0;
+    cursor: pointer;
+}
+.hayd-ameaca .ha-ficha .ha-chip-rolavel:hover { border-color: var(--ha-acento); box-shadow: 0 0 8px var(--ha-acento-glow); }
+.hayd-ameaca .ha-chip-rolavel b { font-family: var(--ha-fonte-display); font-size: 16px; font-weight: 400; color: var(--ha-acento-claro); }
+.hayd-ameaca .ha-chip-rolavel b.negativo { color: var(--ha-vermelho); }
+
+.hayd-ameaca .ha-ficha .ha-ver-todas {
+    height: 26px;
+    padding: 0 6px;
+    font-size: 12px;
+    color: var(--ha-texto-3);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+}
+.hayd-ameaca .ha-ficha .ha-ver-todas:hover { color: var(--ha-acento-claro); box-shadow: none; }
+.hayd-ameaca .ha-ficha .ha-ver-todas > i { margin-left: 3px; font-size: 10px; }
+
+/* ---- Aba Perícias: todas, em duas colunas -------------------------------- */
+
+.hayd-ameaca .ha-pericias-legenda {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 8px;
+    padding: 0 4px;
+    font-size: 11px;
+    color: var(--ha-texto-3);
+}
+.hayd-ameaca .ha-pericias-legenda > span { display: inline-flex; align-items: center; gap: 6px; }
+.hayd-ameaca .ha-pericias {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.hayd-ameaca .ha-pericia {
+    display: grid;
+    grid-template-columns: 14px minmax(0, 1fr) 34px 40px;
+    align-items: center;
+    gap: 8px;
+    min-height: 32px;
+    padding: 0 6px;
+    border-bottom: 1px solid var(--ha-linha);
+    transition: background 0.12s;
+}
+.hayd-ameaca .ha-pericias.editando .ha-pericia { grid-template-columns: 14px minmax(0, 1fr) 58px 44px 36px; gap: 5px; }
+.hayd-ameaca .ha-pericia:hover { background: linear-gradient(90deg, var(--ha-acento-bg), transparent 80%); }
+.hayd-ameaca .ha-pericia.treinada { background: linear-gradient(90deg, var(--ha-acento-bg), transparent 70%); }
+/* Losango: cheio na treinada, vazio na que não é */
+.hayd-ameaca .ha-marca {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin: 0 3px;
+    border: 1px solid var(--ha-texto-3);
+    transform: rotate(45deg);
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.25s, transform 0.3s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.hayd-ameaca :is(.ha-marca.treinada, .ha-pericia.treinada .ha-marca) {
+    background: var(--ha-acento);
+    border-color: var(--ha-acento-claro);
+    box-shadow: 0 0 6px var(--ha-acento-glow);
+}
+/* Na edição o próprio losango é a caixa: a caixa nativa some, o losango responde */
+.hayd-ameaca .ha-treino {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 14px;
+    height: 22px;
+    cursor: pointer;
+}
+.hayd-ameaca .ha-ficha .ha-treino input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+.hayd-ameaca .ha-treino:hover .ha-marca { border-color: var(--ha-acento-claro); transform: rotate(45deg) scale(1.25); }
+.hayd-ameaca .ha-treino input:checked + .ha-marca {
+    background: var(--ha-acento);
+    border-color: var(--ha-acento-claro);
+    box-shadow: 0 0 8px var(--ha-acento-glow);
+    transform: rotate(225deg);
+}
+.hayd-ameaca .ha-treino input:focus-visible + .ha-marca { outline: 1px solid var(--ha-acento-claro); outline-offset: 3px; }
+.hayd-ameaca .ha-pericia-nome {
+    font-size: 13px;
+    color: var(--ha-texto-2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.hayd-ameaca .ha-pericia.treinada .ha-pericia-nome { color: #fff; font-weight: 600; }
+.hayd-ameaca .ha-pericia-nome:hover { color: var(--ha-acento-claro); text-shadow: none; }
+.hayd-ameaca .ha-pericia-atributo {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--ha-texto-3);
+}
+.hayd-ameaca .ha-pericia-total {
+    font-family: var(--ha-fonte-display);
+    font-size: 19px;
+    line-height: 1;
+    text-align: right;
+    color: var(--ha-texto);
+}
+.hayd-ameaca .ha-pericia-total small { font-size: 0.7em; color: var(--ha-texto-3); margin-right: 1px; }
+.hayd-ameaca .ha-pericia-total.negativo { color: var(--ha-vermelho); }
+.hayd-ameaca .ha-ficha .ha-pericia :is(input:not([type="checkbox"]), select) { height: 22px; font-size: 12px; }
+.hayd-ameaca .ha-pericia,
+.hayd-ameaca .ha-pericia-nome,
+.hayd-ameaca .ha-pericia-total { transition: background 0.25s, color 0.25s; }
+
+/* ---- Equipamento e tesouro ----------------------------------------------- */
+
+.hayd-ameaca .ha-tracos-espolio { margin-top: 0; border-top: 0; }
+.hayd-ameaca .ha-chips-itens { display: flex; flex-wrap: wrap; gap: 4px; list-style: none; margin: 0; padding: 0; }
+.hayd-ameaca .ha-chips-itens .ha-chip { padding-left: 2px; cursor: grab; transition: border-color 0.15s, transform 0.15s, background 0.15s; }
+.hayd-ameaca .ha-chips-itens .ha-chip:hover { border-color: var(--ha-acento-borda); background: var(--ha-acento-bg); transform: translateY(-1px); }
+.hayd-ameaca .ha-chips-itens img { width: 18px; height: 18px; object-fit: cover; border: 0; }
+
+.hayd-ameaca .ha-dica-vazia {
+    margin: 20px 0 0;
+    padding: 18px;
+    font-size: 13px;
+    text-align: center;
+    color: var(--ha-texto-3);
+    border: 1px dashed var(--ha-linha-forte);
+}
+
+/* ---- Inventário ---------------------------------------------------------- */
+
+/* A lista rola; o rodapé das moedas fica preso embaixo, sobre o mesmo vidro da busca */
+.hayd-ameaca .ha-aba-inventario.ativa { display: flex; flex-direction: column; }
+.hayd-ameaca .ha-inventario-lista { flex: 1 0 auto; }
+.hayd-ameaca .ha-aba-inventario .ha-secao:first-child { margin-top: 0; }
+/* Linhas em grade, como a tabela do inventário do jogador: seta, ícone, nome,
+   colunas da categoria, quantidade (− +), espaços e, destravada, os controles */
+.hayd-ameaca .ha-inv { padding: 5px 8px; }
+.hayd-ameaca .ha-inv-linha {
+    display: grid;
+    grid-template-columns: 10px 30px minmax(0, 1fr) 84px 40px;
+    align-items: center;
+    gap: 8px;
+}
+.hayd-ameaca :is(.ha-inv-arma > .ha-inv-linha, .ha-inv-linha.ha-inv-arma) { grid-template-columns: 10px 30px minmax(0, 1fr) 50px 92px 46px 84px 40px; }
+.hayd-ameaca :is(.ha-inv-equipamento > .ha-inv-linha, .ha-inv-linha.ha-inv-equipamento) { grid-template-columns: 10px 30px minmax(0, 1fr) 46px 50px 84px 40px; }
+.hayd-ameaca .ha-ficha:not(.ha-somente-leitura) .ha-inv-linha { grid-template-columns: 10px 30px minmax(0, 1fr) 84px 40px 46px; }
+.hayd-ameaca .ha-ficha:not(.ha-somente-leitura) :is(.ha-inv-arma > .ha-inv-linha, .ha-inv-linha.ha-inv-arma) { grid-template-columns: 10px 30px minmax(0, 1fr) 50px 92px 46px 84px 40px 46px; }
+.hayd-ameaca .ha-ficha:not(.ha-somente-leitura) :is(.ha-inv-equipamento > .ha-inv-linha, .ha-inv-linha.ha-inv-equipamento) { grid-template-columns: 10px 30px minmax(0, 1fr) 46px 50px 84px 40px 46px; }
+.hayd-ameaca .ha-inv-linha .ha-item-img { width: 30px; height: 30px; }
+.hayd-ameaca .ha-inv > .ha-inv-linha { min-height: 32px; cursor: pointer; }
+.hayd-ameaca .ha-inv-colunas { padding: 2px 8px 2px; }
+.hayd-ameaca .ha-inv-colunas-nome { grid-column: span 3; }
+.hayd-ameaca .ha-inv-colunas .ha-col {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--ha-texto-3);
+    white-space: nowrap;
+}
+.hayd-ameaca .ha-inv .ha-col {
+    font-family: var(--ha-fonte-display);
+    font-size: 17px;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+}
+.hayd-ameaca .ha-inv .ha-col-acerto,
+.hayd-ameaca .ha-inv .ha-col-defesa { color: #fff; }
+.hayd-ameaca .ha-inv .ha-col-penalidade { color: var(--ha-texto-2); }
+.hayd-ameaca .ha-inv .ha-col-esp { font-size: 15px; color: var(--ha-texto-2); }
+.hayd-ameaca .ha-equipado { margin-right: 4px; font-size: 9px; color: var(--ha-ouro); }
+/* Quantidade: − e + aparecem quando o mouse está na linha */
+.hayd-ameaca .ha-inv .ha-col-qtd { display: flex; align-items: center; justify-content: center; gap: 2px; }
+.hayd-ameaca .ha-ficha .ha-inv .ha-col-qtd input,
+.hayd-ameaca .ha-inv .ha-col-qtd > span {
+    width: 3.4ch;
+    height: 24px;
+    padding: 0 2px;
+    font-family: var(--ha-fonte-display);
+    font-size: 17px;
+    line-height: 24px;
+    text-align: center;
+    color: var(--ha-texto);
+    background: transparent;
+    border: 1px solid transparent;
+    transition: border-color 0.15s, background 0.15s;
+}
+.hayd-ameaca .ha-ficha .ha-inv:hover .ha-col-qtd input { border-color: var(--ha-linha-forte); background: rgba(0, 0, 0, 0.45); }
+.hayd-ameaca .ha-ficha .ha-inv .ha-col-qtd input:focus { background: rgba(0, 0, 0, 0.7); }
+.hayd-ameaca .ha-ficha .ha-passo {
+    display: grid;
+    place-items: center;
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    font-size: 8px;
+    color: var(--ha-texto-2);
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--ha-linha-forte);
+    border-radius: 0;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s, background 0.15s, transform 0.12s;
+}
+.hayd-ameaca .ha-ficha .ha-inv:hover .ha-passo,
+.hayd-ameaca .ha-ficha .ha-passo:focus-visible { opacity: 1; }
+.hayd-ameaca .ha-ficha .ha-passo:hover { color: var(--ha-sobre-acento); background: var(--ha-acento); border-color: var(--ha-acento); box-shadow: none; }
+.hayd-ameaca .ha-ficha .ha-passo:active { transform: scale(0.85); }
+.hayd-ameaca .ha-inv .ha-controles { justify-content: flex-end; }
+
+/* Total de espaços à esquerda do rodapé, as moedas à direita */
+.hayd-ameaca .ha-espacos-total {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: auto;
+    font-size: 12px;
+    color: var(--ha-texto-2);
+}
+.hayd-ameaca .ha-espacos-total > i { font-size: 11px; color: var(--ha-texto-3); }
+.hayd-ameaca .ha-espacos-total b { font-family: var(--ha-fonte-display); font-size: 18px; font-weight: 400; color: var(--ha-texto); }
+
+.hayd-ameaca .ha-moedas {
+    position: sticky;
+    bottom: -22px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    margin: 16px -16px -22px;
+    padding: 10px 16px;
+    background: linear-gradient(to top, rgba(12, 11, 14, 0.94), rgba(12, 11, 14, 0.78));
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    border-top: 1px solid var(--ha-linha);
+}
+.hayd-ameaca .ha-moedas ul.currency {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.hayd-ameaca .ha-moeda,
+.hayd-ameaca .ha-moeda label {
+    display: flex;
+    align-items: center;
+    height: 30px;
+    margin: 0;
+    cursor: text;
+}
+.hayd-ameaca .ha-moeda {
+    padding-right: 2px;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid var(--ha-linha-forte);
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.hayd-ameaca .ha-moeda:hover { border-color: var(--ha-acento-borda); }
+.hayd-ameaca .ha-moeda:focus-within { border-color: var(--ha-ouro); box-shadow: 0 0 8px rgba(216, 178, 106, 0.45); }
+.hayd-ameaca .ha-moeda-icone {
+    width: 30px;
+    height: 30px;
+    margin: -2px 0 -2px 2px;
+    border: 0;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
+    transition: transform 0.3s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.hayd-ameaca .ha-moeda:hover .ha-moeda-icone { transform: translateY(-2px) rotate(-8deg); }
+.hayd-ameaca .ha-ficha .ha-moeda input,
+.hayd-ameaca .ha-moeda label > span {
+    width: 60px;
+    height: 100%;
+    padding: 0 6px;
+    font-family: var(--ha-fonte-display);
+    font-size: 17px;
+    line-height: 30px;
+    text-align: right;
+    color: var(--ha-texto);
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+.hayd-ameaca .ha-moeda-to :is(input, label > span) { color: #ffe08a; }
+.hayd-ameaca .ha-moeda-tl :is(input, label > span) { color: #e8eef5; }
+.hayd-ameaca .ha-moeda-tp :is(input, label > span) { color: #e0e0e0; }
+.hayd-ameaca .ha-moeda-tc :is(input, label > span) { color: #f0b27a; }
+/* Botões que outros módulos põem no fim das moedas: loja (t20-hayd-loja) e enviar dinheiro (gmtools) */
+.hayd-ameaca .ha-moedas li:is(.t20-loja-atalho, .thm-send) { display: flex; margin: 0; padding: 0; border: 0; background: none; }
+.hayd-ameaca .ha-moedas li:is(.t20-loja-atalho, .thm-send) a {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 30px;
+    margin: 0;
+    padding: 0;
+    font-size: 13px;
+    color: var(--ha-texto);
+    background: linear-gradient(180deg, var(--ha-acento-bg-forte), var(--ha-acento-bg));
+    border: 1px solid var(--ha-acento-borda);
+    border-radius: 0;
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.hayd-ameaca .ha-moedas li:is(.t20-loja-atalho, .thm-send) a:hover { color: var(--ha-sobre-acento); background: var(--ha-acento); box-shadow: 0 0 10px var(--ha-acento-glow); }
+
+/* ---- Efeitos ------------------------------------------------------------- */
+
+.hayd-ameaca .ha-aba-efeitos .ha-secao { margin-top: 10px; }
+.hayd-ameaca .ha-aba-efeitos .ha-secao:first-child { margin-top: 0; }
+.hayd-ameaca .ha-aba-efeitos .ha-lista-vazia { padding: 6px 12px; }
+.hayd-ameaca .ha-efeito {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.045);
+    transition: background 0.2s, opacity 0.25s, filter 0.25s;
+}
+.hayd-ameaca .ha-efeito:hover { background: linear-gradient(90deg, var(--ha-acento-bg), transparent 75%); }
+.hayd-ameaca .ha-efeito .ha-item-img { width: 26px; height: 26px; cursor: default; }
+.hayd-ameaca .ha-efeito-nome { flex: 1; min-width: 0; font-size: 13px; }
+.hayd-ameaca .ha-efeito-duracao { font-size: 11px; color: var(--ha-texto-3); }
+.hayd-ameaca .ha-efeito.desativado { opacity: 0.5; filter: grayscale(0.7); }
+.hayd-ameaca .ha-efeito.desativado:hover { opacity: 0.8; }
+.hayd-ameaca .ha-alternador > i { transition: transform 0.25s cubic-bezier(0.3, 1.6, 0.5, 1); }
+.hayd-ameaca .ha-alternador:hover > i { transform: scale(1.15); }
+
+/* ---- Diário -------------------------------------------------------------- */
+
+.hayd-ameaca .ha-aba-diario.ativa { display: flex; flex-direction: column; }
+.hayd-ameaca .ha-aba-diario .editor {
+    flex: 1;
+    min-height: 200px;
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ha-texto);
+    background: var(--ha-painel);
+    border: 1px solid var(--ha-linha);
+    border-left: 2px solid var(--ha-acento-borda);
+}
+.hayd-ameaca .ha-aba-diario .editor-content { color: inherit; }
+.hayd-ameaca .ha-aba-diario .editor-edit { color: var(--ha-texto-2); background: rgba(0, 0, 0, 0.6); border: 1px solid var(--ha-linha-forte); }
+.hayd-ameaca .ha-aba-diario { position: relative; }
+.hayd-ameaca .ha-diario-vazio {
+    position: absolute;
+    inset: 14px 16px 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 0;
+    padding: 0 40px;
+    font-size: 13px;
+    text-align: center;
+    color: var(--ha-texto-3);
+    pointer-events: none;
+}
+.hayd-ameaca .ha-diario-vazio > i { font-size: 26px; color: var(--ha-acento-borda); }
+.hayd-ameaca .ha-aba-diario.vazio .editor-edit { display: block; opacity: 1; color: var(--ha-texto); border-color: var(--ha-acento-borda); }
+/* Começou a escrever: o convite sai */
+.hayd-ameaca .ha-aba-diario:has(.ProseMirror, .editor-container) .ha-diario-vazio { display: none; }
+
+/* ==========================================================================
+   Movimento: respostas ao toque e ao que muda na ficha
+   (as classes ha-subiu, ha-caiu, ha-surgiu, ha-perdeu… são postas pelo JS
+   depois de cada redesenho, só no que de fato mudou)
+   ========================================================================== */
+
+/* Retrato e ND reagem ao mouse */
+.hayd-ameaca .ha-retrato img { transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.2s; }
+.hayd-ameaca .ha-retrato:hover img { transform: scale(1.05); }
+.hayd-ameaca .ha-defesa { transition: filter 0.25s, transform 0.25s; }
+.hayd-ameaca .ha-defesa:hover { transform: translateY(-1px); filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 12px var(--ha-acento-glow)); }
+
+/* Cadeado gira ao trocar de modo */
+.hayd-ameaca .ha-cadeado > i { transition: transform 0.3s cubic-bezier(0.3, 1.6, 0.5, 1); }
+.hayd-ameaca .ha-cadeado:hover > i { transform: rotate(-12deg) scale(1.1); }
+.hayd-ameaca .ha-cadeado:active { transform: scale(0.9); }
+.hayd-ameaca .ha-modo-mudou .ha-cadeado > i { animation: ha-cadeado 0.45s cubic-bezier(0.3, 1.6, 0.5, 1); }
+@keyframes ha-cadeado { from { transform: rotate(-90deg) scale(0.4); } }
+/* Campos de edição surgem em vez de aparecer num estalo */
+.hayd-ameaca .ha-modo-mudou :is(.ha-subtitulo, .ha-atributo input, .ha-traco, .ha-controles, .ha-secao-criar, .ha-linha-livre, .ha-defesa-base, .ha-pericia select, .ha-pericia input, .ha-tracos-mini) {
+    animation: ha-surgir 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes ha-surgir { from { opacity: 0; transform: translateY(-4px); } }
+
+/* Testes, atributos e chips: sobem um pouco no hover e afundam no clique */
+.hayd-ameaca button.ha-teste:active,
+.hayd-ameaca .ha-ficha .ha-atributo-rolar:active,
+.hayd-ameaca .ha-ficha .ha-chip-rolavel:active { transform: translateY(1px) scale(0.97); transition-duration: 0.06s; }
+.hayd-ameaca .ha-ficha .ha-atributo-rolar { transition: background 0.18s, transform 0.18s, filter 0.18s; }
+.hayd-ameaca .ha-ficha .ha-atributo-rolar:hover { transform: translateY(-2px); filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6)); }
+.hayd-ameaca .ha-ficha .ha-chip-rolavel { transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s, background 0.15s; }
+.hayd-ameaca .ha-ficha .ha-chip-rolavel:hover { transform: translateY(-1px); background: var(--ha-acento-bg); }
+.hayd-ameaca .ha-teste-icone { transition: transform 0.35s cubic-bezier(0.3, 1.6, 0.5, 1), box-shadow 0.25s; }
+.hayd-ameaca button.ha-teste-res:hover .ha-teste-icone { transform: rotate(135deg) scale(1.1); box-shadow: 0 0 10px var(--ha-acento-glow); }
+.hayd-ameaca .ha-ficha .ha-ver-todas > i { transition: transform 0.2s; }
+.hayd-ameaca .ha-ficha .ha-ver-todas:hover > i { transform: translateX(3px); }
+.hayd-ameaca .ha-tracos .ha-chip { transition: background 0.15s, border-color 0.15s; }
+.hayd-ameaca .ha-tracos .ha-chip:hover { background: rgba(255, 255, 255, 0.06); }
+.hayd-ameaca .ha-traco dt > a > .ha-engrenagem { transition: transform 0.4s, opacity 0.2s; }
+.hayd-ameaca .ha-traco dt > a:hover > .ha-engrenagem { transform: rotate(90deg); opacity: 1; }
+
+/* Número que mudou: acende verde (subiu) ou vermelho (caiu) e volta */
+.hayd-ameaca .ha-subiu { animation: ha-subiu 0.9s ease-out; }
+.hayd-ameaca .ha-caiu { animation: ha-caiu 0.9s ease-out; }
+@keyframes ha-subiu {
+    0%, 25% { color: #8ff0a0; text-shadow: 0 0 10px rgba(95, 191, 106, 0.9); transform: scale(1.12); }
+}
+@keyframes ha-caiu {
+    0%, 25% { color: #ff8a7a; text-shadow: 0 0 10px rgba(255, 88, 71, 0.9); transform: scale(1.12); }
+}
+.hayd-ameaca span[data-ha-valor] { display: inline-block; }
+
+/* Barra: clarão curto no dano, brilho na cura */
+.hayd-ameaca .ha-barra.ha-perdeu { animation: ha-barra-dano 0.45s ease-out; }
+.hayd-ameaca .ha-barra.ha-ganhou .ha-barra-preenchimento { animation: ha-barra-cura 0.7s ease-out; }
+@keyframes ha-barra-dano {
+    0% { transform: translateX(0); filter: brightness(1.6); }
+    20% { transform: translateX(-2px); }
+    40% { transform: translateX(2px); }
+    60% { transform: translateX(-1px); }
+    100% { transform: none; filter: none; }
+}
+@keyframes ha-barra-cura { 0%, 30% { filter: brightness(1.5) saturate(1.3); } }
+
+/* Item ou efeito novo entra deslizando e acende a borda */
+.hayd-ameaca .ha-surgiu { animation: ha-surgiu 0.55s cubic-bezier(0.2, 0.8, 0.2, 1); }
+@keyframes ha-surgiu {
+    0% { opacity: 0; transform: translateX(-10px); background-color: var(--ha-acento-bg-forte); }
+    60% { opacity: 1; transform: none; background-color: var(--ha-acento-bg); }
+}
+/* Item apagado: a linha recolhe antes de sumir */
+.hayd-ameaca li.ha-saindo {
+    overflow: hidden;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-bottom-color: transparent;
+    transform: translateX(12px);
+    transition: height 0.24s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.18s, padding 0.24s, transform 0.2s;
+}
+
+/* Quem pediu menos movimento no sistema não recebe nada disso */
+@media (prefers-reduced-motion: reduce) {
+    .hayd-ameaca *,
+    .hayd-ameaca *::before,
+    .hayd-ameaca *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ---- Janela estreita ----------------------------------------------------- */
+
+@container (max-width: 560px) {
+    .hayd-ameaca .ha-cabecalho { grid-template-columns: 92px minmax(0, 1fr) 64px; gap: 12px; }
+    .hayd-ameaca .ha-retrato { width: 92px; height: 92px; }
+    .hayd-ameaca .ha-nd { width: 70px; height: 70px; }
+    .hayd-ameaca .ha-nd-valor { font-size: 18px; }
+    .hayd-ameaca .ha-defesa { width: 64px; height: 74px; }
+    .hayd-ameaca .ha-defesa-valor { font-size: 28px; }
+    .hayd-ameaca .ha-nome { font-size: 26px; }
+    .hayd-ameaca .ha-vitais > .ha-barra { flex-basis: 100%; }
+    .hayd-ameaca .ha-subtitulo-edicao { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .hayd-ameaca .ha-testes { gap: 4px; }
+    .hayd-ameaca .ha-teste-res { padding: 0 4px; }
+    .hayd-ameaca .ha-teste-icone { display: none; }
+    .hayd-ameaca .ha-teste-rotulo { font-size: 9px; letter-spacing: 0.04em; }
+    .hayd-ameaca .ha-teste-texto { align-items: center; }
+    .hayd-ameaca .ha-teste-fort,
+    .hayd-ameaca .ha-teste-cd { margin-left: 2px; }
+    .hayd-ameaca .ha-teste-cd { flex-basis: 48px; }
+    .hayd-ameaca .ha-atributos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .hayd-ameaca .ha-traco { grid-template-columns: 1fr; gap: 4px; }
+    .hayd-ameaca .ha-pericias { grid-template-columns: 1fr; }
+    /* Inventário: colunas fixas mais justas, para o nome não sumir */
+    .hayd-ameaca .ha-inv-linha { gap: 4px; grid-template-columns: 10px 28px minmax(0, 1fr) 66px 30px; }
+    .hayd-ameaca :is(.ha-inv-arma > .ha-inv-linha, .ha-inv-linha.ha-inv-arma) { grid-template-columns: 10px 28px minmax(0, 1fr) 38px 70px 32px 66px 30px; }
+    .hayd-ameaca :is(.ha-inv-equipamento > .ha-inv-linha, .ha-inv-linha.ha-inv-equipamento) { grid-template-columns: 10px 28px minmax(0, 1fr) 36px 40px 66px 30px; }
+    .hayd-ameaca .ha-ficha:not(.ha-somente-leitura) .ha-inv-linha { grid-template-columns: 10px 28px minmax(0, 1fr) 66px 30px 46px; }
+    .hayd-ameaca .ha-ficha:not(.ha-somente-leitura) :is(.ha-inv-arma > .ha-inv-linha, .ha-inv-linha.ha-inv-arma) { grid-template-columns: 10px 28px minmax(0, 1fr) 38px 70px 32px 66px 30px 46px; }
+    .hayd-ameaca .ha-ficha:not(.ha-somente-leitura) :is(.ha-inv-equipamento > .ha-inv-linha, .ha-inv-linha.ha-inv-equipamento) { grid-template-columns: 10px 28px minmax(0, 1fr) 36px 40px 66px 30px 46px; }
+    .hayd-ameaca .ha-inv .ha-col { font-size: 15px; }
+    .hayd-ameaca .ha-inv-linha .ha-item-img { width: 28px; height: 28px; }
+    .hayd-ameaca .ha-ficha .ha-passo { flex-basis: 15px; width: 15px; height: 15px; }
+    .hayd-ameaca .ha-ataque,
+    .hayd-ameaca .ha-desbloqueada .ha-ataque { grid-template-columns: 28px minmax(0, 1fr) 48px 84px 40px; }
+    .hayd-ameaca .ha-colunas { grid-template-columns: minmax(0, 1fr) 48px 84px 40px; }
+    .hayd-ameaca .ha-desbloqueada .ha-ataque .ha-controles { grid-column: 2 / -1; justify-content: flex-start; }
+}

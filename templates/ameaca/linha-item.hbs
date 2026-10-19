@@ -1,0 +1,99 @@
+{{!-- Uma linha de item da ameaça. tipo: "ataque", "poder", "inventario" ou "magia". --}}
+{{#*inline "controles"}}
+	{{#if (or @root.ha.desbloqueada (and sempre @root.ha.editavel))}}
+	<span class="ha-controles">
+		<a class="ha-controle" data-ha-acao="editar-item" data-tooltip="{{localize 'T20.Edit'}}"><i class="fa-solid fa-pen-to-square"></i></a>
+		<a class="ha-controle ha-perigo" data-ha-acao="apagar-item" data-tooltip="{{localize 'T20.Delete'}}"><i class="fa-solid fa-trash"></i></a>
+	</span>
+	{{/if}}
+{{/inline}}
+{{!-- Ícone que rola: o dado aparece girando por cima no hover, como na Ficha Hayd --}}
+{{#*inline "imagem"}}
+	<div class="item-image ha-item-img" style="background-image: url('{{item.img}}');" data-tooltip="{{dica}}"><i class="fa-solid fa-dice-d20"></i></div>
+{{/inline}}
+{{!-- Regra recolhível: o espaço encolhe junto (grid 1fr → 0fr) --}}
+{{#*inline "descricao"}}
+	{{#if item.descricao}}
+	<div class="ha-descricao-corpo"><div class="ha-descricao-interno"><div class="ha-descricao">
+		{{#if item.tags.length}}<div class="ha-descricao-tags">{{#each item.tags}}<span>{{this}}</span>{{/each}}</div>{{/if}}
+		{{{item.descricao}}}
+	</div></div></div>
+	{{/if}}
+{{/inline}}
+
+{{#if (eq tipo "ataque")}}
+<li class="item ha-item ha-ataque" data-item-id="{{item.id}}" data-nome="{{item.nome}}">
+	{{> imagem dica=(localize 'T20A.Ameaca.Rolar')}}
+	<div class="ha-item-texto">
+		<a class="ha-item-nome rollable arma-rollable" data-item-id="{{item.id}}">{{item.nome}}{{#if item.ataques}} <b class="ha-multiplo">×{{item.ataques}}</b>{{/if}}</a>
+		<span class="ha-item-sub">{{item.alcance}}{{#if item.tipoDano}} · {{item.tipoDano}}{{/if}}</span>
+	</div>
+	<span class="ha-col ha-col-acerto">{{item.acerto}}</span>
+	<span class="ha-col ha-col-dano">{{item.dano}}</span>
+	<span class="ha-col ha-col-critico">{{item.critico}}</span>
+	{{> controles}}
+</li>
+{{else if (eq tipo "poder")}}
+{{!-- Ação ou habilidade: só o nome e as etiquetas; clicar na linha abre a regra, e o ícone usa --}}
+<li class="item ha-item ha-poder ha-expansivel {{#if item.aberta}}aberta{{/if}}" data-item-id="{{item.id}}" data-nome="{{item.nome}}">
+	<div class="ha-poder-topo" data-ha-alternar>
+		<i class="ha-seta fa-solid fa-chevron-right {{#unless item.descricao}}ha-seta-vazia{{/unless}}"></i>
+		{{> imagem dica=(localize 'T20A.Ameaca.Usar')}}
+		<div class="ha-item-texto">
+			<div class="ha-item-cabeca">
+				<span class="ha-item-nome">{{item.nome}}</span>
+				{{#if item.execucao}}<span class="ha-etiqueta ha-etiqueta-exec ha-exec-{{item.execKey}}"><i class="fa-solid {{item.iconeExecucao}}"></i>{{item.execucao}}</span>{{/if}}
+				{{#if item.custo}}<span class="ha-etiqueta ha-etiqueta-pm">{{item.custo}} {{localize 'T20A.Ficha.PM'}}</span>{{/if}}
+			</div>
+			{{#if item.previa}}<span class="ha-previa">{{item.previa}}</span>{{/if}}
+		</div>
+		{{> controles}}
+	</div>
+	{{> descricao}}
+</li>
+{{else if (eq tipo "inventario")}}
+{{!-- Item do inventário, em colunas como no inventário do jogador: armas com ataque/dano/crítico,
+     equipamento com Defesa/penalidade, todos com quantidade (− +) e espaços. A linha abre a descrição. --}}
+<li class="item ha-item ha-inv ha-inv-{{item.tipo}} ha-expansivel {{#if item.aberta}}aberta{{/if}}" data-item-id="{{item.id}}" data-nome="{{item.nome}}">
+	<div class="ha-inv-linha" data-ha-alternar>
+		<i class="ha-seta fa-solid fa-chevron-right {{#unless item.descricao}}ha-seta-vazia{{/unless}}"></i>
+		{{> imagem dica=(localize 'T20A.Ameaca.Usar')}}
+		<div class="ha-item-texto">
+			<span class="ha-item-nome">{{item.nome}}</span>
+			{{#if (or item.sub item.equipado)}}<span class="ha-item-sub">{{#if item.equipado}}<i class="fa-solid {{#if (eq item.tipo 'arma')}}fa-hand-fist{{else}}fa-shield-halved{{/if}} ha-equipado" data-tooltip="{{localize 'T20A.Ameaca.Equipado'}}"></i>{{/if}}{{item.sub}}</span>{{/if}}
+		</div>
+		{{#if (eq item.tipo "arma")}}
+			<span class="ha-col ha-col-acerto">{{item.ataque}}</span>
+			<span class="ha-col ha-col-dano">{{item.dano}}</span>
+			<span class="ha-col ha-col-critico">{{item.critico}}</span>
+		{{else if (eq item.tipo "equipamento")}}
+			<span class="ha-col ha-col-defesa">{{item.defesa}}</span>
+			<span class="ha-col ha-col-penalidade">{{item.penalidade}}</span>
+		{{/if}}
+		<span class="ha-col ha-col-qtd">
+			{{#if @root.ha.editavel}}
+				<button type="button" class="ha-passo" data-ha-passo="-1" aria-label="−1"><i class="fa-solid fa-minus"></i></button>
+				<input type="text" data-ha-delta="system.qtd" data-ha-doc="item" data-ha-min="0" data-ha-valor="qtd-{{item.id}}" value="{{item.qtd}}" data-tooltip="{{localize 'T20A.Ameaca.Quantidade'}}">
+				<button type="button" class="ha-passo" data-ha-passo="1" aria-label="+1"><i class="fa-solid fa-plus"></i></button>
+			{{else}}
+				<span data-ha-valor="qtd-{{item.id}}">{{item.qtd}}</span>
+			{{/if}}
+		</span>
+		<span class="ha-col ha-col-esp" data-ha-valor="esp-{{item.id}}">{{item.espacos}}</span>
+		{{> controles sempre=true}}
+	</div>
+	{{> descricao}}
+</li>
+{{else}}
+{{!-- Magia: o nome conjura; o resto da linha abre a regra --}}
+<li class="item ha-item ha-magia-item ha-expansivel {{#if item.aberta}}aberta{{/if}}" data-item-id="{{item.id}}" data-nome="{{item.nome}}">
+	<div class="ha-poder-topo" data-ha-alternar>
+		<i class="ha-seta fa-solid fa-chevron-right {{#unless item.descricao}}ha-seta-vazia{{/unless}}"></i>
+		{{> imagem dica=(localize 'T20A.Ameaca.Conjurar')}}
+		<a class="ha-item-nome rollable magia-rollable" data-item-id="{{item.id}}">{{item.nome}}</a>
+		{{#if item.execucao}}<span class="ha-etiqueta ha-etiqueta-exec ha-exec-{{item.execKey}}">{{item.execucao}}</span>{{/if}}
+		{{> controles}}
+	</div>
+	{{> descricao}}
+</li>
+{{/if}}

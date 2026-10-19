@@ -1,0 +1,210 @@
+{{!-- Seção recolhível: clicar no cabeçalho abre e fecha (lembrado em todas as ameaças) --}}
+{{#*inline "secao"}}
+<section class="ha-secao ha-secao-{{chave}} {{#if (lookup @root.ha.recolhidas chave)}}recolhida{{/if}} {{#if soBusca}}ha-so-busca{{/if}}" data-ha-secao="{{chave}}">
+	<header class="ha-secao-cabecalho" data-ha-recolher>
+		<i class="ha-secao-seta fa-solid fa-chevron-down"></i>
+		<i class="ha-secao-icone {{icone}}"></i>
+		<h3><span class="ha-titulo">{{titulo}}</span>{{#if tituloBusca}}<span class="ha-titulo-busca">{{tituloBusca}}</span>{{/if}}</h3>
+		{{#if contagem}}<span class="ha-secao-contagem">{{contagem}}</span>{{/if}}
+		{{#if (and acao @root.ha.desbloqueada)}}
+		<a class="ha-secao-criar" data-ha-acao="{{acao}}" data-tooltip="{{localize 'T20.Add'}}"><i class="fa-solid fa-plus"></i></a>
+		{{/if}}
+	</header>
+	<div class="ha-secao-corpo"><div class="ha-secao-interno">
+		{{> @partial-block}}
+	</div></div>
+</section>
+{{/inline}}
+
+<div class="ha-aba ha-aba-ameaca {{#if (eq ha.aba 'ameaca')}}ativa{{/if}}" data-aba="ameaca">
+
+	{{!-- Busca: filtra ataques, ações, habilidades, magias, perícias e equipamentos pelo nome --}}
+	<label class="ha-busca">
+		<i class="fa-solid fa-magnifying-glass"></i>
+		<input type="search" data-ha-busca value="{{ha.busca}}" placeholder="{{localize 'T20A.Ficha.Buscar'}}" autocomplete="off" spellcheck="false">
+	</label>
+	<p class="ha-sem-resultado" hidden><i class="fa-solid fa-ghost"></i> {{localize 'T20A.Ameaca.SemResultado'}} “<b></b>”</p>
+
+	{{!-- Atributos --}}
+	<div class="ha-atributos">
+		{{#each ha.atributos as |a|}}
+		<div class="ha-atributo">
+			<button type="button" class="ha-atributo-rolar rollable atributo-rollable" data-item-id="{{a.key}}" data-tooltip="{{a.label}}">
+				<span class="ha-atributo-abbr">{{a.abbr}}</span>
+				<span class="ha-atributo-valor {{#if a.negativo}}negativo{{/if}}" data-ha-valor="atr-{{a.key}}"><small>{{a.sinal}}</small>{{a.valor}}</span>
+			</button>
+			{{#if @root.ha.desbloqueada}}
+			<input type="number" name="system.atributos.{{a.key}}.base" value="{{a.base}}" data-tooltip="{{localize 'T20.AbilityBase'}}">
+			{{/if}}
+		</div>
+		{{/each}}
+	</div>
+
+	{{!-- Deslocamento, sentidos e idiomas: uma linha discreta; as linhas inteiras só na edição --}}
+	{{#unless ha.desbloqueada}}
+	<div class="ha-tracos-mini">
+		<span class="ha-mini" data-tooltip="{{localize 'T20.Movement'}}"><i class="fa-solid fa-person-running"></i>{{#each ha.tracos.deslocamento}}{{this}}{{#unless @last}}, {{/unless}}{{else}}—{{/each}}</span>
+		{{#if ha.tracos.sentidos.length}}
+		<span class="ha-mini" data-tooltip="{{localize 'T20.Senses'}}"><i class="fa-solid fa-eye"></i>{{#each ha.tracos.sentidos}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</span>
+		{{/if}}
+		{{#if (and enableLanguages ha.tracos.idiomas.length)}}
+		<span class="ha-mini" data-tooltip="{{localize 'T20.Languages'}}"><i class="fa-solid fa-language"></i>{{#each ha.tracos.idiomas}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</span>
+		{{/if}}
+	</div>
+	{{/unless}}
+
+	{{!-- Defesas (e, na edição, imunidades a condições, sentidos, deslocamento e idiomas) --}}
+	{{#if (or ha.tracos.temDefesas ha.tracos.condicoes.length ha.desbloqueada)}}
+	<dl class="ha-tracos">
+		{{#if (or ha.tracos.temDefesas ha.desbloqueada)}}
+		<div class="ha-traco">
+			<dt>{{#if ha.desbloqueada}}<a class="config-button" data-action="resistance" data-tooltip="{{localize 'T20A.Ameaca.Configurar'}}"><i class="fa-solid fa-shield-halved"></i><label>{{localize 'T20.Resistances'}}</label><i class="fa-solid fa-gear ha-engrenagem"></i></a>
+				{{else}}<i class="fa-solid fa-shield-halved"></i><label>{{localize 'T20.Resistances'}}</label>{{/if}}</dt>
+			<dd>
+				{{#each ha.tracos.imunidades}}<span class="ha-chip ha-chip-imune" data-tooltip="{{localize 'T20A.Ameaca.Imune'}}"><i class="fa-solid fa-ban"></i>{{this}}</span>{{/each}}
+				{{#each ha.tracos.reducoes}}<span class="ha-chip ha-chip-rd" data-tooltip="{{localize 'T20A.Ameaca.Reducao'}}"><i class="fa-solid fa-shield"></i>{{this}}</span>{{/each}}
+				{{#each ha.tracos.vulnerabilidades}}<span class="ha-chip ha-chip-vulneravel" data-tooltip="{{localize 'T20A.Ameaca.Vulneravel'}}"><i class="fa-solid fa-heart-crack"></i>{{this}}</span>{{/each}}
+				{{#each ha.tracos.porDado}}<span class="ha-chip ha-chip-vulneravel ha-chip-pordado" data-tooltip="{{localize 'T20.DamPerDie'}}"><i class="fa-solid fa-dice"></i>{{this}} <b>{{localize 'T20A.Ameaca.PorDado'}}</b></span>{{/each}}
+				{{#if ha.desbloqueada}}
+					<input type="text" class="ha-linha-livre" name="system.detalhes.resistencias" value="{{system.detalhes.resistencias}}" placeholder="{{localize 'T20A.Ameaca.TextoLivre'}}">
+				{{else if ha.tracos.resistenciasTexto}}
+					<span class="ha-texto-livre">{{ha.tracos.resistenciasTexto}}</span>
+				{{/if}}
+			</dd>
+		</div>
+		{{/if}}
+		{{#if (or ha.tracos.condicoes.length ha.desbloqueada)}}
+		<div class="ha-traco">
+			<dt>{{#if ha.desbloqueada}}<a class="trait-selector" data-options="conditionTypes" data-target="system.tracos.ic" data-tooltip="{{localize 'T20A.Ameaca.Configurar'}}"><i class="fa-solid fa-shield-virus"></i><label>{{localize 'T20.StatusImm'}}</label><i class="fa-solid fa-gear ha-engrenagem"></i></a>
+				{{else}}<i class="fa-solid fa-shield-virus"></i><label>{{localize 'T20.StatusImm'}}</label>{{/if}}</dt>
+			<dd>{{#each ha.tracos.condicoes}}<span class="ha-chip ha-chip-condicao" data-tooltip="{{localize 'T20A.Ameaca.ImuneCondicao'}}"><i class="fa-solid fa-ban"></i>{{this}}</span>{{else}}<span class="ha-vazio">—</span>{{/each}}</dd>
+		</div>
+		{{/if}}
+		{{#if ha.desbloqueada}}
+		<div class="ha-traco">
+			<dt>{{#if ha.desbloqueada}}<a class="trait-selector" data-options="senses" data-target="system.attributes.sentidos" data-tooltip="{{localize 'T20A.Ameaca.Configurar'}}"><i class="fa-solid fa-eye"></i><label>{{localize 'T20.Senses'}}</label><i class="fa-solid fa-gear ha-engrenagem"></i></a>
+				{{else}}<i class="fa-solid fa-eye"></i><label>{{localize 'T20.Senses'}}</label>{{/if}}</dt>
+			<dd>{{#each ha.tracos.sentidos}}<span class="ha-chip">{{this}}</span>{{else}}<span class="ha-vazio">—</span>{{/each}}</dd>
+		</div>
+		<div class="ha-traco">
+			<dt><a class="config-button" data-action="movement" data-tooltip="{{localize 'T20A.Ameaca.Configurar'}}"><i class="fa-solid fa-person-running"></i><label>{{localize 'T20.Movement'}}</label><i class="fa-solid fa-gear ha-engrenagem"></i></a></dt>
+			<dd>
+				{{#each ha.tracos.deslocamento}}<span class="ha-chip ha-chip-forte">{{this}}</span>{{else}}<span class="ha-vazio">—</span>{{/each}}
+				<input type="text" class="ha-linha-livre" name="system.detalhes.movimento" value="{{system.detalhes.movimento}}" placeholder="{{localize 'T20A.Ameaca.TextoLivre'}}">
+			</dd>
+		</div>
+		{{#if enableLanguages}}
+		<div class="ha-traco">
+			<dt><a class="trait-selector" data-options="idiomas" data-target="system.tracos.idiomas" data-tooltip="{{localize 'T20A.Ameaca.Configurar'}}"><i class="fa-solid fa-language"></i><label>{{localize 'T20.Languages'}}</label><i class="fa-solid fa-gear ha-engrenagem"></i></a></dt>
+			<dd>{{#each ha.tracos.idiomas}}<span class="ha-chip">{{this}}</span>{{else}}<span class="ha-vazio">—</span>{{/each}}</dd>
+		</div>
+		{{/if}}
+		{{/if}}
+	</dl>
+	{{/if}}
+
+	{{!-- Ataques --}}
+	{{#if (or ha.temAtaques ha.desbloqueada)}}
+	{{#> secao chave="ataques" icone="fa-solid fa-swords" titulo=(localize 'T20A.Ameaca.Ataques') acao="nova-arma"}}
+		<div class="ha-colunas" aria-hidden="true">
+			<span></span><span class="ha-col">{{localize 'T20A.Ameaca.Ataque'}}</span><span class="ha-col">{{localize 'T20A.Ameaca.Dano'}}</span><span class="ha-col">{{localize 'T20A.Ameaca.Critico'}}</span>
+		</div>
+		{{#if (or ha.corpoACorpo.length system.detalhes.ataquescac ha.desbloqueada)}}
+		<h4 class="ha-grupo"><i class="fa-solid fa-hand-fist"></i>{{localize 'T20.Melee'}}</h4>
+		<ol class="item-list ha-lista">
+			{{#each ha.corpoACorpo as |a|}}{{> "modules/t20-hayd-ui/templates/ameaca/linha-item.hbs" tipo="ataque" item=a}}{{/each}}
+		</ol>
+		{{#if ha.desbloqueada}}
+			<input type="text" class="ha-linha-livre ha-linha-ataque" name="system.detalhes.ataquescac" value="{{system.detalhes.ataquescac}}" placeholder="{{localize 'T20A.Ameaca.AtaquesTexto'}}">
+		{{else if (and system.detalhes.ataquescac (not ha.corpoACorpo.length))}}
+			<p class="ha-texto-livre ha-linha-ataque">{{system.detalhes.ataquescac}}</p>
+		{{/if}}
+		{{/if}}
+		{{#if (or ha.distancia.length system.detalhes.ataquesad ha.desbloqueada)}}
+		<h4 class="ha-grupo"><i class="fa-solid fa-bullseye"></i>{{localize 'T20.Ranged'}}{{#if ha.desbloqueada}}<a class="ha-secao-criar" data-ha-acao="nova-arma" data-proposito="disparo" data-tooltip="{{localize 'T20.Add'}}"><i class="fa-solid fa-plus"></i></a>{{/if}}</h4>
+		<ol class="item-list ha-lista">
+			{{#each ha.distancia as |a|}}{{> "modules/t20-hayd-ui/templates/ameaca/linha-item.hbs" tipo="ataque" item=a}}{{/each}}
+		</ol>
+		{{#if ha.desbloqueada}}
+			<input type="text" class="ha-linha-livre ha-linha-ataque" name="system.detalhes.ataquesad" value="{{system.detalhes.ataquesad}}" placeholder="{{localize 'T20A.Ameaca.AtaquesTexto'}}">
+		{{else if (and system.detalhes.ataquesad (not ha.distancia.length))}}
+			<p class="ha-texto-livre ha-linha-ataque">{{system.detalhes.ataquesad}}</p>
+		{{/if}}
+		{{/if}}
+	{{/secao}}
+	{{/if}}
+
+	{{!-- Ações (poderes com execução) e habilidades passivas --}}
+	{{#if ha.acoes.length}}
+	{{#> secao chave="acoes" icone="fa-solid fa-hand-sparkles" titulo=(localize 'T20A.Ameaca.Acoes') contagem=ha.acoes.length}}
+		<ol class="item-list ha-lista">
+			{{#each ha.acoes as |p|}}{{> "modules/t20-hayd-ui/templates/ameaca/linha-item.hbs" tipo="poder" item=p}}{{/each}}
+		</ol>
+	{{/secao}}
+	{{/if}}
+	{{#if (or ha.habilidades.length ha.desbloqueada)}}
+	{{#> secao chave="habilidades" icone="fa-solid fa-fire-flame-curved" titulo=(localize 'T20A.Ameaca.Habilidades') contagem=ha.habilidades.length acao="novo-poder"}}
+		<ol class="item-list ha-lista">
+			{{#each ha.habilidades as |p|}}{{> "modules/t20-hayd-ui/templates/ameaca/linha-item.hbs" tipo="poder" item=p}}{{/each}}
+		</ol>
+	{{/secao}}
+	{{/if}}
+
+	{{!-- Magias, por círculo --}}
+	{{#if (or ha.temMagias ha.desbloqueada)}}
+	{{#> secao chave="magias" icone="fa-solid fa-wand-sparkles" titulo=(localize 'T20.Spells') acao="nova-magia"}}
+		{{#each ha.magias as |c|}}
+		<h4 class="ha-grupo"><span class="ha-circulo">{{c.circulo}}º</span>{{localize 'T20A.Ameaca.Circulo'}}<span class="ha-grupo-custo">{{c.custo}} {{localize 'T20A.Ficha.PM'}}</span></h4>
+		<ol class="item-list ha-lista">
+			{{#each c.itens as |m|}}{{> "modules/t20-hayd-ui/templates/ameaca/linha-item.hbs" tipo="magia" item=m}}{{/each}}
+		</ol>
+		{{/each}}
+	{{/secao}}
+	{{/if}}
+
+	{{!-- Perícias treinadas (fora as do topo); a lista completa fica na aba Perícias.
+	     As demais vêm escondidas (ha-so-busca) e só aparecem quando a busca as acha. --}}
+	{{#> secao chave="pericias" icone="fa-solid fa-list-check" titulo=(localize 'T20A.Ameaca.PericiasTreinadas') tituloBusca=(localize 'T20.Skills') contagem=ha.pericias.length soBusca=(not ha.pericias.length)}}
+		<div class="ha-chips-rolaveis">
+			{{#each ha.periciasBusca as |s|}}
+			<button type="button" class="ha-chip ha-chip-rolavel {{#if s.soBusca}}ha-so-busca{{/if}} {{#unless s.treinado}}nao-treinada{{/unless}} {{#if s.salva}}rollable pericia-rollable{{/if}}"
+				{{#if s.salva}}data-item-id="{{s.key}}"{{else}}data-ha-acao="rolar-pericia"{{/if}} data-pericia="{{s.key}}" data-nome="{{s.label}}"><span class="ha-chip-nome">{{s.label}}</span> <b class="{{#if s.negativo}}negativo{{/if}}">{{s.sinal}}{{s.valor}}</b></button>
+			{{/each}}
+			<button type="button" class="ha-ver-todas" data-ha-aba="pericias">{{localize 'T20A.Ameaca.VerTodas'}} <i class="fa-solid fa-arrow-right"></i></button>
+		</div>
+	{{/secao}}
+
+	{{!-- Equipamento e tesouro --}}
+	{{#if (or ha.equipamento.itens.length ha.equipamento.texto ha.tesouro ha.desbloqueada)}}
+	{{#> secao chave="espolio" icone="fa-solid fa-sack" titulo=(localize 'T20A.Ameaca.Espolio')}}
+		<dl class="ha-tracos ha-tracos-espolio">
+			<div class="ha-traco">
+				<dt><i class="fa-solid fa-shield-halved"></i><label>{{localize 'T20.Equipments'}}</label></dt>
+				<dd>
+					{{#if ha.desbloqueada}}
+						<input type="text" class="ha-linha-livre" name="system.detalhes.equipamento" value="{{system.detalhes.equipamento}}" placeholder="{{localize 'T20A.Ameaca.TextoLivre'}}">
+					{{else if ha.equipamento.texto}}<span class="ha-texto-livre">{{ha.equipamento.texto}}</span>{{/if}}
+					{{#if ha.equipamento.itens.length}}
+					<ul class="item-list ha-chips-itens">
+						{{#each ha.equipamento.itens as |i|}}<li class="item ha-chip" data-item-id="{{i.id}}" data-nome="{{i.nome}}"><img src="{{i.img}}" alt=""><span class="ha-chip-nome">{{i.nome}}</span></li>{{/each}}
+					</ul>
+					{{else if (not (or ha.equipamento.texto ha.desbloqueada))}}<span class="ha-vazio">—</span>{{/if}}
+				</dd>
+			</div>
+			<div class="ha-traco">
+				<dt><i class="fa-solid fa-gem"></i><label>{{localize 'T20.Treasure'}}</label></dt>
+				<dd>
+					{{#if ha.desbloqueada}}
+						<input type="text" class="ha-linha-livre" name="system.detalhes.tesouro" value="{{system.detalhes.tesouro}}" placeholder="{{localize 'T20.Treasure'}}">
+					{{else if ha.tesouroLongo}}<span class="ha-texto-livre ha-texto-longo {{#if ha.tesouroAberto}}aberto{{/if}}" data-ha-longo="tesouro" role="button" tabindex="0" data-tooltip="{{localize 'T20A.Ameaca.LerTudo'}}">{{ha.tesouro}}</span>
+					{{else}}<span class="ha-texto-livre">{{#if ha.tesouro}}{{ha.tesouro}}{{else}}{{localize 'T20A.Ameaca.Nenhum'}}{{/if}}</span>{{/if}}
+				</dd>
+			</div>
+		</dl>
+	{{/secao}}
+	{{/if}}
+
+	{{#unless (or ha.temAtaques ha.acoes.length ha.habilidades.length ha.temMagias ha.desbloqueada)}}
+	<p class="ha-dica-vazia"><i class="fa-solid fa-pencil"></i> {{localize 'T20A.Ameaca.Vazia'}}</p>
+	{{/unless}}
+</div>

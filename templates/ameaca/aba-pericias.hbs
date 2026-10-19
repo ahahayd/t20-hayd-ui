@@ -1,0 +1,30 @@
+<div class="ha-aba ha-aba-pericias {{#if (eq ha.aba 'pericias')}}ativa{{/if}}" data-aba="pericias">
+	<p class="ha-pericias-legenda">
+		<span><i class="ha-marca treinada"></i>{{localize 'T20.Trained'}}</span>
+		{{#if ha.desbloqueada}}<span>{{localize 'T20A.Ameaca.PericiasEdicao'}}</span>{{else}}<span>{{localize 'T20A.Ameaca.PericiasDica'}}</span>{{/if}}
+	</p>
+	<ul class="ha-pericias {{#if ha.desbloqueada}}editando{{/if}}">
+		{{#each ha.listaPericias as |p|}}
+		<li class="ha-pericia {{#if p.treinado}}treinada{{/if}}" data-pericia="{{p.key}}">
+			{{#if @root.ha.desbloqueada}}
+				{{!-- O próprio losango é a caixa de treino --}}
+				<label class="ha-treino" data-tooltip="{{localize 'T20.Trained'}}"><input type="checkbox" data-ha-campo="treinado" {{checked p.treinado}}><i class="ha-marca"></i></label>
+			{{else}}
+				<i class="ha-marca"></i>
+			{{/if}}
+			{{#if p.salva}}
+				<a class="ha-pericia-nome rollable pericia-rollable" data-item-id="{{p.key}}">{{p.label}}</a>
+			{{else}}
+				<a class="ha-pericia-nome" data-ha-acao="rolar-pericia">{{p.label}}</a>
+			{{/if}}
+			{{#if @root.ha.desbloqueada}}
+				<select data-ha-campo="atributo">{{selectOptions @root.config.atributosAbr selected=p.atributo localize=true}}</select>
+				<input type="number" data-ha-campo="outros" value="{{p.outros}}" data-tooltip="{{localize 'T20.Other'}}">
+			{{else}}
+				<span class="ha-pericia-atributo">{{p.abbr}}</span>
+			{{/if}}
+			<span class="ha-pericia-total {{#if p.negativo}}negativo{{/if}}" data-ha-valor="pericia-{{p.key}}"><small>{{p.sinal}}</small>{{p.valor}}</span>
+		</li>
+		{{/each}}
+	</ul>
+</div>

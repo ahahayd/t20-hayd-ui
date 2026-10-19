@@ -1,0 +1,58 @@
+<div class="ha-aba ha-aba-inventario {{#if (eq ha.aba 'inventario')}}ativa{{/if}}" data-aba="inventario">
+	<div class="ha-inventario-lista">
+		{{#each ha.inventario as |cat|}}
+		<section class="ha-secao ha-secao-inventario {{#if (lookup @root.ha.recolhidas cat.chave)}}recolhida{{/if}} {{#unless cat.itens.length}}vazia{{/unless}}" data-ha-secao="{{cat.chave}}">
+			<header class="ha-secao-cabecalho" data-ha-recolher>
+				<i class="ha-secao-seta fa-solid fa-chevron-down"></i>
+				<i class="ha-secao-icone {{cat.icone}}"></i>
+				<h3>{{cat.rotulo}}</h3>
+				<span class="ha-secao-contagem">{{cat.itens.length}}</span>
+				{{#if @root.ha.desbloqueada}}
+				<a class="ha-secao-criar" data-ha-acao="novo-item" data-tipo="{{cat.tipo}}" data-tooltip="{{localize 'T20.Add'}}"><i class="fa-solid fa-plus"></i></a>
+				{{/if}}
+			</header>
+			<div class="ha-secao-corpo"><div class="ha-secao-interno">
+				{{!-- Cabeçalho das colunas, na mesma grade das linhas --}}
+				<div class="ha-inv-linha ha-inv-colunas ha-inv-{{cat.tipo}}" aria-hidden="true">
+					<span class="ha-inv-colunas-nome"></span>
+					{{#if (eq cat.tipo "arma")}}
+						<span class="ha-col">{{localize 'T20.Attack'}}</span><span class="ha-col">{{localize 'T20.Damage'}}</span><span class="ha-col">{{localize 'T20.Critical'}}</span>
+					{{else if (eq cat.tipo "equipamento")}}
+						<span class="ha-col">{{localize 'T20A.Ameaca.DefesaAbbr'}}</span><span class="ha-col">{{localize 'T20A.Ameaca.PenalidadeAbbr'}}</span>
+					{{/if}}
+					<span class="ha-col">{{localize 'T20.QuantityAbbr'}}</span><span class="ha-col">{{localize 'T20.SlotsAbbr'}}</span>
+					{{#if @root.ha.editavel}}<span></span>{{/if}}
+				</div>
+				<ol class="item-list ha-lista">
+					{{#each cat.itens as |i|}}{{> "modules/t20-hayd-ui/templates/ameaca/linha-item.hbs" tipo="inventario" item=i}}{{else}}
+					<li class="ha-lista-vazia">{{localize 'T20A.Ficha.SecaoVazia'}}</li>
+					{{/each}}
+				</ol>
+			</div></div>
+		</section>
+		{{else}}
+		<p class="ha-dica-vazia"><i class="fa-solid fa-sack"></i> {{localize 'T20A.Ficha.InventarioVazio'}}</p>
+		{{/each}}
+	</div>
+
+	{{!-- Mesma estrutura da ficha do sistema (.inventory-currency ul.currency): a loja
+	     (t20-hayd-loja) e o "Enviar dinheiro" (t20-hayd-gmtools) põem os botões deles
+	     no fim desta lista sozinhos, quando estão ativos. --}}
+	<footer class="ha-moedas inventory-currency">
+		<span class="ha-espacos-total" data-tooltip="{{localize 'T20.Slots'}}"><i class="fa-solid fa-weight-hanging"></i><b data-ha-valor="espacos-total">{{ha.espacosTotais}}</b> {{localize 'T20.SlotsAbbr'}}</span>
+		<ul class="currency">
+			{{#each ha.moedas as |m|}}
+			<li class="ha-moeda ha-moeda-{{m.chave}}" data-tooltip="{{m.rotulo}}">
+				<label>
+					<img class="ha-moeda-icone" src="{{m.icone}}" alt="">
+					{{#if @root.ha.editavel}}
+						<input type="text" data-ha-delta="system.dinheiro.{{m.chave}}" data-ha-min="0" data-ha-valor="moeda-{{m.chave}}" value="{{m.valor}}">
+					{{else}}
+						<span data-ha-valor="moeda-{{m.chave}}">{{m.valor}}</span>
+					{{/if}}
+				</label>
+			</li>
+			{{/each}}
+		</ul>
+	</footer>
+</div>

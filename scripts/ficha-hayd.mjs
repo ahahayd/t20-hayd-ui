@@ -25,6 +25,33 @@ import { MOEDAS, gastar, receber, totalEmTC } from "./carteira.mjs";
 const MODULE_ID = "t20-hayd-ui";
 const TEMPLATES = `modules/${MODULE_ID}/templates/ficha`;
 const BANNER = `modules/${MODULE_ID}/assets/fundos/header-tormenta-lateral.webp`;
+/** Arte do cabeçalho (flag do ator, escolhida em "Configurar ficha"). */
+const FLAG_ARTE_CABECALHO = "arteCabecalho";
+const ARTES_CABECALHO = ["tormenta", "deuses-positivo", "deuses-negativo"];
+/**
+ * Opções da lista "Arte do cabeçalho" → flags do ator que cada uma grava. As
+ * Gravuras com e sem recoloração e o "Sem arte" usam as flags arteOriginal e
+ * semArte, que o tema antigo (fichas do sistema) também lê.
+ */
+const OPCOES_ARTE = {
+    tormenta: { rotulo: "T20A.Ficha.ArteTormenta", flags: { arteCabecalho: "tormenta", arteOriginal: false, semArte: false } },
+    "tormenta-original": { rotulo: "T20A.Ficha.ArteTormentaOriginal", flags: { arteCabecalho: "tormenta", arteOriginal: true, semArte: false } },
+    "deuses-positivo": { rotulo: "T20A.Ficha.ArteDeusesPositivo", flags: { arteCabecalho: "deuses-positivo", semArte: false } },
+    "deuses-negativo": { rotulo: "T20A.Ficha.ArteDeusesNegativo", flags: { arteCabecalho: "deuses-negativo", semArte: false } },
+    "sem-arte": { rotulo: "T20A.Ficha.SemArte", flags: { semArte: true } }
+};
+/** Arte escolhida para o personagem; "tormenta" (as gravuras originais) por padrão. */
+export function lerArteCabecalho(actor) {
+    const arte = actor?.getFlag?.(MODULE_ID, FLAG_ARTE_CABECALHO);
+    return ARTES_CABECALHO.includes(arte) ? arte : "tormenta";
+}
+/** Opção da lista que corresponde às flags atuais do personagem. */
+function opcaoArteAtual(actor) {
+    if (actor.getFlag(MODULE_ID, "semArte") === true) return "sem-arte";
+    const arte = lerArteCabecalho(actor);
+    if (arte !== "tormenta") return arte;
+    return actor.getFlag(MODULE_ID, "arteOriginal") === true ? "tormenta-original" : "tormenta";
+}
 const SETTING_ESTADO = "fichaEstado";
 const FLAG_ORDEM_FAVORITOS = "ordemFavoritos";
 /** true: sempre no Combate; false: nunca; ausente: automático (pela execução). */
@@ -176,9 +203,10 @@ export function registrarConfiguracoesFicha() {
 }
 
 /**
- * Caixa "Modo slim" na janela "Configurar ficha" (botão Sheet do cabeçalho),
- * em personagens; só aparece com a Ficha Hayd selecionada nela. Grava direto
- * na configuração do usuário ao marcar, sem depender do botão salvar.
+ * Opções extras na janela "Configurar ficha" (botão Sheet do cabeçalho), em
+ * personagens: arte do cabeçalho (flags do ator) e, com a Ficha Hayd
+ * selecionada, modo slim e busca (configuração do usuário). Tudo grava direto
+ * ao mudar, sem depender do botão salvar.
  */
 Hooks.on("renderDocumentSheetConfig", (app, html) => {
     const doc = app.document;
@@ -196,6 +224,22 @@ Hooks.on("renderDocumentSheetConfig", (app, html) => {
         game.settings.set(MODULE_ID, "fichaSlim", ev.currentTarget.checked);
     });
     seletor.closest(".form-group").after(grupo);
+    // Arte do cabeçalho: flags do ator (todos veem a mesma), gravadas ao escolher
+    const grupoArte = document.createElement("div");
+    grupoArte.className = "form-group hf-config-arte";
+    const atual = opcaoArteAtual(doc);
+    const opcoesArte = Object.entries(OPCOES_ARTE).map(([chave, { rotulo }]) =>
+        `<option value="${chave}" ${chave === atual ? "selected" : ""}>${game.i18n.localize(rotulo)}</option>`).join("");
+    grupoArte.innerHTML = `
+        <label>${game.i18n.localize("T20A.Ficha.ArteCabecalho")}</label>
+        <div class="form-fields"><select ${doc.isOwner ? "" : "disabled"}>${opcoesArte}</select></div>
+        <p class="hint">${game.i18n.localize("T20A.Ficha.ArteCabecalhoHint")}</p>`;
+    const seletorArte = grupoArte.querySelector("select");
+    seletorArte.addEventListener("change", () => {
+        const { flags } = OPCOES_ARTE[seletorArte.value];
+        doc.update(Object.fromEntries(Object.entries(flags).map(([k, v]) => [`flags.${MODULE_ID}.${k}`, v])));
+    });
+    seletor.closest(".form-group").after(grupoArte);
     // Mostrar o logo do Tormenta 20 (vale para todas as fichas de personagem, só para você)
     const grupoLogo = document.createElement("div");
     grupoLogo.className = "form-group hf-config-logo";
@@ -222,11 +266,24 @@ Hooks.on("renderDocumentSheetConfig", (app, html) => {
         const valor = seletor.value || (ehFichaHayd(doc.sheet) ? `${MODULE_ID}.FichaHaydPersonagem` : "");
         grupo.hidden = valor !== `${MODULE_ID}.FichaHaydPersonagem`;
         grupoBusca.hidden = grupo.hidden; // só faz sentido com a Ficha Hayd, como o modo slim
+        const fichaHayd = !grupo.hidden;
+        // Nas fichas do sistema, a arte só existe com a estilização de interface ligada
+        grupoArte.hidden = !fichaHayd && !estiloInterfaceLigado();
+        // As artes dos Deuses são só da Ficha Hayd
+        for (const opcao of seletorArte.options) {
+            if (opcao.value.startsWith("deuses-")) opcao.disabled = !fichaHayd;
+        }
     };
     seletor.addEventListener("change", atualizar);
     atualizar();
     app.setPosition?.({ height: "auto" });
 });
+
+/** Mesma condição do main.mjs para o tema antigo (fichas do sistema) pintar a arte do cabeçalho. */
+const estiloInterfaceLigado = () => {
+    try { return game.settings.get(MODULE_ID, "enabled") && game.settings.get(MODULE_ID, "estiloInterface"); }
+    catch (_) { return true; }
+};
 
 const LARGURA_PADRAO = 980;
 const LARGURA_SLIM = 795;
@@ -317,7 +374,7 @@ const comSinal = (n) => {
  * Interpreta o que foi digitado num campo com delta, como no Tidy:
  * "+5" soma, "-3" subtrai, "=7" ou "7" define.
  */
-function aplicarDelta(texto, atual) {
+export function aplicarDelta(texto, atual) {
     const s = String(texto ?? "").trim().replace(",", ".");
     if (!s) return atual;
     const m = s.match(/^([+\-=])?\s*(\d+(?:\.\d+)?)$/);
@@ -437,6 +494,8 @@ function criarClasseFicha(Base) {
                 // Opções do diálogo "Cor da Ficha" (as mesmas marcações que o tema antigo lê)
                 semArte: actor.getFlag(MODULE_ID, "semArte") === true,
                 arteOriginal: actor.getFlag(MODULE_ID, "arteOriginal") === true,
+                // Arte do cabeçalho escolhida em "Configurar ficha"
+                arte: lerArteCabecalho(actor),
                 atributos: Object.entries(sys.atributos).map(([key, atr]) => ({
                     key,
                     abbr: localizar(CONFIG.T20.atributosAbr[key]),
@@ -1402,9 +1461,13 @@ function criarClasseFicha(Base) {
                     .filter((c) => form.classList.contains(c)).join(" ");
                 // A gaveta só existe na janela estreita
                 form.classList.toggle("hf-gaveta-aberta", w < 680 && !!this._gavetaAberta);
+                // A arte dos Deuses continua um pouco abaixo do cabeçalho: o CSS precisa da altura dele
+                if (topo) form.style.setProperty("--hf-topo-h", `${topo.offsetHeight}px`);
             };
+            const topo = form.querySelector(".hf-topo");
             this._obsTamanho = new ResizeObserver(aplicar);
             this._obsTamanho.observe(form);
+            if (topo) this._obsTamanho.observe(topo);
             aplicar();
             // Clicar no conteúdo fecha a gaveta
             form.querySelector(".hf-aba-conteudo")?.addEventListener("pointerdown", () => {
@@ -1565,7 +1628,7 @@ function criarClasseFicha(Base) {
                 input.value = atual;
                 return;
             }
-            await alvo.update({ [caminho]: novo });
+            await alvo.update(this._mudancasComTemporarios(alvo, caminho, atual, novo));
         }
 
         /** Botões − / + (quantidade, PV, PM). */
@@ -1580,7 +1643,16 @@ function criarClasseFicha(Base) {
             const atual = Number(foundry.utils.getProperty(alvo, caminho)) || 0;
             let novo = atual + passo;
             if (el.dataset.hfMin !== undefined) novo = Math.max(Number(el.dataset.hfMin), novo);
-            await alvo.update({ [caminho]: novo });
+            await alvo.update(this._mudancasComTemporarios(alvo, caminho, atual, novo));
+        }
+
+        /** Perda de PV/PM gasta primeiro os pontos temporários; o resto sai do valor atual. */
+        _mudancasComTemporarios(alvo, caminho, atual, novo) {
+            const m = alvo === this.actor && caminho.match(/^(system\.attributes\.(?:pv|pm))\.value$/);
+            const temp = m ? Number(foundry.utils.getProperty(alvo, `${m[1]}.temp`)) || 0 : 0;
+            if (!temp || novo >= atual) return { [caminho]: novo };
+            const gastoTemp = Math.min(temp, atual - novo);
+            return { [caminho]: novo + gastoTemp, [`${m[1]}.temp`]: temp - gastoTemp };
         }
 
         async _onFavorito(ev) {

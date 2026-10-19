@@ -16,6 +16,7 @@ import {
     ehFichaHayd,
     CLASSE_FICHA
 } from "./ficha-hayd.mjs";
+import { registrarFichaAmeaca, ehFichaAmeaca, CLASSE_AMEACA } from "./ficha-ameaca.mjs";
 import { aplicarTomDaMensagem, agendarCorrecaoContrasteChat } from "./chat-contraste.mjs";
 
 const MODULE_ID = "t20-hayd-ui";
@@ -279,8 +280,11 @@ function aplicarClasseCorpo() {
 
 Hooks.once("setup", () => {
     aplicarClasseCorpo();
-    // A Ficha Hayd é uma ficha à parte: vale mesmo com o tema desligado.
-    if (game.system.id === SYSTEM_ID) registrarFichaHayd();
+    // A Ficha Hayd e a de Ameaça são fichas à parte: valem mesmo com o tema desligado.
+    if (game.system.id === SYSTEM_ID) {
+        registrarFichaHayd();
+        registrarFichaAmeaca();
+    }
 
     const CM = foundry.applications?.ux?.ContextMenu?.implementation
         ?? foundry.applications?.ux?.ContextMenu
@@ -290,7 +294,7 @@ Hooks.once("setup", () => {
     const original = CM.prototype._setPosition;
     CM.prototype._setPosition = function(menu, target, options = {}) {
         try {
-            const janelaTema = target?.closest?.(`.${CLASSE_FICHA}`)
+            const janelaTema = target?.closest?.(`.${CLASSE_FICHA}, .${CLASSE_AMEACA}`)
                 ?? (estiloInterfaceAtivo() ? target?.closest?.(".t20a-any") : null);
             // Marca o menu para o CSS: só menus abertos das janelas com tema
             // são estilizados; os do core e de outros módulos ficam intactos.
@@ -493,8 +497,8 @@ function aplicarTema(app, html) {
 
     const doc = documentoDoApp(app);
 
-    // A Ficha Hayd tem visual próprio: do tema ela só recebe a cor de destaque.
-    if (ehFichaHayd(app)) {
+    // A Ficha Hayd e a de Ameaça têm visual próprio: do tema só recebem a cor de destaque.
+    if (ehFichaHayd(app) || ehFichaAmeaca(app)) {
         aplicarCorDeDestaque(app, root.closest?.(".window-app") ?? root);
         return;
     }
@@ -896,19 +900,17 @@ function injetarLogo(windowApp, root) {
 /*  Header button (Cor da Ficha)                                               */
 /* -------------------------------------------------------------------------- */
 
-/* No v13 o "getApplicationHeaderButtons" não dispara nas fichas AppV1 do
-   sistema: o hook que chega até elas é o da classe ActorSheet. */
-Hooks.on("getActorSheetHeaderButtons", (app, buttons) => {
-    if (game.system.id !== SYSTEM_ID) return;
-    if (!game.settings.get(MODULE_ID, "enabled")) return;
+/** Só donos e GM trocam a cor, e só com o módulo ativo. */
+function podeTrocarCor(doc) {
+    if (game.system.id !== SYSTEM_ID) return false;
+    if (!game.settings.get(MODULE_ID, "enabled")) return false;
+    if (doc?.documentName !== "Actor") return false;
+    return doc.isOwner || game.user.isGM;
+}
 
-    const doc = documentoDoApp(app);
-    if (!doc || doc.documentName !== "Actor") return;
-
-    // Só donos e GM podem alterar
-    if (!doc.isOwner && !game.user.isGM) return;
-
-    buttons.unshift({
+/** Botão "Cor da Ficha" no formato dos botões de cabeçalho das janelas AppV1. */
+function botaoCabecalhoCor(doc) {
+    return {
         label: game.i18n.localize("T20A.HeaderButton"),
         class: "t20a-config",
         icon: "fa-solid fa-palette",
@@ -916,7 +918,44 @@ Hooks.on("getActorSheetHeaderButtons", (app, buttons) => {
             ev?.preventDefault?.();
             abrirDialogoCor(doc);
         }
+    };
+}
+
+/* No v13 o "getApplicationHeaderButtons" não dispara nas fichas AppV1 do
+   sistema: o hook que chega até elas é o da classe ActorSheet. Personagens
+   não levam o botão na ficha: para eles ele fica na barra das janelas
+   "Configurações de Personagem" e "Configurar ficha" (abaixo). */
+Hooks.on("getActorSheetHeaderButtons", (app, buttons) => {
+    const doc = documentoDoApp(app);
+    if (!podeTrocarCor(doc) || doc.type === "character") return;
+    buttons.unshift(botaoCabecalhoCor(doc));
+});
+
+/* "Configurações de Personagem" (do sistema, botão Configurar): AppV1, mesmo formato do Fechar */
+Hooks.on("getActorSettingsHeaderButtons", (app, buttons) => {
+    if (!podeTrocarCor(app.object)) return;
+    buttons.unshift(botaoCabecalhoCor(app.object));
+});
+
+/* "Configurar ficha" (botão Sheet): AppV2, botão de ícone ao lado do fechar */
+Hooks.on("renderDocumentSheetConfig", (app) => {
+    const doc = app.document;
+    if (!podeTrocarCor(doc)) return;
+    const cabecalho = app.window?.header ?? app.element?.querySelector(".window-header");
+    if (!cabecalho || cabecalho.querySelector(".t20a-config")) return;
+    const rotulo = game.i18n.localize("T20A.HeaderButton");
+    const botao = document.createElement("button");
+    botao.type = "button";
+    botao.className = "header-control icon fa-solid fa-palette t20a-config";
+    botao.dataset.tooltip = rotulo;
+    botao.setAttribute("aria-label", rotulo);
+    botao.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        abrirDialogoCor(doc);
     });
+    const fechar = cabecalho.querySelector('[data-action="close"]');
+    if (fechar) fechar.before(botao);
+    else cabecalho.append(botao);
 });
 
 /* -------------------------------------------------------------------------- */
@@ -929,10 +968,6 @@ async function abrirDialogoCor(doc) {
     const corCustomAtual = lerCorPersonalizada(doc) ?? corPadraoAtual;
     const checked = (m) => modo === m ? "checked" : "";
     const ativa = (m) => modo === m ? "is-active" : "";
-    // A arte do cabeçalho só existe na ficha de personagem jogador
-    const ehPersonagem = doc.type === "character";
-    const arteOriginal = doc.getFlag?.(MODULE_ID, FLAG_ARTE_ORIGINAL) === true;
-    const semArte = doc.getFlag?.(MODULE_ID, FLAG_SEM_ARTE) === true;
     const corChatAtual = lerCorDoChat(doc);
 
     const content = `
@@ -1000,21 +1035,6 @@ async function abrirDialogoCor(doc) {
                     </span>
                 </label>
             </div>
-            ${ehPersonagem ? `
-            <label class="t20a-dialog-check">
-                <input type="checkbox" name="semArte" ${semArte ? "checked" : ""} />
-                <span class="t20a-radio-label">
-                    <strong>${game.i18n.localize("T20A.Dialog.SemArte")}</strong>
-                    <em>${game.i18n.localize("T20A.Dialog.SemArteHint")}</em>
-                </span>
-            </label>
-            <label class="t20a-dialog-check">
-                <input type="checkbox" name="arteOriginal" ${arteOriginal ? "checked" : ""} />
-                <span class="t20a-radio-label">
-                    <strong>${game.i18n.localize("T20A.Dialog.ArteOriginal")}</strong>
-                    <em>${game.i18n.localize("T20A.Dialog.ArteOriginalHint")}</em>
-                </span>
-            </label>` : ""}
         </div>
     `;
 
@@ -1032,18 +1052,6 @@ async function abrirDialogoCor(doc) {
                 const picker = el.querySelector('[name="corCustom"]');
                 const hexInput = el.querySelector('[name="corCustomHex"]');
                 const radioCustom = el.querySelector('input[name="mode"][value="custom"]');
-                // Sem arte, "manter cores originais" não tem efeito: fica
-                // desabilitada (o valor marcado é preservado e salvo igual).
-                const inputSemArte = el.querySelector('[name="semArte"]');
-                const inputArteOriginal = el.querySelector('[name="arteOriginal"]');
-                const sincronizarArte = () => {
-                    if (!inputSemArte || !inputArteOriginal) return;
-                    inputArteOriginal.disabled = inputSemArte.checked;
-                    inputArteOriginal.closest(".t20a-dialog-check")
-                        ?.classList.toggle("is-disabled", inputSemArte.checked);
-                };
-                inputSemArte?.addEventListener("change", sincronizarArte);
-                sincronizarArte();
                 // Picker e campo hex andam juntos; mexer neles seleciona o modo
                 const ligarPicker = (picker, hexInput, radio) => {
                     picker?.addEventListener("input", () => {
@@ -1068,18 +1076,15 @@ async function abrirDialogoCor(doc) {
                 callback: (_event, button) => {
                     const form = button.form;
                     const mode = form?.elements?.mode?.value;
-                    // null = ficha sem as checkboxes (não-personagem): não mexe nas flags
-                    const arte = {
-                        arteOriginal: form?.elements?.arteOriginal?.checked ?? null,
-                        semArte: form?.elements?.semArte?.checked ?? null,
+                    const chat = {
                         corChat: form?.elements?.modoChat?.value === "custom"
                             ? form?.elements?.corChat?.value
                             : null
                     };
                     if (mode === "custom") {
-                        return { mode: "custom", cor: form?.elements?.corCustom?.value, ...arte };
+                        return { mode: "custom", cor: form?.elements?.corCustom?.value, ...chat };
                     }
-                    return { mode: mode === "padrao" ? "padrao" : "auto", ...arte };
+                    return { mode: mode === "padrao" ? "padrao" : "auto", ...chat };
                 }
             },
             rejectClose: false,
@@ -1265,18 +1270,12 @@ function lerCorDoChat(doc) {
     return raw && typeof raw === "object" ? normalizarHex(raw.cor) : null;
 }
 
-/** Grava modo de cor e (se informadas) as opções da arte num único update — um só re-render. */
-async function salvarModoCor(doc, modo, cor = null, { arteOriginal = null, semArte = null, corChat } = {}) {
+/** Grava modo de cor e (se informada) a cor do chat num único update — um só re-render. */
+async function salvarModoCor(doc, modo, cor = null, { corChat } = {}) {
     const valor = (modo === "custom")
         ? { mode: "custom", cor: normalizarHex(cor) ?? corPadraoConfigurada() }
         : ((modo === "padrao") ? "padrao" : "auto");
     const update = { [`flags.${MODULE_ID}.${FLAG_COR}`]: valor };
-    if (typeof arteOriginal === "boolean") {
-        update[`flags.${MODULE_ID}.${FLAG_ARTE_ORIGINAL}`] = arteOriginal;
-    }
-    if (typeof semArte === "boolean") {
-        update[`flags.${MODULE_ID}.${FLAG_SEM_ARTE}`] = semArte;
-    }
     // undefined = não mexe; null = volta a usar a cor da ficha no chat
     if (corChat !== undefined) {
         const hex = normalizarHex(corChat);

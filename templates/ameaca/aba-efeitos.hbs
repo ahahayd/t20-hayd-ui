@@ -1,0 +1,42 @@
+<div class="ha-aba ha-aba-efeitos {{#if (eq ha.aba 'efeitos')}}ativa{{/if}}" data-aba="efeitos">
+	{{#each effects as |section sid|}}
+	{{#if (or section.effects.length @root.ha.desbloqueada)}}
+	<section class="ha-secao {{#if (lookup @root.ha.recolhidas (concat 'efeitos-' sid))}}recolhida{{/if}} {{#unless section.effects.length}}vazia{{/unless}}" data-ha-secao="efeitos-{{sid}}">
+		<header class="ha-secao-cabecalho" data-ha-recolher>
+			<i class="ha-secao-seta fa-solid fa-chevron-down"></i>
+			<h3>{{section.label}}</h3>
+			<span class="ha-secao-contagem">{{section.effects.length}}</span>
+			{{!-- O sistema lê o tipo do efeito no li mais próximo do botão --}}
+			{{#if @root.ha.editavel}}
+			<ol class="ha-efeitos-criar"><li data-effect-type="{{section.type}}">
+				<a class="effect-control ha-secao-criar" data-action="create" data-tooltip="{{localize 'T20.Add'}} {{localize 'T20.Effect'}}"><i class="fa-solid fa-plus"></i></a>
+			</li></ol>
+			{{/if}}
+		</header>
+		<div class="ha-secao-corpo"><div class="ha-secao-interno">
+			<ol class="effects-list ha-lista">
+				{{#each section.effects as |effect|}}
+				<li class="effect ha-efeito {{#if effect.disabled}}desativado{{/if}}" data-effect-id="{{effect.id}}" data-effect-type="{{section.type}}">
+					<div class="ha-item-img ha-efeito-img" style="background-image: url('{{effect.img}}');"></div>
+					<span class="ha-efeito-nome">{{#if effect.flags.tormenta20.custo}}<b class="ha-etiqueta ha-etiqueta-pm">{{effect.flags.tormenta20.custo}} {{localize 'T20A.Ficha.PM'}}</b> {{/if}}{{effect.name}}</span>
+					<span class="ha-efeito-duracao">{{#if effect.flags.tormenta20.durationScene}}{{localize "T20.TimeScene"}}{{else if (and effect.duration.label (ne effect.duration.label "None"))}}{{effect.duration.label}}{{/if}}</span>
+					{{#if @root.ha.editavel}}
+					<span class="ha-controles">
+						<a class="effect-control ha-controle ha-alternador {{#unless effect.disabled}}ativo{{/unless}}" data-action="toggle" data-tooltip="{{localize 'T20.Toggle'}}"><i class="fa-solid {{#if effect.disabled}}fa-toggle-off{{else}}fa-toggle-on{{/if}}"></i></a>
+						<a class="effect-control ha-controle" data-action="edit" data-tooltip="{{localize 'T20.Edit'}}"><i class="fa-solid fa-pen-to-square"></i></a>
+						<a class="effect-control ha-controle ha-perigo" data-action="delete" data-tooltip="{{localize 'T20.Delete'}}"><i class="fa-solid fa-trash"></i></a>
+					</span>
+					{{/if}}
+				</li>
+				{{else}}
+				<li class="ha-lista-vazia">{{localize 'T20A.Ficha.SecaoVazia'}}</li>
+				{{/each}}
+			</ol>
+		</div></div>
+	</section>
+	{{/if}}
+	{{/each}}
+	{{#unless (or ha.efeitos ha.desbloqueada)}}
+	<p class="ha-dica-vazia"><i class="fa-solid fa-bolt"></i> {{localize 'T20A.Ameaca.SemEfeitos'}}</p>
+	{{/unless}}
+</div>

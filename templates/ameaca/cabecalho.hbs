@@ -1,0 +1,128 @@
+{{#*inline "barra"}}
+<div class="ha-barra ha-barra-{{id}}" data-ha-barra="{{id}}" style="--ha-pct: {{dados.pct}}%; --ha-temp-pct: {{dados.tempPct}}%; --ha-digitos: {{dados.digitos}}; --ha-temp-digitos: {{dados.digitosTemp}};">
+	{{!-- Rastro: o pedaço perdido esvazia depois do dano, como em jogo de luta --}}
+	<div class="ha-barra-rastro"></div>
+	<div class="ha-barra-preenchimento"></div>
+	{{#if dados.temp}}<div class="ha-barra-temp"></div>{{/if}}
+	<div class="ha-barra-conteudo">
+		<span class="ha-barra-sigla">{{sigla}}</span>
+		<span class="ha-barra-numeros">
+			{{#if @root.ha.editavel}}
+				<input type="text" class="ha-barra-valor" data-ha-valor="{{id}}" data-ha-delta="system.attributes.{{id}}.value" data-ha-max="{{dados.max}}"
+					value="{{dados.value}}" aria-label="{{rotulo}}" data-tooltip="{{localize 'T20A.Ficha.DicaDelta'}}">
+			{{else}}
+				<span class="ha-barra-valor" data-ha-valor="{{id}}">{{dados.value}}</span>
+			{{/if}}
+			<span class="ha-barra-sep">/</span>
+			{{#if @root.ha.desbloqueada}}
+				<input type="number" class="ha-barra-max" name="system.attributes.{{id}}.max" value="{{dados.max}}" data-tooltip="{{localize 'T20A.Ameaca.Maximo'}}">
+			{{else}}
+				<span class="ha-barra-max" data-ha-valor="{{id}}-max">{{dados.max}}</span>
+			{{/if}}
+		</span>
+		<label class="ha-temp {{#if dados.temp}}ativo{{/if}}" data-tooltip="{{localize 'T20A.Ficha.Temporarios'}}">
+			<i class="fa-solid fa-shield-heart"></i>
+			{{#if @root.ha.editavel}}
+				<input type="text" data-ha-delta="system.attributes.{{id}}.temp" data-ha-min="0" value="{{dados.temp}}" placeholder="0">
+			{{else}}
+				<span>{{dados.temp}}</span>
+			{{/if}}
+		</label>
+	</div>
+</div>
+{{/inline}}
+
+<header class="ha-cabecalho">
+	<div class="ha-retrato-coluna">
+		<div class="ha-retrato">
+			<img src="{{actor.img}}" alt="{{actor.name}}" {{#if ha.editavel}}data-edit="img" data-tooltip="{{localize 'T20A.Ficha.TrocarImagem'}}"{{/if}}>
+			{{!-- Olho no canto: abre a arte inteira (aparece ao passar o mouse, como na Ficha Hayd) --}}
+			<button type="button" class="ha-retrato-ver" data-ha-acao="ver-arte" data-tooltip="{{localize 'T20A.Ameaca.VerArte'}}" aria-label="{{localize 'T20A.Ameaca.VerArte'}}"><i class="fa-solid fa-eye"></i></button>
+		</div>
+		{{!-- Brasão do patamar (Iniciante, Veterano, Campeão, Lenda, Lenda+), com o ND no círculo --}}
+		<div class="ha-nd ha-nd-{{ha.patamar.chave}}" style="--ha-brasao: url('{{ha.patamar.brasao}}');" data-tooltip="{{localize 'T20A.Ameaca.NDLongo'}} · {{ha.patamar.rotulo}}">
+			<span class="ha-nd-rotulo">{{localize 'T20.AbbreviationCR'}}</span>
+			{{#if ha.desbloqueada}}
+				<input type="text" class="ha-nd-valor" name="system.attributes.nd" value="{{system.attributes.nd}}" placeholder="0">
+			{{else}}
+				<span class="ha-nd-valor" data-ha-valor="nd">{{ha.nd}}</span>
+			{{/if}}
+		</div>
+	</div>
+
+	<div class="ha-identidade">
+		<div class="ha-linha-nome">
+			{{#if ha.desbloqueada}}
+				<input class="ha-nome-input" name="name" type="text" value="{{actor.name}}" placeholder="{{localize 'T20.Name'}}">
+			{{else}}
+				<h1 class="ha-nome">{{actor.name}}</h1>
+			{{/if}}
+			{{#if ha.editavel}}
+			<button type="button" class="ha-cadeado {{#if ha.desbloqueada}}aberto{{/if}}" data-ha-acao="cadeado"
+				data-tooltip="{{#if ha.desbloqueada}}{{localize 'T20A.Ficha.Bloquear'}}{{else}}{{localize 'T20A.Ficha.Desbloquear'}}{{/if}}">
+				<i class="fa-solid {{#if ha.desbloqueada}}fa-lock-open{{else}}fa-pencil{{/if}}"></i>
+			</button>
+			{{/if}}
+		</div>
+
+		{{#if ha.desbloqueada}}
+		<div class="ha-subtitulo ha-subtitulo-edicao">
+			<label class="ha-campo"><span>{{localize 'T20.Role'}}</span>
+				<select name="system.detalhes.role">{{selectOptions config.creatureRoles selected=system.detalhes.role blank='—'}}</select></label>
+			<label class="ha-campo"><span>{{localize 'T20A.Ameaca.Tipo'}}</span>
+				<select name="system.detalhes.tipo">{{selectOptions config.creatureTypes selected=system.detalhes.tipo}}</select></label>
+			<label class="ha-campo"><span>{{localize 'T20.Race'}}</span>
+				<input type="text" name="system.detalhes.raca" value="{{system.detalhes.raca}}" placeholder="{{localize 'T20.Race'}}"></label>
+			<label class="ha-campo"><span>{{localize 'T20.Size'}}</span>
+				<select name="system.tracos.tamanho">{{selectOptions config.actorSizes selected=system.tracos.tamanho}}</select></label>
+		</div>
+		{{else}}
+		<div class="ha-subtitulo">
+			{{#if ha.papel}}<span class="ha-papel ha-papel-{{ha.papel.key}}"><i class="fa-solid {{ha.papel.icone}}"></i>{{ha.papel.rotulo}}</span>{{/if}}
+			{{#if ha.tipo}}<span class="ha-chip"><i class="fa-solid {{ha.tipo.icone}}"></i>{{ha.tipo.rotulo}}{{#if ha.raca}} <em>({{ha.raca}})</em>{{/if}}</span>{{/if}}
+			{{#if ha.tamanho}}<span class="ha-chip"><i class="fa-solid fa-up-right-and-down-left-from-center"></i>{{ha.tamanho}}</span>{{/if}}
+			{{#if ha.xp}}<span class="ha-chip ha-chip-xp" data-tooltip="{{localize 'T20.ExperienceValue'}}">{{ha.xp}} XP</span>{{/if}}
+		</div>
+		{{/if}}
+
+		<div class="ha-vitais {{#unless ha.temPM}}sem-pm{{/unless}}">
+			{{> barra id="pv" dados=ha.pv sigla=(localize 'T20A.Ficha.PV') rotulo=(localize 'T20.HitPoints')}}
+			{{#if ha.temPM}}{{> barra id="pm" dados=ha.pm sigla=(localize 'T20A.Ficha.PM') rotulo=(localize 'T20.ManaPoints')}}{{/if}}
+		</div>
+	</div>
+
+	<div class="ha-defesa" style="--ha-escudo: url('{{ha.escudo}}');" data-tooltip="{{fieldBonuses 'system.attributes.defesa.bonus'}}">
+		<span class="ha-defesa-valor" data-ha-valor="defesa">{{ha.defesa}}</span>
+		<span class="ha-defesa-rotulo">{{localize 'T20.Defense'}}</span>
+		{{#if ha.desbloqueada}}
+		<input type="number" class="ha-defesa-base" name="system.attributes.defesa.base" value="{{system.attributes.defesa.base}}" data-tooltip="{{localize 'T20.DefenseBaseValue'}}">
+		{{/if}}
+	</div>
+</header>
+
+{{!-- Iniciativa e percepção | os testes de resistência, um pouco mais marcados | a CD da ameaça --}}
+<section class="ha-testes">
+	{{#each ha.testesMenores as |t|}}
+	<button type="button" class="ha-teste ha-teste-menor rollable pericia-rollable ha-teste-{{t.key}}" data-item-id="{{t.key}}" data-tooltip="{{localize 'T20A.Ameaca.Rolar'}} {{t.rotulo}}">
+		<span class="ha-teste-rotulo">{{t.rotulo}}</span>
+		<span class="ha-teste-valor {{#if t.negativo}}negativo{{/if}}" data-ha-valor="teste-{{t.key}}"><small>{{t.sinal}}</small>{{t.valor}}</span>
+	</button>
+	{{/each}}
+	{{#each ha.resistencias as |t|}}
+	<button type="button" class="ha-teste ha-teste-res rollable pericia-rollable ha-teste-{{t.key}}" data-item-id="{{t.key}}" data-tooltip="{{localize 'T20A.Ameaca.Rolar'}} {{t.nome}}">
+		<i class="ha-teste-icone fa-solid {{t.icone}}"></i>
+		<span class="ha-teste-texto">
+			<span class="ha-teste-rotulo">{{t.nome}}</span>
+			<span class="ha-teste-valor {{#if t.negativo}}negativo{{/if}}" data-ha-valor="teste-{{t.key}}"><small>{{t.sinal}}</small>{{t.valor}}</span>
+		</span>
+	</button>
+	{{/each}}
+	<div class="ha-teste ha-teste-cd" data-tooltip="{{localize 'T20A.Ameaca.CDDica'}}">
+		<span class="ha-teste-rotulo">{{localize 'T20.AbbreviationDC'}}</span>
+		{{#if ha.desbloqueada}}
+			<input type="number" class="ha-teste-valor" name="system.attributes.cd" value="{{system.attributes.cd}}">
+		{{else}}
+			<span class="ha-teste-valor" data-ha-valor="cd">{{ha.cd}}</span>
+		{{/if}}
+	</div>
+</section>

@@ -2939,3 +2939,71 @@
 .hayd-ficha .t20g-contadores-ficha {
     display: none;
 }
+
+/* ==========================================================================
+   Arte "Deuses" (escolhida em "Configurar ficha"): a pintura do panteão
+   ocupa o cabeçalho inteiro, ancorada no topo para os rostos aparecerem,
+   sempre nas cores originais (recolorir apagaria a paleta de cada deus).
+   O tamanho é o do "cover", escrito por extenso: o prolongamento abaixo do
+   cabeçalho (em .hf-corpo) repete a mesma escala e continua a imagem.
+   --hf-topo-h (altura do cabeçalho) vem do script; --hf-arte-proporcao é
+   largura/altura de cada imagem.
+   ========================================================================== */
+.hayd-ficha .hf-arte-deuses-positivo .hf-banner::before,
+.hayd-ficha .hf-arte-deuses-negativo .hf-banner::before {
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-position: center top;
+    background-size: max(100%, calc(var(--hf-topo-h, 265px) * var(--hf-arte-proporcao))) auto;
+    background-repeat: no-repeat;
+    opacity: 0.9;
+    -webkit-mask-image: none;
+    mask-image: none;
+}
+.hayd-ficha .hf-arte-deuses-positivo .hf-banner::before,
+.hayd-ficha .hf-arte-deuses-positivo:not(.hf-sem-arte) + .hf-corpo::before {
+    --hf-arte-proporcao: 1.9102;
+    background-image: url("../assets/fundos/header-deuses-positivo.webp");
+}
+.hayd-ficha .hf-arte-deuses-negativo .hf-banner::before,
+.hayd-ficha .hf-arte-deuses-negativo:not(.hf-sem-arte) + .hf-corpo::before {
+    --hf-arte-proporcao: 1.9399;
+    background-image: url("../assets/fundos/header-deuses-negativo.webp");
+    /* A pintura já é noturna: clareada para não sumir sob a película escura da ficha */
+    filter: brightness(1.7) saturate(1.1);
+}
+.hayd-ficha .hf-arte-deuses-negativo .hf-banner::before { opacity: 1; }
+.hayd-ficha .hf-arte-deuses-positivo .hf-banner-espelho,
+.hayd-ficha .hf-arte-deuses-positivo .hf-banner-espelho-dir,
+.hayd-ficha .hf-arte-deuses-positivo .hf-banner::after,
+.hayd-ficha .hf-arte-deuses-negativo .hf-banner-espelho,
+.hayd-ficha .hf-arte-deuses-negativo .hf-banner-espelho-dir,
+.hayd-ficha .hf-arte-deuses-negativo .hf-banner::after { display: none; }
+
+/* Um toque: a arte desce um pouco além do cabeçalho, por trás do conteúdo,
+   sumindo aos poucos. Mora no .hf-corpo porque o .hf-topo fica numa camada
+   acima dele (o logo passa da borda) e cobriria a busca e as abas da lateral. */
+.hayd-ficha .hf-arte-deuses-positivo:not(.hf-sem-arte) + .hf-corpo,
+.hayd-ficha .hf-arte-deuses-negativo:not(.hf-sem-arte) + .hf-corpo {
+    position: relative;
+    isolation: isolate;
+}
+.hayd-ficha .hf-arte-deuses-positivo:not(.hf-sem-arte) + .hf-corpo::before,
+.hayd-ficha .hf-arte-deuses-negativo:not(.hf-sem-arte) + .hf-corpo::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 44px;
+    z-index: -1;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    background-size: max(100%, calc(var(--hf-topo-h, 265px) * var(--hf-arte-proporcao))) auto;
+    background-position: center calc(-1 * var(--hf-topo-h, 265px));
+    opacity: 0.3;
+    -webkit-mask-image: linear-gradient(to bottom, #000, transparent);
+    mask-image: linear-gradient(to bottom, #000, transparent);
+}
