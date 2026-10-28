@@ -2464,6 +2464,8 @@
 }
 @container (max-width: 560px) {
     .hayd-ficha .hf-col-origem { display: none; }
+    /* No Combate o nome precisa de espaço: a coluna de aprimoramentos sai primeiro */
+    .hayd-ficha .hf-secao-armas .hf-col-aprim { display: none; }
     .hayd-ficha .hf-col-larga { width: 110px; }
     .hayd-ficha .hf-col-rolagem { font-size: 13px; }
 }
@@ -2822,7 +2824,8 @@
 .hayd-ficha .hf-rol-ataque { flex: 0 0 26%; }
 .hayd-ficha .hf-rol-dano { flex: 1 1 auto; }
 .hayd-ficha .hf-rol-critico { flex: 0 0 28%; }
-.hayd-ficha .hf-secao-colunas .hf-col-rolagem { font-family: inherit; font-size: inherit; color: inherit; letter-spacing: inherit; }
+.hayd-ficha .hf-secao-colunas .hf-col-rolagem,
+.hayd-ficha .hf-secao-armas .hf-secao-colunas .hf-col-aprim { font-family: inherit; font-size: inherit; color: inherit; letter-spacing: inherit; }
 
 /* ---- Perícias: organização em destaque (grupos com título) ---------------- */
 
@@ -2989,3 +2992,214 @@
     -webkit-mask-image: linear-gradient(to bottom, #000, transparent);
     mask-image: linear-gradient(to bottom, #000, transparent);
 }
+
+/* ==========================================================================
+   Aprimoramentos (t20-hayd-itens): material, melhorias e encantos.
+   O material pinta o aro do ícone e a linha secundária; as melhorias viram
+   losangos na coluna APRIM.; o encanto é um brilho no canto do ícone e na
+   coluna. Os badges do cabeçalho vêm do .hbdg do t20-hayd-itens.
+   A ficha é sempre escura, então os tons são fixos (claros).
+   ========================================================================== */
+.hayd-ficha .hf-col-aprim { width: 64px; display: flex; align-items: center; justify-content: center; overflow: visible; }
+/* Losangos (melhorias) e estrelas (encantos) em blocos 2×2, lado a lado: poucos itens por linha, sem alargar a coluna */
+.hayd-ficha .hf-aprim { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 18px; cursor: help; }
+.hayd-ficha .hf-aprim-g { display: grid; grid-template-columns: repeat(2, 11px); gap: 3px 2px; justify-items: center; align-items: center; }
+.hayd-ficha .hf-aprim-g > .hf-aprim-mais { grid-column: 1 / -1; line-height: 1; }
+/* Três marcas: triângulo invertido (duas em cima, a terceira centrada embaixo) */
+.hayd-ficha .hf-aprim-g > :nth-child(3):last-child { grid-column: 1 / -1; }
+/* Material especial: o diamante do material, na cor dele, entre os losangos das melhorias */
+.hayd-ficha .hf-marca-mat { display: grid; place-items: center; width: 11px; height: 11px; font-size: 9px; color: oklch(.76 var(--c, .03) var(--h, 250)); }
+/* Um item só: uma coluna, para o bloco ficar centrado */
+.hayd-ficha .hf-aprim-g:not(:has(> :nth-child(2))) { grid-template-columns: 11px; }
+.hayd-ficha .hf-pip {
+    width: 7px; height: 7px; border-radius: 1px; transform: rotate(45deg);
+    background: oklch(.78 .15 82);
+    box-shadow: 0 0 0 1px oklch(.78 .15 82 / .4);
+}
+.hayd-ficha .hf-aprim-mais { font-size: 10.5px; font-weight: 600; color: oklch(.78 .15 82); }
+.hayd-ficha .hf-aprim-enc {
+    width: 10px; height: 10px; color: oklch(.82 .16 308);
+    filter: drop-shadow(0 0 4px oklch(.82 .16 308 / .7));
+}
+.hayd-ficha .hf-aprim-enc svg { display: block; width: 100%; height: 100%; animation: hbdg-cintila 5s ease-in-out infinite; }
+.hayd-ficha .hf-aprim-mais-enc { color: oklch(.82 .16 308); }
+.hayd-ficha .hf-aprim-vazio { opacity: .25; }
+@media (prefers-reduced-motion: reduce) { .hayd-ficha .hf-aprim-enc svg { animation: none; } }
+
+/* Material: aro no ícone e nome curto na linha secundária (--h e --c vêm inline na <li>) */
+.hayd-ficha .hf-item.hf-tem-mat { --hf-mat: oklch(.74 var(--c, .03) var(--h, 250)); }
+.hayd-ficha .hf-item.hf-tem-mat .hf-item-img {
+    box-shadow: 0 0 0 1.5px var(--hf-mat), 0 0 9px -1px color-mix(in oklab, var(--hf-mat) 60%, transparent);
+}
+.hayd-ficha .hf-item.hf-tem-mat.equipado .hf-item-img {
+    box-shadow: 0 0 0 1px var(--hf-ouro) inset, 0 0 0 1.5px var(--hf-mat), 0 0 9px -1px color-mix(in oklab, var(--hf-mat) 60%, transparent);
+}
+/* Selo de item mágico, no canto superior direito do ícone. Sobe só 3px: a lista corta o que passa do topo da primeira linha.
+   Círculo de 14px com estrela de 8px deixa 3px inteiros de cada lado (com 13px sobrava meio pixel e a estrela parecia torta). */
+.hayd-ficha .hf-aprim-canto {
+    position: absolute; top: -3px; right: -4px; z-index: 2; width: 14px; height: 14px;
+    display: grid; place-items: center; border-radius: 50%; cursor: help;
+    background: #1d1426; color: oklch(.82 .16 308); box-shadow: 0 0 0 1px oklch(.7 .17 308);
+}
+.hayd-ficha .hf-aprim-canto svg { width: 8px; height: 8px; display: block; }
+/* Selo de arma envenenada (t20-hayd-itens), no canto inferior direito, logo abaixo do de item mágico. */
+.hayd-ficha .hf-veneno-canto {
+    position: absolute; bottom: -3px; right: -4px; z-index: 2; width: 14px; height: 14px;
+    display: grid; place-items: center; border-radius: 50%; cursor: help;
+    background: #10200f; color: oklch(.82 .17 145); box-shadow: 0 0 0 1px oklch(.68 .17 145);
+}
+/* O ícone fica dentro de .hf-item-img: desfaz a regra do dado (escondido, centralizado, gira no hover). */
+.hayd-ficha .hf-item-img .hf-veneno-canto i {
+    position: static; width: auto; height: auto; margin: 0; font-size: 8px; line-height: 1;
+    color: inherit; opacity: 1; animation: none; text-shadow: none;
+}
+
+.hayd-ficha .hf-filtro-enc svg { width: 13px; height: 13px; display: block; }
+
+/* Painel da descrição: grupos em colunas que se ajustam à largura da ficha */
+.hayd-ficha .hf-aprim-bloco { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--hf-linha-forte); }
+.hayd-ficha .hf-aprim-grupos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.hayd-ficha .hf-aprim-grupo { --h: 250; --c: .03; min-width: 0; padding: 1px 0 1px 9px; border-left: 2px solid oklch(.7 var(--c) var(--h)); }
+.hayd-ficha .hf-ag-mel { --h: 82; --c: .15; }
+.hayd-ficha .hf-ag-enc { --h: 308; --c: .17; }
+.hayd-ficha .hf-aprim-grupo h6 {
+    display: flex; gap: 6px; align-items: center; margin: 0 0 3px;
+    font: 600 10.5px var(--hf-fonte); letter-spacing: 1.3px; text-transform: uppercase;
+    color: oklch(.78 var(--c) var(--h));
+}
+.hayd-ficha .hf-aprim-grupo h6 svg, .hayd-ficha .hf-aprim-grupo h6 i { width: 10px; height: 10px; font-size: 9px; display: block; }
+.hayd-ficha .hf-aprim-grupo ul { list-style: none; margin: 0; padding: 0; }
+.hayd-ficha .hf-aprim-grupo li { margin: 0 0 3px; font-size: 13px; color: var(--hf-texto); }
+.hayd-ficha .hf-aprim-grupo li small { display: block; font-size: 11.5px; line-height: 1.35; opacity: .68; }
+.hayd-ficha .hf-aprim-grupo li em { margin-left: 4px; font-size: 11px; font-style: normal; opacity: .6; }
+.hayd-ficha .hf-aprim-grupo li.off { opacity: .55; }
+.hayd-ficha .hf-aprim-grupo li.off b { text-decoration: line-through; }
+.hayd-ficha .hf-aprim-rodape { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 8px; font-size: 12px; opacity: .85; }
+.hayd-ficha .hf-aprim-abrir { color: inherit; border-bottom: 1px dotted currentColor; cursor: pointer; }
+.hayd-ficha .hf-aprim-preco { margin-left: auto; opacity: .8; }
+
+/* -------------------------------------------------------------------------- */
+/*  Aba Combate: modelo e categorias (modo edição)                             */
+/* -------------------------------------------------------------------------- */
+
+.hayd-ficha .hf-layout-combate {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0 0 10px;
+    padding: 8px 10px;
+    background: var(--hf-painel);
+    border: 1px dashed var(--hf-linha-forte);
+    border-radius: var(--hf-corte-sm);
+}
+.hayd-ficha .hf-layout-modelos,
+.hayd-ficha .hf-layout-grupo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+}
+.hayd-ficha .hf-layout-rotulo {
+    min-width: 76px;
+    margin-right: 4px;
+    color: var(--hf-texto-3);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.hayd-ficha .hf-layout-combate button.hf-layout-modelo,
+.hayd-ficha .hf-layout-combate button.hf-layout-chip {
+    flex: 0 0 auto;
+    width: auto;
+    height: 24px;
+    margin: 0;
+    padding: 0 10px;
+    line-height: 22px;
+    font-size: 12px;
+    color: var(--hf-texto-3);
+    background: transparent;
+    border: 1px solid var(--hf-linha-forte);
+    border-radius: 12px;
+    box-shadow: none;
+    cursor: pointer;
+}
+.hayd-ficha .hf-layout-combate button.hf-layout-chip i { font-size: 10px; margin-right: 3px; }
+.hayd-ficha .hf-layout-combate button.hf-layout-chip:not(.ativo) { text-decoration: line-through; opacity: 0.7; }
+.hayd-ficha .hf-layout-combate button.hf-layout-modelo.ativo,
+.hayd-ficha .hf-layout-combate button.hf-layout-chip.ativo {
+    color: var(--hf-texto);
+    background: var(--hf-acento-bg);
+    border-color: var(--hf-acento-borda);
+}
+.hayd-ficha .hf-layout-combate button.hf-layout-modelo.ativo { color: var(--hf-sobre-acento); background: var(--hf-acento); }
+.hayd-ficha .hf-layout-combate button:hover { color: var(--hf-texto); border-color: var(--hf-acento-claro); }
+
+/* Escola da magia no modelo Conjurador: ponto + nome na cor da escola */
+.hayd-ficha .hf-escola {
+    --hf-escola: var(--hf-texto-2);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 6px 0 4px;
+    color: var(--hf-escola);
+    background: color-mix(in srgb, var(--hf-escola) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--hf-escola) 40%, transparent);
+    border-radius: 8px;
+    font-weight: 600;
+    line-height: 14px;
+}
+.hayd-ficha .hf-escola-ponto {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--hf-escola);
+    box-shadow: 0 0 4px var(--hf-escola);
+}
+.hayd-ficha .hf-escola-abj { --hf-escola: #5fa8ff; }
+.hayd-ficha .hf-escola-adv { --hf-escola: #c9b6ff; }
+.hayd-ficha .hf-escola-con { --hf-escola: #e0b04a; }
+.hayd-ficha .hf-escola-enc { --hf-escola: #ff7ac3; }
+.hayd-ficha .hf-escola-evo { --hf-escola: #ff6a3d; }
+.hayd-ficha .hf-escola-ilu { --hf-escola: #b06bff; }
+.hayd-ficha .hf-escola-nec { --hf-escola: #7fd07a; }
+.hayd-ficha .hf-escola-tra { --hf-escola: #4fd1c5; }
+
+/* Arrastar para ordenar as categorias: o chip agarrado flutua acima dos outros */
+.hayd-ficha .hf-layout-grupo { position: relative; } /* referência do offsetLeft/Top dos chips */
+.hayd-ficha .hf-layout-combate button.hf-layout-chip { touch-action: none; cursor: grab; padding-left: 6px; }
+.hayd-ficha .hf-layout-combate button.hf-layout-chip i.hf-layout-alca {
+    margin-right: 5px;
+    font-size: 10px;
+    opacity: 0.45;
+}
+.hayd-ficha .hf-layout-combate button.hf-layout-chip:hover i.hf-layout-alca,
+.hayd-ficha .hf-layout-combate button.hf-layout-chip.hf-arrastando i.hf-layout-alca { opacity: 1; }
+/* Sem transition durante o arrasto: o chip tem de grudar no ponteiro (o FLIP cuida do resto) */
+.hayd-ficha .hf-layout-grupo.hf-ordenando button.hf-layout-chip { cursor: grabbing; transition: none; }
+.hayd-ficha .hf-layout-combate button.hf-layout-chip.hf-arrastando {
+    position: relative;
+    z-index: 5;
+    will-change: transform;
+    opacity: 1;
+    cursor: grabbing;
+    border-color: var(--hf-acento-claro);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6), 0 0 10px var(--hf-acento-glow);
+}
+
+/* Voltar ao padrão: discreto, na ponta direita da linha do modelo */
+.hayd-ficha .hf-layout-combate button.hf-layout-restaurar {
+    flex: 0 0 auto;
+    width: auto;
+    height: 24px;
+    margin: 0 0 0 auto;
+    padding: 0 8px;
+    line-height: 22px;
+    font-size: 12px;
+    color: var(--hf-texto-2);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    box-shadow: none;
+    cursor: pointer;
+}
+.hayd-ficha .hf-layout-combate button.hf-layout-restaurar:hover { color: var(--hf-texto); border-color: var(--hf-linha-forte); }

@@ -8,8 +8,10 @@
 		{{#if secao.livre}}<span class="hf-secao-dica"><i class="fa-solid fa-grip-lines"></i> {{localize 'T20A.Ficha.DicaOrdem'}}</span>{{/if}}
 		<div class="hf-secao-colunas">
 			{{#if (eq secao.colunas "armas")}}
+				{{#if @root.hf.aprimAtivo}}<span class="hf-col hf-col-aprim">{{localize 'T20A.Ficha.AprimColuna'}}</span>{{/if}}
 				<span class="hf-col hf-col-larga hf-col-rolagem"><span class="hf-rol-ataque">{{localize 'T20.Attack'}}</span><span class="hf-rol-dano">{{localize 'T20.Damage'}}</span><span class="hf-rol-critico">{{localize 'T20.Critical'}}</span></span>
 			{{else if (eq secao.colunas "inventario")}}
+				{{#if @root.hf.aprimAtivo}}<span class="hf-col hf-col-aprim">{{localize 'T20A.Ficha.AprimColuna'}}</span>{{/if}}
 				<span class="hf-col hf-col-qtd">{{localize 'T20.QuantityAbbr'}}</span>
 				<span class="hf-col hf-col-espacos">{{localize 'T20.SlotsAbbr'}}</span>
 			{{else if (eq secao.colunas "acoes")}}
@@ -33,7 +35,7 @@
 	<div class="hf-recolhivel-corpo"><div class="hf-recolhivel-interno">
 		<ol class="item-list hf-lista">
 			{{#each secao.itens as |item|}}
-				{{> "modules/t20-hayd-ui/templates/ficha/linha-item.hbs" item=item colunas=../secao.colunas}}
+				{{> "modules/t20-hayd-ui/templates/ficha/linha-item.hbs" item=item colunas=../secao.colunas escolas=../secao.escolas}}
 			{{else}}
 				<li class="hf-lista-vazia">{{localize 'T20A.Ficha.SecaoVazia'}}</li>
 			{{/each}}

@@ -1695,7 +1695,7 @@ body.t20a-ui #context-menu.t20a-context-menu[popover] {
 
 /* ── Card base ──────────────────────────────────────────────────────────── */
 .t20a-chat-msg {
-    border: 1px solid #c4a882 !important;
+    border: none !important;
     border-radius: 5px !important;
     margin: 0 0 8px !important;
     padding: 0 !important;
@@ -1718,10 +1718,9 @@ body.t20a-ui #context-menu.t20a-context-menu[popover] {
 
 /* ── Header: overlay semi-transparente da cor de destaque sobre a imagem ── */
 .t20a-chat-msg .message-header {
-    border-radius: 4px 4px 0 0 !important;
+    border-radius: 5px 5px 0 0 !important;
     background: color-mix(in srgb, var(--t20a-chat-cor) 95%, transparent) !important;
     border: none !important;
-    border-bottom: 1px solid #c4a882 !important;
     padding: 6px 8px !important;
     display: flex !important;
     align-items: center !important;

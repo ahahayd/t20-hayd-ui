@@ -1,6 +1,31 @@
 <div class="hf-aba hf-aba-combate {{#if (eq hf.aba 'combate')}}ativa{{/if}}" data-aba="combate">
 	{{> "modules/t20-hayd-ui/templates/ficha/ferramentas.hbs" aba="combate"}}
 
+	{{#if hf.desbloqueada}}
+	{{!-- Modo edição: modelo da aba e categorias que aparecem (flag do ator) --}}
+	<div class="hf-layout-combate">
+		<div class="hf-layout-modelos" role="radiogroup" aria-label="{{localize 'T20A.Ficha.LayoutModelo'}}">
+			<span class="hf-layout-rotulo">{{localize 'T20A.Ficha.LayoutModelo'}}</span>
+			{{#each hf.layoutCombate.modelos as |m|}}
+			<button type="button" class="hf-layout-modelo {{#if m.ativo}}ativo{{/if}}" role="radio" aria-checked="{{#if m.ativo}}true{{else}}false{{/if}}"
+				data-hf-modelo-combate="{{m.id}}" data-tooltip="{{m.dica}}">{{m.rotulo}}</button>
+			{{/each}}
+			{{#if hf.layoutCombate.mexido}}
+			<button type="button" class="hf-layout-restaurar" data-hf-acao="restaurar-layout-combate" data-tooltip="{{localize 'T20A.Ficha.LayoutRestaurarDica'}}"><i class="fa-solid fa-rotate-left"></i> {{localize 'T20A.Ficha.LayoutRestaurar'}}</button>
+			{{/if}}
+		</div>
+		{{#each hf.layoutCombate.grupos as |g|}}
+		<div class="hf-layout-grupo">
+			<span class="hf-layout-rotulo">{{g.rotulo}}</span>
+			{{#each g.categorias as |c|}}
+			<button type="button" class="hf-layout-chip {{#if c.visivel}}ativo{{/if}}" aria-pressed="{{#if c.visivel}}true{{else}}false{{/if}}"
+				data-hf-categoria-combate="{{c.id}}" data-tooltip="{{localize 'T20A.Ficha.LayoutArrastar'}}"><i class="hf-layout-alca fa-solid fa-grip-vertical"></i><i class="{{c.icone}}"></i> {{c.rotulo}}</button>
+			{{/each}}
+		</div>
+		{{/each}}
+	</div>
+	{{/if}}
+
 	{{#if hf.fixados.length}}
 	<div class="hf-pinos">
 		{{#each hf.fixados as |f|}}

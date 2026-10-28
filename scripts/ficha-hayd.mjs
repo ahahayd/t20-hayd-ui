@@ -58,6 +58,28 @@ const FLAG_ORDEM_FAVORITOS = "ordemFavoritos";
 const FLAG_COMBATE = "combate";
 /** Fixado no topo da aba Combate (independente dos favoritos da lateral). */
 const FLAG_FIXADO = "fixado";
+/**
+ * Layout da aba Combate, no ator (vale para todos que abrem a ficha):
+ * { modelo: "padrao" | "conjurador", ocultas: { padrao: [ids], conjurador: [ids] },
+ *   ordem: { padrao: [ids], conjurador: [ids] } }.
+ */
+const FLAG_LAYOUT_COMBATE = "layoutCombate";
+const MODELOS_COMBATE = ["padrao", "conjurador"];
+/** Categorias que começam ocultas em cada modelo (enquanto o usuário não mexer). */
+const OCULTAS_PADRAO = {
+    padrao: [],
+    conjurador: ["passive", "outros", "special", "minute", "hour", "day"]
+};
+
+/**
+ * Badges de material, melhorias e encantos: o cálculo é do t20-hayd-itens
+ * (resumoDoItem), a ficha só desenha. Sem o módulo, nada aparece.
+ */
+const MODULO_ITENS = "t20-hayd-itens";
+function apiBadges() {
+    const modulo = game.modules.get(MODULO_ITENS);
+    return modulo?.active ? modulo.api?.badges ?? null : null;
+}
 /** Selo da CD escolhido para o personagem (chave de SELOS_CD, no ator). */
 const FLAG_SELO_CD = "seloCd";
 /** Selos da CD de magias: chave → arquivo em assets/selos/ e nome na escolha. */
@@ -364,6 +386,26 @@ const comSinal = (n) => {
     return { sinal: v < 0 ? "−" : "+", valor: Math.abs(v), negativo: v < 0 };
 };
 
+/** Condições da grade da aba Efeitos (jogador e ameaça): ativa e imune, em ordem alfabética. */
+export function listarCondicoes(actor) {
+    const lista = [];
+    const efeitos = CONFIG.statusEffects ?? [];
+    // Condições de "imunidade a condições" do personagem (Set, array ou objeto)
+    const ic = actor.system.tracos?.ic?.value;
+    const imunes = new Set(ic instanceof Set ? ic : Array.isArray(ic) ? ic : Object.keys(ic ?? {}));
+    // Percorre as chaves (e não for…of): no T20 1.6 as condições são
+    // propriedades nomeadas do array e o for…of vem vazio.
+    for (const chave of Object.keys(efeitos)) {
+        const s = efeitos[chave];
+        if (!s?.id || s.hud === false) continue;
+        // T20 1.5 guarda o ícone da condição em "icon"; o núcleo novo usa "img"
+        lista.push({ id: s.id, nome: game.i18n.localize(s.name), img: s.img ?? s.icon, ativa: actor.statuses.has(s.id), imune: imunes.has(s.id) });
+    }
+    // Ordem fixa (alfabética): aplicar uma condição não faz a grade inteira pular
+    lista.sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+    return lista;
+}
+
 /**
  * Interpreta o que foi digitado num campo com delta, como no Tidy:
  * "+5" soma, "-3" subtrai, "=7" ou "7" define.
@@ -406,6 +448,8 @@ function criarClasseFicha(Base) {
         _descricoes = new Map();
         /** Busca digitada em cada aba (só na memória da janela). */
         _busca = {};
+        /** Filtro de aprimoramentos por aba: "", "mel" ou "enc" (só na memória da janela). */
+        _filtroAprim = {};
 
         constructor(...args) {
             super(...args);
@@ -516,6 +560,7 @@ function criarClasseFicha(Base) {
                 favoritos: this._favoritosOrdenados(itensLinha),
                 fixados: this._ordenarPorFlag(itensLinha.filter((l) => l.fixado), FLAG_ORDEM_FIXADOS),
                 organizacao: estado.organizacao,
+                layoutCombate: this._layoutCombate(),
                 combate: this._secoesCombate(itensLinha, estado, desbloqueada),
                 inventario: this._secoesInventario(itensLinha, estado, desbloqueada),
                 poderes: this._secoesPoderes(itensLinha, estado, desbloqueada),
@@ -527,7 +572,9 @@ function criarClasseFicha(Base) {
                 periciasModo: this._modoPericias(),
                 tracos: this._tracosLivres(sys),
                 diario: this._entradasDiario(sys, estado, data),
-                busca: this._busca
+                busca: this._busca,
+                aprimAtivo: !!apiBadges(),
+                filtroAprim: this._filtroAprim
             };
             hf.temMagias = hf.magias.some((s) => s.itens.length) || desbloqueada;
             // Selo da CD no cabeçalho: só quem de fato tem magias (não basta estar desbloqueada)
@@ -674,6 +721,7 @@ function criarClasseFicha(Base) {
                 duracao: labels.duration && labels.duration !== "Instantânea" ? labels.duration : "",
                 tipoLabel: labels.tipo ? `${labels.tipo}${labels.subtipo ? `: ${labels.subtipo}` : ""}` : "",
                 escola: labels.escola ?? "",
+                escolaChave: item.type === "magia" ? sys.escola ?? "" : "",
                 circulo: sys.circulo,
                 qtd: temQtd ? sys.qtd : null,
                 espacos: temQtd ? Math.round((sys.qtd || 0) * (sys.espacos || 0) * 100) / 100 : null,
@@ -691,7 +739,33 @@ function criarClasseFicha(Base) {
                 preparavel: item.type === "magia" && !engenhoca && !!this.actor.getFlag("tormenta20", "mago"),
                 preparada: !!sys.preparada,
                 expandido: this._expandidos.has(item.id),
-                descricao: this._expandidos.has(item.id) ? this._descricoes.get(item.id) ?? null : null
+                descricao: this._expandidos.has(item.id) ? this._descricoes.get(item.id) ?? null : null,
+                aprim: this._aprimDoItem(item),
+                veneno: this._venenoDoItem(item)
+            };
+        }
+
+        /** Veneno aplicado na arma (t20-hayd-itens): texto do selo no ícone, ou null. */
+        _venenoDoItem(item) {
+            if (item.type !== "arma" || !game.modules.get(MODULO_ITENS)?.active) return null;
+            const veneno = item.getFlag(MODULO_ITENS, "veneno");
+            if (!veneno) return null;
+            const usos = veneno.usosMax > 1 ? ` · ${veneno.usos}/${veneno.usosMax}` : "";
+            return game.i18n.format("T20A.Ficha.Envenenada", { nome: veneno.dose?.name ?? "", cd: veneno.cd }) + usos;
+        }
+
+        /** Material, melhorias e encantos do item, já no formato que a linha desenha (ou null). */
+        _aprimDoItem(item) {
+            const api = apiBadges();
+            const resumo = api?.resumoDoItem(item);
+            if (!resumo) return null;
+            const material = resumo.material;
+            return {
+                ...api.resumoParaColuna(resumo),
+                material: material ? { nome: material.nome, estilo: api.estiloDoMaterial(material) } : null,
+                temMarcas: resumo.nMelhorias + resumo.nEncantos + resumo.materiais.length > 0,
+                filtro: [resumo.nMelhorias && "mel", resumo.nEncantos && "enc"].filter(Boolean).join(" "),
+                tooltip: api.tooltipHtml(resumo)
             };
         }
 
@@ -732,7 +806,219 @@ function criarClasseFicha(Base) {
             };
         }
 
+        /** Modelo e categorias ocultas da aba Combate, já resolvidos (ver FLAG_LAYOUT_COMBATE). */
+        _lerLayoutCombate() {
+            const salvo = this.actor.getFlag(MODULE_ID, FLAG_LAYOUT_COMBATE) ?? {};
+            const modelo = MODELOS_COMBATE.includes(salvo.modelo) ? salvo.modelo : "padrao";
+            const ocultas = new Set(salvo.ocultas?.[modelo] ?? OCULTAS_PADRAO[modelo]);
+            const ordem = salvo.ordem?.[modelo] ?? [];
+            // Os ids fora da ordem salva (ou sem ordem nenhuma) ficam onde já estavam, no fim
+            const pos = (id) => {
+                const i = ordem.indexOf(id);
+                return i === -1 ? ordem.length : i;
+            };
+            const ordenar = (lista, id = (x) => x.id) => lista
+                .map((x, i) => [x, i])
+                .sort(([a, i], [b, j]) => pos(id(a)) - pos(id(b)) || i - j)
+                .map(([x]) => x);
+            // Mexeu em algo deste modelo? (mostra o botão de voltar ao padrão)
+            const mexido = !!(salvo.ocultas?.[modelo] || salvo.ordem?.[modelo]);
+            return { modelo, ocultas, ordenar, mexido };
+        }
+
+        /** Painel do modo edição: modelos e as categorias que dá para ligar/desligar. */
+        _layoutCombate() {
+            const { modelo, ocultas, ordenar, mexido } = this._lerLayoutCombate();
+            const rotuloExec = CONFIG.T20.abilityActivationTypes ?? {};
+            const execs = [...EXECUCOES, { id: "passive", icone: "fa-solid fa-infinity" }]
+                .map((e) => ({ id: e.id, icone: e.icone, rotulo: localizar(rotuloExec[e.id] ?? e.id) }));
+            const ataques = { id: "armas", icone: "fa-solid fa-crosshairs", rotulo: localizar("T20A.Ficha.Ataques") };
+            const outros = { id: "outros", icone: "fa-solid fa-box-open", rotulo: localizar("T20A.Ficha.Outros") };
+            const grupos = modelo === "conjurador"
+                ? [
+                    { rotulo: localizar("T20A.Ficha.LayoutCategorias"), categorias: [ataques,
+                        { id: "magias", icone: "fa-solid fa-hat-wizard", rotulo: localizar("T20A.Ficha.Abas.Magias") },
+                        { id: "acoes", icone: "fa-solid fa-hand-fist", rotulo: localizar("T20A.Ficha.Acoes") }] },
+                    { rotulo: localizar("T20A.Ficha.LayoutAcoes"), categorias: [...execs, outros] }
+                ]
+                : [{ rotulo: localizar("T20A.Ficha.LayoutCategorias"), categorias: [ataques, ...execs, outros] }];
+            for (const g of grupos) {
+                g.categorias = ordenar(g.categorias);
+                for (const c of g.categorias) c.visivel = !ocultas.has(c.id);
+            }
+            return {
+                modelo,
+                mexido,
+                modelos: [
+                    { id: "padrao", rotulo: localizar("T20A.Ficha.ModeloPadrao"), dica: localizar("T20A.Ficha.ModeloPadraoDica") },
+                    { id: "conjurador", rotulo: localizar("T20A.Ficha.ModeloConjurador"), dica: localizar("T20A.Ficha.ModeloConjuradorDica") }
+                ].map((m) => ({ ...m, ativo: m.id === modelo })),
+                grupos
+            };
+        }
+
+        async _trocarModeloCombate(modelo) {
+            if (!MODELOS_COMBATE.includes(modelo)) return;
+            await this.actor.setFlag(MODULE_ID, `${FLAG_LAYOUT_COMBATE}.modelo`, modelo);
+        }
+
+        async _alternarCategoriaCombate(id) {
+            const { modelo, ocultas } = this._lerLayoutCombate();
+            if (ocultas.has(id)) ocultas.delete(id);
+            else ocultas.add(id);
+            // Grava só a lista do modelo atual (a do outro fica como estava)
+            await this.actor.setFlag(MODULE_ID, `${FLAG_LAYOUT_COMBATE}.ocultas.${modelo}`, [...ocultas]);
+        }
+
+        /** Volta o modelo atual ao padrão: categorias e ordem de fábrica (o outro modelo não muda). */
+        async _restaurarLayoutCombate() {
+            const { modelo } = this._lerLayoutCombate();
+            const base = `flags.${MODULE_ID}.${FLAG_LAYOUT_COMBATE}`;
+            await this.actor.update({
+                [`${base}.ocultas.-=${modelo}`]: null,
+                [`${base}.ordem.-=${modelo}`]: null
+            });
+        }
+
+        /** Grava a ordem das categorias do modelo atual (ids de todos os grupos do painel). */
+        async _ordenarCategoriasCombate(ids) {
+            const { modelo } = this._lerLayoutCombate();
+            await this.actor.setFlag(MODULE_ID, `${FLAG_LAYOUT_COMBATE}.ordem.${modelo}`, ids);
+        }
+
+        /**
+         * Arrastar as categorias do painel: o chip segue o ponteiro, os outros
+         * abrem espaço na hora e as seções da aba se reorganizam junto (prévia
+         * do resultado). Ao soltar, grava a ordem; um clique sem arrastar
+         * continua ligando/desligando a categoria.
+         */
+        _ligarArrastoCategorias(root) {
+            const painel = root.querySelector(".hf-layout-combate");
+            if (!painel) return;
+            const aba = root.querySelector(".hf-aba-combate");
+            const reduzido = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+            /**
+             * Animação FLIP que aguenta trocas seguidas: mede onde cada elemento
+             * está NA TELA (com a animação anterior no meio), cancela essa
+             * animação, mexe no DOM e anima do ponto visível até o lugar novo.
+             */
+            const animar = (els, mexer) => {
+                const antes = new Map(els.map((el) => [el, el.getBoundingClientRect()]));
+                for (const el of els) el.getAnimations().forEach((a) => a.cancel());
+                mexer();
+                if (reduzido) return;
+                for (const [el, r] of antes) {
+                    const agora = el.getBoundingClientRect();
+                    const dx = r.left - agora.left;
+                    const dy = r.top - agora.top;
+                    if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) continue;
+                    el.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "none" }],
+                        { duration: 200, easing: "cubic-bezier(.2,.7,.3,1)" });
+                }
+            };
+            // Seções da aba que cada categoria representa (Magias = todos os círculos)
+            const secoesDe = (id) => [...aba.querySelectorAll(":scope > .hf-secao")]
+                .filter((sec) => sec.dataset.secao === id || (id === "magias" && /^c\d$/.test(sec.dataset.secao)));
+            const previaSecoes = (grupo) => {
+                const secoes = [...aba.querySelectorAll(":scope > .hf-secao")];
+                if (!secoes.length) return;
+                const ids = [...grupo.querySelectorAll("[data-hf-categoria-combate]")].map((c) => c.dataset.hfCategoriaCombate);
+                const ordenadas = ids.flatMap(secoesDe);
+                const atual = secoes.filter((sec) => ordenadas.includes(sec));
+                if (ordenadas.every((sec, i) => sec === atual[i])) return;
+                const pai = secoes[0].parentElement;
+                const ancora = secoes[0].previousSibling;
+                animar(secoes, () => {
+                    let ref = ancora;
+                    for (const sec of ordenadas) {
+                        pai.insertBefore(sec, ref ? ref.nextSibling : pai.firstChild);
+                        ref = sec;
+                    }
+                });
+            };
+            // Posição no layout (sem transform), relativa ao grupo: não "pula" com animações em curso
+            const caixa = (el) => ({ x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight });
+
+            painel.querySelectorAll(".hf-layout-grupo").forEach((grupo) => {
+                const primeiro = grupo === painel.querySelector(".hf-layout-grupo");
+                grupo.querySelectorAll("[data-hf-categoria-combate]").forEach((chip) => {
+                    chip.addEventListener("pointerdown", (ev) => {
+                        if (ev.button !== 0) return;
+                        const x0 = ev.clientX;
+                        const y0 = ev.clientY;
+                        let arrastando = false;
+                        let inicio = null;
+                        // Depois de uma troca, o alvo só vale de novo quando o ponteiro sair dele
+                        let ultimoAlvo = null;
+                        const mover = (e) => {
+                            if (!arrastando) {
+                                if (Math.hypot(e.clientX - x0, e.clientY - y0) < 5) return;
+                                arrastando = true;
+                                chip.getAnimations().forEach((a) => a.cancel());
+                                inicio = caixa(chip);
+                                // O core põe transition em todo botão: com ela o chip se arrasta atrás do ponteiro
+                                chip.style.transition = "none";
+                                game.tooltip?.deactivate();
+                                chip.classList.add("hf-arrastando");
+                                grupo.classList.add("hf-ordenando");
+                            }
+                            const g = grupo.getBoundingClientRect();
+                            const px = e.clientX - g.left;
+                            const py = e.clientY - g.top;
+                            const irmaos = [...grupo.querySelectorAll("[data-hf-categoria-combate]")];
+                            const dentro = (c) => {
+                                const b = caixa(c);
+                                return px >= b.x && px <= b.x + b.w && py >= b.y - 3 && py <= b.y + b.h + 3;
+                            };
+                            if (ultimoAlvo && !dentro(ultimoAlvo)) ultimoAlvo = null;
+                            const alvo = irmaos.find((c) => c !== chip && c !== ultimoAlvo && dentro(c));
+                            if (alvo) {
+                                // Metade esquerda do alvo: entra antes; metade direita: depois
+                                const b = caixa(alvo);
+                                const antes = px < b.x + b.w / 2;
+                                const ref = antes ? alvo : alvo.nextElementSibling;
+                                if (ref !== chip && chip.nextElementSibling !== ref) {
+                                    animar(irmaos.filter((c) => c !== chip), () => grupo.insertBefore(chip, ref));
+                                    ultimoAlvo = alvo;
+                                    // Só o primeiro grupo vira seções da aba (o de Ações ordena dentro da lista)
+                                    if (primeiro) previaSecoes(grupo);
+                                }
+                            }
+                            // O chip acompanha o ponteiro a partir do lugar (no layout) em que está agora
+                            const agora = caixa(chip);
+                            chip.style.transform = `translate(${e.clientX - x0 - (agora.x - inicio.x)}px, ${e.clientY - y0 - (agora.y - inicio.y)}px)`;
+                        };
+                        const soltar = () => {
+                            window.removeEventListener("pointermove", mover);
+                            window.removeEventListener("pointerup", soltar);
+                            window.removeEventListener("pointercancel", soltar);
+                            if (!arrastando) return;
+                            // O chip volta deslizando para o lugar novo
+                            const r = chip.getBoundingClientRect();
+                            chip.style.transform = "";
+                            chip.style.transition = "";
+                            chip.classList.remove("hf-arrastando");
+                            grupo.classList.remove("hf-ordenando");
+                            const agora = chip.getBoundingClientRect();
+                            if (!reduzido) chip.animate([{ transform: `translate(${r.left - agora.left}px, ${r.top - agora.top}px)` }, { transform: "none" }],
+                                { duration: 160, easing: "ease-out" });
+                            // O clique que vem depois do arrasto não liga/desliga a categoria
+                            chip.addEventListener("click", (c) => c.stopImmediatePropagation(), { capture: true, once: true });
+                            const ids = [...painel.querySelectorAll("[data-hf-categoria-combate]")].map((c) => c.dataset.hfCategoriaCombate);
+                            setTimeout(() => this._ordenarCategoriasCombate(ids), reduzido ? 0 : 170);
+                        };
+                        // Na janela, não no chip: mover o chip no DOM perderia a captura do ponteiro
+                        window.addEventListener("pointermove", mover);
+                        window.addEventListener("pointerup", soltar);
+                        window.addEventListener("pointercancel", soltar);
+                    });
+                });
+            });
+        }
+
         _secoesCombate(linhas, estado, desbloqueada) {
+            const { modelo, ocultas, ordenar } = this._lerLayoutCombate();
+            if (modelo === "conjurador") return this._secoesCombateConjurador(linhas, estado, desbloqueada, ocultas, ordenar);
             const rotuloExec = CONFIG.T20.abilityActivationTypes ?? {};
             const noCombate = linhas.filter((l) => l.emCombate);
             const ativo = (l) => l.execucao && l.execucao !== "passive";
@@ -758,7 +1044,44 @@ function criarClasseFicha(Base) {
             secoes.push(this._secao("outros", localizar("T20A.Ficha.Outros"), "fa-solid fa-box-open", outros, estado, {
                 aba: "combate", colunas: "acoes"
             }));
-            return secoes.filter((s) => s.itens.length || (desbloqueada && s.criar));
+            return ordenar(secoes).filter((s) => !ocultas.has(s.id) && (s.itens.length || (desbloqueada && s.criar)));
+        }
+
+        /**
+         * Modelo Conjurador: Ataques, as magias por círculo (com a escola em
+         * destaque) e uma lista só de Ações, filtrada pelas execuções escolhidas.
+         */
+        _secoesCombateConjurador(linhas, estado, desbloqueada, ocultas, ordenar) {
+            const secoes = [];
+            const noCombate = linhas.filter((l) => l.emCombate);
+            if (!ocultas.has("armas")) {
+                const armas = noCombate.filter((l) => l.tipo === "arma").sort((a, b) => b.equipado - a.equipado);
+                secoes.push(this._secao("armas", localizar("T20A.Ficha.Ataques"), "fa-solid fa-crosshairs", armas, estado, {
+                    aba: "combate", colunas: "armas", criar: "arma"
+                }));
+            }
+            if (!ocultas.has("magias")) {
+                const magias = linhas.filter((l) => l.tipo === "magia");
+                for (const c of CIRCULOS) secoes.push(this._secao(`c${c}`,
+                    game.i18n.format("T20A.Ficha.Circulo", { circulo: c }), "fa-solid fa-hat-wizard",
+                    magias.filter((l) => Number(l.circulo) === c), estado, {
+                        aba: "combate", colunas: "magias", escolas: true, custo: CUSTO_CIRCULO[c]
+                    }));
+            }
+            if (!ocultas.has("acoes")) {
+                // Sem execução: poder conta como passivo, o resto como "Outros"
+                const execucao = (l) => l.execucao || (l.tipo === "poder" ? "passive" : "outros");
+                const ordem = ordenar([...EXECUCOES.map((e) => e.id), "passive", "outros"], (id) => id);
+                const acoes = noCombate
+                    .filter((l) => !["arma", "magia"].includes(l.tipo) && !ocultas.has(execucao(l)))
+                    .sort((a, b) => ordem.indexOf(execucao(a)) - ordem.indexOf(execucao(b)));
+                secoes.push(this._secao("acoes", localizar("T20A.Ficha.Acoes"), "fa-solid fa-hand-fist", acoes, estado, {
+                    aba: "combate", colunas: "acoes-execucao"
+                }));
+            }
+            // Magias conta como um bloco só (todos os círculos juntos)
+            const bloco = (s) => (/^c\d$/.test(s.id) ? "magias" : s.id);
+            return ordenar(secoes, bloco).filter((s) => s.itens.length || (desbloqueada && s.criar));
         }
 
         _secoesInventario(linhas, estado, desbloqueada) {
@@ -807,22 +1130,7 @@ function criarClasseFicha(Base) {
         }
 
         _condicoes(actor) {
-            const lista = [];
-            const efeitos = CONFIG.statusEffects ?? [];
-            // Condições de "imunidade a condições" do personagem (Set, array ou objeto)
-            const ic = actor.system.tracos?.ic?.value;
-            const imunes = new Set(ic instanceof Set ? ic : Array.isArray(ic) ? ic : Object.keys(ic ?? {}));
-            // Percorre as chaves (e não for…of): no T20 1.6 as condições são
-            // propriedades nomeadas do array e o for…of vem vazio.
-            for (const chave of Object.keys(efeitos)) {
-                const s = efeitos[chave];
-                if (!s?.id || s.hud === false) continue;
-                // T20 1.5 guarda o ícone da condição em "icon"; o núcleo novo usa "img"
-                lista.push({ id: s.id, nome: localizar(s.name), img: s.img ?? s.icon, ativa: actor.statuses.has(s.id), imune: imunes.has(s.id) });
-            }
-            // Ordem fixa (alfabética): aplicar uma condição não faz a grade inteira pular
-            lista.sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
-            return lista;
+            return listarCondicoes(actor);
         }
 
         /**
@@ -1086,9 +1394,18 @@ function criarClasseFicha(Base) {
             ligar(".hf-item-nome", "click", (ev) => this._alternarDescricao(ev));
             root.querySelectorAll("input[data-hf-busca]").forEach((el) => {
                 el.addEventListener("input", (ev) => this._filtrar(ev.currentTarget));
-                if (el.value) this._filtrar(el);
+                if (el.value || this._filtroAprim[el.dataset.hfBusca]) this._filtrar(el);
             });
             ligar("[data-hf-acao='expandir-tudo']", "click", (ev) => this._expandirTudo(ev));
+            ligar("[data-hf-filtro-aprim]", "click", (ev) => this._alternarFiltroAprim(ev.currentTarget));
+            // O painel da descrição é montado depois do render: o clique do link é delegado
+            root.addEventListener("click", (ev) => {
+                const link = ev.target.closest("[data-hf-aprim-abrir]");
+                if (!link) return;
+                ev.preventDefault();
+                ev.stopPropagation();
+                this._abrirAbaAprimoramentos(link.dataset.hfAprimAbrir);
+            });
             // Olho sobre o retrato: abre a arte em tamanho cheio (qualquer um que veja a ficha)
             ligar("[data-hf-acao='ver-arte']", "click", (ev) => {
                 ev.preventDefault();
@@ -1197,6 +1514,10 @@ function criarClasseFicha(Base) {
             ligar("[data-hf-acao='editar']", "click", (ev) => this._itemDoEvento(ev)?.sheet.render(true));
             ligar("[data-hf-acao='excluir']", "click", (ev) => this._onExcluir(ev));
             ligar("[data-hf-acao='criar']", "click", (ev) => this._onCriar(ev));
+            ligar("[data-hf-modelo-combate]", "click", (ev) => this._trocarModeloCombate(ev.currentTarget.dataset.hfModeloCombate));
+            ligar("[data-hf-categoria-combate]", "click", (ev) => this._alternarCategoriaCombate(ev.currentTarget.dataset.hfCategoriaCombate));
+            ligar("[data-hf-acao='restaurar-layout-combate']", "click", () => this._restaurarLayoutCombate());
+            this._ligarArrastoCategorias(root);
             ligar("[data-hf-acao='organizacao']", "click", (ev) => this._alternarOrganizacao(ev.currentTarget.dataset.aba));
             ligar("[data-hf-acao='trocar-selo']", "click", (ev) => {
                 ev.preventDefault();
@@ -2007,7 +2328,8 @@ function criarClasseFicha(Base) {
             }
             const conteudo = `
                 ${tags.length ? `<div class="hf-descricao-tags">${tags.map((t) => `<span>${t}</span>`).join("")}</div>` : ""}
-                <div class="hf-descricao-texto">${html || `<p class="hf-vazio">${localizar("T20A.Ficha.SemDescricao")}</p>`}</div>`;
+                <div class="hf-descricao-texto">${html || `<p class="hf-vazio">${localizar("T20A.Ficha.SemDescricao")}</p>`}</div>
+                ${this._blocoAprimoramentos(item)}`;
             this._descricoes.set(item.id, conteudo);
             return conteudo;
         }
@@ -2068,16 +2390,69 @@ function criarClasseFicha(Base) {
             if (!container) return;
             const normalizar = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLocaleLowerCase("pt-BR");
             const t = normalizar(input.value.trim());
+            const aprim = this._filtroAprim[aba] ?? "";
             for (const secao of container.querySelectorAll(".hf-secao")) {
                 let visiveis = 0;
                 for (const li of secao.querySelectorAll("li.item[data-item-id]")) {
-                    const ok = !t || normalizar(li.dataset.nome ?? li.textContent).includes(t);
+                    const ok = (!t || normalizar(li.dataset.nome ?? li.textContent).includes(t))
+                        && (!aprim || (li.dataset.aprim ?? "").split(" ").includes(aprim));
                     li.hidden = !ok;
                     if (ok) visiveis++;
                 }
-                secao.hidden = !!t && visiveis === 0;
+                secao.hidden = (!!t || !!aprim) && visiveis === 0;
             }
-            container.classList.toggle("hf-buscando", !!t);
+            container.classList.toggle("hf-buscando", !!t || !!aprim);
+        }
+
+        /** Botões Melhorados / Encantados / Material especial: só escondem linhas, sem redesenhar (a rolagem fica). */
+        _alternarFiltroAprim(botao) {
+            const aba = botao.dataset.aba;
+            const valor = botao.dataset.hfFiltroAprim;
+            this._filtroAprim[aba] = this._filtroAprim[aba] === valor ? "" : valor;
+            for (const b of botao.closest(".hf-barra-ferramentas").querySelectorAll("[data-hf-filtro-aprim]")) {
+                const ativo = this._filtroAprim[aba] === b.dataset.hfFiltroAprim;
+                b.classList.toggle("ativo", ativo);
+                b.setAttribute("aria-pressed", String(ativo));
+            }
+            const input = botao.closest(".hf-aba")?.querySelector("input[data-hf-busca]");
+            if (input) this._filtrar(input);
+        }
+
+        /** Abre a ficha do item já na aba "Melhorias & Encantos" do t20-hayd-itens. */
+        async _abrirAbaAprimoramentos(itemId) {
+            const item = this.actor.items.get(itemId);
+            if (!item) return;
+            const ficha = item.sheet;
+            await ficha.render(true);
+            const ativar = () => { try { ficha._tabs?.[0]?.activate("hayd-itens"); } catch (err) { /* aba indisponível */ } };
+            ativar();
+            setTimeout(ativar, 150);
+        }
+
+        /**
+         * Material, melhorias e encantos do item em grupos, no fim do painel da
+         * descrição (os mesmos dados da aba do item, só para leitura).
+         */
+        _blocoAprimoramentos(item) {
+            const api = apiBadges();
+            const resumo = api?.resumoDoItem(item);
+            if (!resumo) return "";
+            const esc = (t) => foundry.utils.escapeHTML(String(t ?? ""));
+            const nota = (e) => (e.suprimida ? `substituída por ${e.suprimidaPor}` : e.desativada ? "desativada" : e.beneficio);
+            const entradas = (lista) => lista.map((e) =>
+                `<li class="${e.ativa ? "" : "off"}"><b>${esc(e.nome)}</b>${e.varianteNome ? ` <em>${esc(e.varianteNome)}</em>` : ""}<small>${esc(nota(e))}</small></li>`).join("");
+            const grupo = (classe, estilo, rotulo, icone, lista) => (lista.length
+                ? `<div class="hf-aprim-grupo ${classe}" style="${estilo}"><h6>${icone}${esc(rotulo)}</h6><ul>${entradas(lista)}</ul></div>` : "");
+            const icones = api.ICONES;
+            const grupos = [
+                grupo("hf-ag-mat", api.estiloDoMaterial(resumo.material), localizar("T20A.Ficha.AprimMaterial"), icones.material, resumo.materiais),
+                grupo("hf-ag-mel", "", localizar("T20A.Ficha.AprimMelhorias"), icones.melhoria, resumo.melhorias),
+                grupo("hf-ag-enc", "", localizar("T20A.Ficha.AprimEncantos"), icones.encanto, resumo.encantos)
+            ].join("");
+            const preco = resumo.preco != null ? `<span class="hf-aprim-preco">T$ ${resumo.preco.toLocaleString("pt-BR")}</span>` : "";
+            const abrir = item.isOwner
+                ? `<a class="hf-aprim-abrir" role="button" tabindex="0" data-hf-aprim-abrir="${item.id}">${esc(localizar("T20A.Ficha.AprimAbrir"))}</a>` : "";
+            return `<div class="hf-aprim-bloco"><div class="hf-aprim-grupos">${grupos}</div>${abrir || preco ? `<div class="hf-aprim-rodape">${abrir}${preco}</div>` : ""}</div>`;
         }
 
         /** Mudou algum item: a descrição guardada dele pode estar velha. */

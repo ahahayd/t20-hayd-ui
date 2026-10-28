@@ -3,6 +3,11 @@
 		<input type="search" data-hf-busca="{{aba}}" value="{{lookup @root.hf.busca aba}}" placeholder="{{localize 'T20A.Ficha.Buscar'}}">
 	</label>
 	<button type="button" class="hf-botao-icone" data-hf-acao="expandir-tudo" data-tooltip="{{localize 'T20A.Ficha.ExpandirTudo'}}"><i class="fa-solid fa-book-open-reader"></i></button>
+	{{#if (and @root.hf.aprimAtivo (eq aba "inventario"))}}
+	{{!-- Filtros do t20-hayd-itens: só escondem linhas, a lista não é redesenhada --}}
+	<button type="button" class="hf-botao-icone {{#if (eq (lookup @root.hf.filtroAprim aba) 'mel')}}ativo{{/if}}" data-hf-filtro-aprim="mel" data-aba="{{aba}}" aria-pressed="{{#if (eq (lookup @root.hf.filtroAprim aba) 'mel')}}true{{else}}false{{/if}}" data-tooltip="{{localize 'T20A.Ficha.FiltroMelhorados'}}"><i class="fa-solid fa-hammer"></i></button>
+	<button type="button" class="hf-botao-icone hf-filtro-enc {{#if (eq (lookup @root.hf.filtroAprim aba) 'enc')}}ativo{{/if}}" data-hf-filtro-aprim="enc" data-aba="{{aba}}" aria-pressed="{{#if (eq (lookup @root.hf.filtroAprim aba) 'enc')}}true{{else}}false{{/if}}" data-tooltip="{{localize 'T20A.Ficha.FiltroEncantados'}}"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1.5c.7 5.6 4.9 9.8 10.5 10.5-5.6.7-9.8 4.9-10.5 10.5C11.3 16.9 7.1 12.7 1.5 12 7.1 11.3 11.3 7.1 12 1.5z"/></svg></button>
+	{{/if}}
 	{{#if organizavel}}
 		{{#if @root.hf.editavel}}
 		<button type="button" class="hf-botao-icone {{#if (eq (lookup @root.hf.organizacao aba) 'lista')}}ativo{{/if}}" data-hf-acao="organizacao" data-aba="{{aba}}"

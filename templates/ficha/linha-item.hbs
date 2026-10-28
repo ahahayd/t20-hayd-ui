@@ -1,10 +1,12 @@
-<li class="item hf-item hf-tipo-{{item.tipo}} {{#if item.equipado}}equipado{{/if}} {{#if item.guardado}}guardado{{/if}} {{#if item.expandido}}hf-expandido{{/if}}" data-item-id="{{item.id}}" data-nome="{{item.nome}}">
+{{!-- Coluna de aprimoramentos (t20-hayd-itens): no Inventário e, em versão enxuta, no Combate --}}
+{{#*inline "hf-aprim-col"}}{{#if @root.hf.aprimAtivo}}<div class="hf-col hf-col-aprim">{{#if item.aprim.temMarcas}}<span class="hf-aprim" data-tooltip="{{item.aprim.tooltip}}" data-tooltip-class="hbdg-tooltip" data-tooltip-direction="LEFT">{{#if item.aprim.marcas.length}}<span class="hf-aprim-g">{{#each item.aprim.marcas}}{{#if material}}<i class="fa-solid fa-gem hf-marca-mat" style="{{estilo}}"></i>{{else}}<i class="hf-pip"></i>{{/if}}{{/each}}{{#if item.aprim.mais}}<b class="hf-aprim-mais">+{{item.aprim.mais}}</b>{{/if}}</span>{{/if}}{{#if item.aprim.estrelas.length}}<span class="hf-aprim-g">{{#each item.aprim.estrelas}}<span class="hf-aprim-enc"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1.5c.7 5.6 4.9 9.8 10.5 10.5-5.6.7-9.8 4.9-10.5 10.5C11.3 16.9 7.1 12.7 1.5 12 7.1 11.3 11.3 7.1 12 1.5z"/></svg></span>{{/each}}{{#if item.aprim.maisEncantos}}<b class="hf-aprim-mais hf-aprim-mais-enc">+{{item.aprim.maisEncantos}}</b>{{/if}}</span>{{/if}}</span>{{else}}<span class="hf-aprim-vazio">—</span>{{/if}}</div>{{/if}}{{/inline}}
+<li class="item hf-item hf-tipo-{{item.tipo}} {{#if item.aprim.material}}hf-tem-mat{{/if}} {{#if item.equipado}}equipado{{/if}} {{#if item.guardado}}guardado{{/if}} {{#if item.expandido}}hf-expandido{{/if}}" data-item-id="{{item.id}}" data-nome="{{item.nome}}"{{#if item.aprim}} data-aprim="{{item.aprim.filtro}}"{{/if}}{{#if item.aprim.material}} style="{{item.aprim.material.estilo}}"{{/if}}>
 	<div class="hf-item-linha">
 		{{#if item.preparavel}}
 			<a class="hf-controle preparation-toggle {{#if item.preparada}}ativo{{/if}}" data-tooltip="{{localize 'T20.SpellPrepPrepared'}}"><i class="fa-solid fa-sun"></i></a>
 		{{/if}}
 		<div class="item-image hf-item-img" role="button" tabindex="0" aria-label="{{localize 'T20A.Ficha.Usar'}} {{item.nome}}" data-tooltip="{{localize 'T20A.Ficha.Usar'}}" style="background-image: url('{{item.img}}')">
-			<i class="fa-solid fa-dice-d20"></i>
+			<i class="fa-solid fa-dice-d20"></i>{{#if item.aprim.magico}}<span class="hf-aprim-canto" data-tooltip="{{localize 'T20A.Ficha.ItemMagico'}}"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1.5c.7 5.6 4.9 9.8 10.5 10.5-5.6.7-9.8 4.9-10.5 10.5C11.3 16.9 7.1 12.7 1.5 12 7.1 11.3 11.3 7.1 12 1.5z"/></svg></span>{{/if}}{{#if item.veneno}}<span class="hf-veneno-canto" data-tooltip="{{item.veneno}}"><i class="fa-solid fa-skull-crossbones"></i></span>{{/if}}
 		</div>
 		<div class="hf-item-nome" role="button" tabindex="0">
 			<span class="hf-item-titulo">
@@ -12,10 +14,10 @@
 				{{#if item.marcarMagia}}<i class="hf-marca hf-marca-magia fa-solid fa-wand-sparkles" data-tooltip="{{localize 'T20A.Ficha.MagiaRotulo'}}"></i>{{/if}}
 				{{item.nome}}{{#if item.guardado}} <i class="fa-solid fa-box-archive" data-tooltip="{{localize 'T20A.Ficha.Guardado'}}"></i>{{/if}}
 			</span>
-			{{#if (eq colunas "acoes")}}
+			{{#if (or (eq colunas "acoes") (eq colunas "acoes-execucao"))}}
 				{{#if (or item.alcance item.duracao)}}<span class="hf-item-sub">{{item.alcance}}{{#if (and item.alcance item.duracao)}} · {{/if}}{{item.duracao}}</span>{{/if}}
 			{{else if (eq colunas "magias")}}
-				<span class="hf-item-sub">{{#if item.engenhoca}}{{localize 'T20A.Ficha.Engenhoca'}}{{else}}{{item.escola}}{{/if}}{{#if item.alcance}} · {{item.alcance}}{{/if}}</span>
+				<span class="hf-item-sub">{{#if item.engenhoca}}{{localize 'T20A.Ficha.Engenhoca'}}{{else if (and escolas item.escolaChave)}}<span class="hf-escola hf-escola-{{item.escolaChave}}"><i class="hf-escola-ponto"></i>{{item.escola}}</span>{{else}}{{item.escola}}{{/if}}{{#if item.alcance}} · {{item.alcance}}{{/if}}</span>
 			{{else if (eq colunas "poderes")}}
 				{{#if item.tipoLabel}}<span class="hf-item-sub">{{item.tipoLabel}}</span>{{/if}}
 			{{else if item.detalhe}}
@@ -24,9 +26,11 @@
 		</div>
 
 		{{#if (eq colunas "armas")}}
+			{{> hf-aprim-col}}
 			<div class="hf-col hf-col-larga hf-col-rolagem"><span class="hf-rol-ataque">{{item.rolagem.ataque}}</span><span class="hf-rol-dano">{{item.rolagem.dano}}</span><span class="hf-rol-critico">{{item.rolagem.critico}}</span></div>
 		{{else if (eq colunas "inventario")}}
-			<div class="hf-col hf-col-qtd">
+			{{> hf-aprim-col}}
+				<div class="hf-col hf-col-qtd">
 				{{#if (ne item.qtd null)}}
 					{{#if @root.hf.editavel}}
 						<button type="button" class="hf-passo-mini" data-hf-passo="system.qtd" data-hf-doc="item" data-hf-valor="-1" data-hf-min="0"><i class="fa-solid fa-minus"></i></button>
