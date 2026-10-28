@@ -177,7 +177,7 @@
             "SemDescricao": "Sem descrição.",
             "AprimColuna": "Aprim.",
             "ItemMagico": "Item considerado mágico",
-            "Envenenada": "Poisoned: {nome} (DC {cd})",
+            "Envenenada": "Envenenada: {nome} (CD {cd})",
             "AprimMaterial": "Material",
             "AprimMelhorias": "Melhorias",
             "AprimEncantos": "Encantos",
