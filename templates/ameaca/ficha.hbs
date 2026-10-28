@@ -15,6 +15,7 @@
 		{{> "modules/t20-hayd-ui/templates/ameaca/aba-ameaca.hbs"}}
 		{{> "modules/t20-hayd-ui/templates/ameaca/aba-pericias.hbs"}}
 		{{> "modules/t20-hayd-ui/templates/ameaca/aba-inventario.hbs"}}
+		{{> "modules/t20-hayd-ui/templates/ameaca/aba-poderes.hbs"}}
 		{{> "modules/t20-hayd-ui/templates/ameaca/aba-efeitos.hbs"}}
 		<div class="ha-aba ha-aba-diario {{#if (eq ha.aba 'diario')}}ativa{{/if}} {{#unless htmlFields.biography}}vazio{{/unless}}" data-aba="diario">
 			{{editor htmlFields.biography target="system.detalhes.biography.value" button=true owner=owner editable=editable}}

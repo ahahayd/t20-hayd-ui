@@ -1,4 +1,26 @@
 <div class="ha-aba ha-aba-efeitos {{#if (eq ha.aba 'efeitos')}}ativa{{/if}}" data-aba="efeitos">
+	{{!-- Condições, como na ficha do jogador: um toque aplica ou tira --}}
+	{{#if ha.condicoes.length}}
+	<section class="ha-secao ha-condicoes {{#if (lookup @root.ha.recolhidas 'efeitos-condicoes')}}recolhida{{/if}}" data-ha-secao="efeitos-condicoes">
+		<header class="ha-secao-cabecalho" data-ha-recolher>
+			<i class="ha-secao-seta fa-solid fa-chevron-down"></i>
+			<i class="ha-secao-icone fa-solid fa-skull-crossbones"></i>
+			<h3>{{localize 'T20A.Ficha.Condicoes'}}</h3>
+		</header>
+		<div class="ha-secao-corpo"><div class="ha-secao-interno">
+			<div class="ha-condicoes-grade">
+				{{#each ha.condicoes as |c|}}
+				<button type="button" class="ha-condicao {{#if c.ativa}}ativa{{/if}} {{#if c.imune}}imune{{/if}}" {{#if @root.ha.editavel}}data-ha-acao="condicao"{{else}}disabled{{/if}} data-condicao="{{c.id}}" data-tooltip="{{c.nome}}{{#if c.imune}} ({{localize 'T20A.Ficha.Imune'}}){{/if}}">
+					<img src="{{c.img}}" alt="">
+					<span>{{c.nome}}</span>
+					{{#if c.imune}}<i class="ha-condicao-imune fa-solid fa-shield-halved"></i>{{/if}}
+				</button>
+				{{/each}}
+			</div>
+		</div></div>
+	</section>
+	{{/if}}
+
 	{{#each effects as |section sid|}}
 	{{#if (or section.effects.length @root.ha.desbloqueada)}}
 	<section class="ha-secao {{#if (lookup @root.ha.recolhidas (concat 'efeitos-' sid))}}recolhida{{/if}} {{#unless section.effects.length}}vazia{{/unless}}" data-ha-secao="efeitos-{{sid}}">

@@ -1,0 +1,31 @@
+<div class="ha-aba ha-aba-poderes {{#if (eq ha.aba 'poderes')}}ativa{{/if}}" data-aba="poderes">
+	{{!-- Todos os poderes, por tipo (como na Ficha Hayd). Ações e habilidades continuam também na aba Ameaça. --}}
+	<label class="ha-busca">
+		<i class="fa-solid fa-magnifying-glass"></i>
+		<input type="search" data-ha-busca value="{{ha.busca}}" placeholder="{{localize 'T20A.Ficha.Buscar'}}" autocomplete="off" spellcheck="false">
+	</label>
+	<p class="ha-sem-resultado" hidden><i class="fa-solid fa-ghost"></i> {{localize 'T20A.Ameaca.SemResultado'}} “<b></b>”</p>
+
+	{{#each ha.poderesPorTipo as |grupo|}}
+	<section class="ha-secao {{#if (lookup @root.ha.recolhidas grupo.chave)}}recolhida{{/if}} {{#unless grupo.itens.length}}vazia{{/unless}}" data-ha-secao="{{grupo.chave}}">
+		<header class="ha-secao-cabecalho" data-ha-recolher>
+			<i class="ha-secao-seta fa-solid fa-chevron-down"></i>
+			<i class="ha-secao-icone fa-solid fa-fire-flame-curved"></i>
+			<h3>{{grupo.rotulo}}</h3>
+			<span class="ha-secao-contagem">{{grupo.itens.length}}</span>
+			{{#if (and grupo.tipo @root.ha.desbloqueada)}}
+			<a class="ha-secao-criar" data-ha-acao="novo-poder" data-poder-tipo="{{grupo.tipo}}" data-tooltip="{{localize 'T20.Add'}}"><i class="fa-solid fa-plus"></i></a>
+			{{/if}}
+		</header>
+		<div class="ha-secao-corpo"><div class="ha-secao-interno">
+			<ol class="item-list ha-lista">
+				{{#each grupo.itens as |p|}}{{> "modules/t20-hayd-ui/templates/ameaca/linha-item.hbs" tipo="poder" item=p}}{{else}}
+				<li class="ha-lista-vazia">{{localize 'T20A.Ficha.SecaoVazia'}}</li>
+				{{/each}}
+			</ol>
+		</div></div>
+	</section>
+	{{else}}
+	<p class="ha-dica-vazia"><i class="fa-solid fa-fire-flame-curved"></i> {{localize 'T20A.Ficha.PoderesVazio'}}</p>
+	{{/each}}
+</div>

@@ -116,7 +116,7 @@
 		</ol>
 		{{#if ha.desbloqueada}}
 			<input type="text" class="ha-linha-livre ha-linha-ataque" name="system.detalhes.ataquescac" value="{{system.detalhes.ataquescac}}" placeholder="{{localize 'T20A.Ameaca.AtaquesTexto'}}">
-		{{else if (and system.detalhes.ataquescac (not ha.corpoACorpo.length))}}
+		{{else if system.detalhes.ataquescac}}
 			<p class="ha-texto-livre ha-linha-ataque">{{system.detalhes.ataquescac}}</p>
 		{{/if}}
 		{{/if}}
@@ -127,7 +127,7 @@
 		</ol>
 		{{#if ha.desbloqueada}}
 			<input type="text" class="ha-linha-livre ha-linha-ataque" name="system.detalhes.ataquesad" value="{{system.detalhes.ataquesad}}" placeholder="{{localize 'T20A.Ameaca.AtaquesTexto'}}">
-		{{else if (and system.detalhes.ataquesad (not ha.distancia.length))}}
+		{{else if system.detalhes.ataquesad}}
 			<p class="ha-texto-livre ha-linha-ataque">{{system.detalhes.ataquesad}}</p>
 		{{/if}}
 		{{/if}}

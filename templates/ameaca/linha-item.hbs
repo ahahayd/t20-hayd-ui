@@ -22,16 +22,21 @@
 {{/inline}}
 
 {{#if (eq tipo "ataque")}}
-<li class="item ha-item ha-ataque" data-item-id="{{item.id}}" data-nome="{{item.nome}}">
-	{{> imagem dica=(localize 'T20A.Ameaca.Rolar')}}
-	<div class="ha-item-texto">
-		<a class="ha-item-nome rollable arma-rollable" data-item-id="{{item.id}}">{{item.nome}}{{#if item.ataques}} <b class="ha-multiplo">×{{item.ataques}}</b>{{/if}}</a>
-		<span class="ha-item-sub">{{item.alcance}}{{#if item.tipoDano}} · {{item.tipoDano}}{{/if}}</span>
+{{!-- O ícone rola; clicar na linha (nome incluso) abre a regra --}}
+<li class="item ha-item ha-ataque-item ha-expansivel {{#if item.aberta}}aberta{{/if}}" data-item-id="{{item.id}}" data-nome="{{item.nome}}">
+	<div class="ha-ataque" data-ha-alternar>
+		<i class="ha-seta fa-solid fa-chevron-right {{#unless item.descricao}}ha-seta-vazia{{/unless}}"></i>
+		{{> imagem dica=(localize 'T20A.Ameaca.Rolar')}}
+		<div class="ha-item-texto">
+			<span class="ha-item-nome">{{item.nome}}{{#if item.ataques}} <b class="ha-multiplo">×{{item.ataques}}</b>{{/if}}</span>
+			<span class="ha-item-sub">{{item.alcance}}{{#if item.tipoDano}} · {{item.tipoDano}}{{/if}}</span>
+		</div>
+		<span class="ha-col ha-col-acerto">{{item.acerto}}</span>
+		<span class="ha-col ha-col-dano">{{item.dano}}</span>
+		<span class="ha-col ha-col-critico">{{item.critico}}</span>
+		{{> controles}}
 	</div>
-	<span class="ha-col ha-col-acerto">{{item.acerto}}</span>
-	<span class="ha-col ha-col-dano">{{item.dano}}</span>
-	<span class="ha-col ha-col-critico">{{item.critico}}</span>
-	{{> controles}}
+	{{> descricao}}
 </li>
 {{else if (eq tipo "poder")}}
 {{!-- Ação ou habilidade: só o nome e as etiquetas; clicar na linha abre a regra, e o ícone usa --}}
@@ -85,12 +90,12 @@
 	{{> descricao}}
 </li>
 {{else}}
-{{!-- Magia: o nome conjura; o resto da linha abre a regra --}}
+{{!-- Magia: o ícone conjura; o resto da linha (nome incluso) abre a regra --}}
 <li class="item ha-item ha-magia-item ha-expansivel {{#if item.aberta}}aberta{{/if}}" data-item-id="{{item.id}}" data-nome="{{item.nome}}">
 	<div class="ha-poder-topo" data-ha-alternar>
 		<i class="ha-seta fa-solid fa-chevron-right {{#unless item.descricao}}ha-seta-vazia{{/unless}}"></i>
 		{{> imagem dica=(localize 'T20A.Ameaca.Conjurar')}}
-		<a class="ha-item-nome rollable magia-rollable" data-item-id="{{item.id}}">{{item.nome}}</a>
+		<span class="ha-item-nome">{{item.nome}}</span>
 		{{#if item.execucao}}<span class="ha-etiqueta ha-etiqueta-exec ha-exec-{{item.execKey}}">{{item.execucao}}</span>{{/if}}
 		{{> controles}}
 	</div>

@@ -57,11 +57,14 @@ test("toda chave T20A.Ameaca e T20A.Ficha usada existe nos dois idiomas", () => 
 
 test("as rolagens usam as classes que a ficha do sistema liga", () => {
     const html = Object.values(templates).join("\n");
-    for (const classe of ["pericia-rollable", "atributo-rollable", "arma-rollable", "magia-rollable"]) {
+    for (const classe of ["pericia-rollable", "atributo-rollable"]) {
         assert.ok(html.includes(classe), `nenhum elemento com .${classe}`);
     }
-    // Ações e habilidades rolam pelo ícone (o sistema liga ".item .item-image"); o nome abre a regra
+    // Ataques, ações, habilidades e magias rolam pelo ícone (o sistema liga ".item .item-image"); o nome abre a regra
     assert.match(templates["linha-item.hbs"], /class="item-image ha-item-img"/);
+    for (const classe of ["arma-rollable", "magia-rollable"]) {
+        assert.ok(!templates["linha-item.hbs"].includes(classe), `o nome não rola (.${classe})`);
+    }
     // O sistema acha o item pela linha .item mais próxima
     assert.match(templates["linha-item.hbs"], /class="item ha-item[^"]*" data-item-id=/);
 });

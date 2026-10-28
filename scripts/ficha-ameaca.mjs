@@ -11,7 +11,7 @@
  * e acrescenta as interações de interface.
  */
 
-import { aplicarDelta } from "./ficha-hayd.mjs";
+import { aplicarDelta, listarCondicoes } from "./ficha-hayd.mjs";
 
 const MODULE_ID = "t20-hayd-ui";
 const TEMPLATES = `modules/${MODULE_ID}/templates/ameaca`;
@@ -21,7 +21,9 @@ const ESCUDO = `modules/${MODULE_ID}/assets/icones/escudo-defesa.webp`;
 /** Classe CSS da janela (o tema usa para reconhecer a ficha). */
 export const CLASSE_AMEACA = "hayd-ameaca";
 
-const ABAS = ["ameaca", "pericias", "inventario", "efeitos", "diario"];
+const ABAS = ["ameaca", "pericias", "inventario", "poderes", "efeitos", "diario"];
+/** Tipos de poder, na ordem das seções da aba Poderes (a mesma da Ficha Hayd). */
+const TIPOS_PODER = ["ability", "classe", "racial", "origem", "geral", "concedido", "distincao", "complicacao"];
 
 /** Categorias do inventário, na ordem da Ficha Hayd. */
 const INVENTARIO = [
@@ -193,6 +195,7 @@ export async function registrarFichaAmeaca() {
         `${TEMPLATES}/aba-ameaca.hbs`,
         `${TEMPLATES}/aba-pericias.hbs`,
         `${TEMPLATES}/aba-inventario.hbs`,
+        `${TEMPLATES}/aba-poderes.hbs`,
         `${TEMPLATES}/aba-efeitos.hbs`,
         `${TEMPLATES}/linha-item.hbs`
     ]);
@@ -352,6 +355,7 @@ function criarClasseFicha(Base) {
                 distancia: ataques.filter((a) => !a.melee),
                 acoes: poderes.filter((p) => p.execucao),
                 habilidades: poderes.filter((p) => !p.execucao),
+                poderesPorTipo: this._poderesPorTipo(poderes),
                 magias: this._magias(data.actor.magias),
                 cd: sys.attributes.cd,
                 listaPericias: this._listaPericias(sys),
@@ -374,6 +378,7 @@ function criarClasseFicha(Base) {
                 tesouroLongo: String(sys.detalhes.tesouro ?? "").length > 180,
                 tesouroAberto: this._abertas.has("tesouro"),
                 efeitos: actor.effects.size,
+                condicoes: listarCondicoes(actor),
                 recolhidas: game.settings.get(MODULE_ID, SETTING_RECOLHIDAS) ?? {},
                 busca: this._busca
             };
@@ -386,6 +391,7 @@ function criarClasseFicha(Base) {
                 { id: "ameaca", rotulo: localizar("T20A.Ameaca.Abas.Ameaca"), icone: "fa-solid fa-dragon" },
                 { id: "pericias", rotulo: localizar("T20.Skills"), icone: "fa-solid fa-list-check" },
                 { id: "inventario", rotulo: localizar("T20A.Ameaca.Abas.Inventario"), icone: "fa-solid fa-sack" },
+                { id: "poderes", rotulo: localizar("T20A.Ameaca.Abas.Poderes"), icone: "fa-solid fa-fire-flame-curved" },
                 { id: "efeitos", rotulo: localizar("T20A.Ameaca.Abas.Efeitos"), icone: "fa-solid fa-bolt", contagem: ha.efeitos || null },
                 { id: "diario", rotulo: localizar("T20A.Ameaca.Abas.Diario"), icone: "fa-solid fa-book-open" }
             ].map((a) => ({ ...a, ativa: a.id === ha.aba }));
@@ -398,10 +404,13 @@ function criarClasseFicha(Base) {
         _ataque(i) {
             const item = this.actor.items.get(i._id);
             const labels = item?.labels ?? {};
+            const descricao = typeof i.system.description === "string" ? i.system.description : i.system.description?.value ?? "";
             return {
                 id: i._id,
                 nome: i.name,
                 img: i.img,
+                aberta: this._abertas.has(i._id),
+                descricao,
                 melee: !!i.melee,
                 ataques: i.system.ataques > 1 ? i.system.ataques : null,
                 acerto: labels.toHit ?? "",
@@ -425,6 +434,7 @@ function criarClasseFicha(Base) {
                 id: i._id,
                 nome: i.name,
                 img: i.img,
+                tipo: i.system.tipo,
                 execucao: ativa ? localizar(CONFIG.T20.abilityActivationTypes[exec] ?? exec) : null,
                 // Só Reação, Livre e Completa ganham cor (são as que mudam o turno); o resto fica neutro
                 execKey: ativa ? exec : null,
@@ -434,6 +444,16 @@ function criarClasseFicha(Base) {
                 previa: previaDoTexto(descricao),
                 descricao
             };
+        }
+
+        /** Todos os poderes agrupados por tipo; destravada, os tipos vazios aparecem para o "+". */
+        _poderesPorTipo(poderes) {
+            const tipos = CONFIG.T20.powerType ?? {};
+            const grupo = (tipo, rotulo, itens) => ({ tipo, chave: `poderes-${tipo ?? "outros"}`, rotulo, itens });
+            const grupos = TIPOS_PODER.map((tipo) => grupo(tipo, localizar(tipos[tipo] ?? tipo), poderes.filter((p) => p.tipo === tipo)));
+            const outros = poderes.filter((p) => !TIPOS_PODER.includes(p.tipo));
+            if (outros.length) grupos.push(grupo(null, localizar("T20A.Ficha.Outros"), outros));
+            return grupos.filter((g) => g.itens.length || this.desbloqueada);
         }
 
         _magias(grimorio = {}) {
@@ -678,6 +698,12 @@ function criarClasseFicha(Base) {
                 this._mode = this.desbloqueada ? MODES.PLAY : MODES.EDIT;
                 this.render();
             });
+            ligar("[data-ha-acao='condicao']", "click", (ev) => {
+                // Resposta imediata: o botão acende já no clique; o redesenho só confirma
+                const botao = ev.currentTarget;
+                botao.classList.toggle("ativa");
+                this.actor.toggleStatusEffect(botao.dataset.condicao);
+            });
             ligar("[data-ha-acao='editar-item']", "click", (ev) => this._itemDoEvento(ev)?.sheet.render(true));
             ligar("[data-ha-acao='apagar-item']", "click", (ev) => this._apagarItem(ev));
             ligar("[data-ha-acao='nova-magia']", "click", (ev) => this._criarItem(ev, "magia"));
@@ -769,7 +795,7 @@ function criarClasseFicha(Base) {
             game.settings.set(MODULE_ID, SETTING_RECOLHIDAS, todas);
         }
 
-        /** Abre/fecha a regra de uma habilidade ou magia. O ícone, o nome da magia e os controles fazem o deles. */
+        /** Abre/fecha a regra de uma habilidade ou magia. O ícone e os controles fazem o deles. */
         _alternarDescricao(ev) {
             if (ev.target.closest(".item-image, .ha-controles, .rollable, input, select, button")) return;
             const li = ev.currentTarget.closest("li[data-item-id]");
@@ -923,7 +949,7 @@ function criarClasseFicha(Base) {
             };
             if (!nomes[tipo]) return;
             const system = {};
-            if (tipo === "poder") system.tipo = "ability";
+            if (tipo === "poder") system.tipo = ev.currentTarget.dataset.poderTipo ?? "ability";
             if (tipo === "arma") system.proposito = ev.currentTarget.dataset.proposito ?? "corpo-a-corpo";
             return this.actor.createEmbeddedDocuments("Item", [{ name: localizar(nomes[tipo]), type: tipo, system }], { renderSheet: true });
         }
