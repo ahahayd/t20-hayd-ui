@@ -17,6 +17,15 @@
 				{{/if}}
 			</div>
 		</div>
+		{{#if hf.gm.grimorio}}
+		{{!-- Caminho do Arcanista: Mago (t20-hayd-gmtools): memorizadas / limite --}}
+		<button type="button" class="hf-conjuracao-bloco hf-conjuracao-grimorio {{#if hf.gm.grimorio.excedeu}}hf-excedeu{{/if}}" data-hf-acao="grimorio"
+			data-tooltip="{{localize 'T20A.Ficha.GrimorioResumo' total=hf.gm.grimorio.total metade=hf.gm.grimorio.metade}}">
+			<span class="hf-conjuracao-rotulo"><i class="fa-solid fa-book-skull"></i> {{localize 'T20A.Ficha.GrimorioMemorizadas'}}</span>
+			<span class="hf-conjuracao-valor">{{hf.gm.grimorio.preparadas}}<small>/{{hf.gm.grimorio.limite}}</small></span>
+			<span class="hf-gri-barra"><span style="width: {{hf.gm.grimorio.progresso}}%"></span></span>
+		</button>
+		{{/if}}
 	</div>
 
 	{{#each hf.magias as |secao|}}

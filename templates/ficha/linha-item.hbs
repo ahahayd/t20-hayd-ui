@@ -11,6 +11,7 @@
 		<div class="hf-item-nome" role="button" tabindex="0">
 			<span class="hf-item-titulo">
 				{{#if item.marcarEngenhoca}}<i class="hf-marca hf-marca-engenhoca fa-solid fa-gears" data-tooltip="{{localize 'T20A.Ficha.Engenhoca'}}"></i>{{/if}}
+				{{#if item.deMago}}<i class="hf-marca hf-marca-grimorio fa-solid fa-book-skull" data-tooltip="{{localize 'T20A.Ficha.GrimorioMarca'}}"></i>{{/if}}
 				{{#if item.marcarMagia}}<i class="hf-marca hf-marca-magia fa-solid fa-wand-sparkles" data-tooltip="{{localize 'T20A.Ficha.MagiaRotulo'}}"></i>{{/if}}
 				{{item.nome}}{{#if item.guardado}} <i class="fa-solid fa-box-archive" data-tooltip="{{localize 'T20A.Ficha.Guardado'}}"></i>{{/if}}
 			</span>

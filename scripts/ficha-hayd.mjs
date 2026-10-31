@@ -18,7 +18,7 @@
 
 import { modoOrigemPoderes, abrirOrganizadorComAviso, etiquetaDaOrigem } from "./origem-poderes.mjs";
 import {
-    ferramentasGMTools, abrirPainelEngenhocas, resetarEngenhocas, abrirPainelAutomacoes, abrirEscriba
+    ferramentasGMTools, abrirPainelEngenhocas, resetarEngenhocas, abrirPainelAutomacoes, abrirEscriba, abrirGrimorio, ehMagiaDeMago
 } from "./integracao-gmtools.mjs";
 import { MOEDAS, gastar, receber, totalEmTC } from "./carteira.mjs";
 
@@ -509,6 +509,9 @@ function criarClasseFicha(Base) {
                 && magiasEng.some((m) => m.system.tipo !== "eng");
             // "Origem dos poderes" (opção do módulo): etiqueta nas linhas e botão na aba Poderes
             this._origemPoderes = modoOrigemPoderes() !== "desligado";
+            // Grimório do mago (t20-hayd-gmtools): contado uma vez, lido por cada linha de magia
+            const gm = ferramentasGMTools(actor);
+            this._resumoGrimorio = gm?.grimorio ?? null;
 
             const itensLinha = actor.items.contents
                 .filter((i) => !["classe", "race"].includes(i.type))
@@ -586,7 +589,7 @@ function criarClasseFicha(Base) {
             // Até o primeiro uso o botão pulsa, como na ficha do sistema
             hf.origemPoderesNovo = !game.settings.get(MODULE_ID, "origemPoderesVisto");
             // Acessos do GMTools montados com o visual da ficha (ver integracao-gmtools.mjs)
-            hf.gm = ferramentasGMTools(actor);
+            hf.gm = gm;
             data.hf = hf;
             // A lista de perícias do sistema mostra os controles de edição
             // quando editMode é verdadeiro: o cadeado da ficha faz esse papel.
@@ -686,6 +689,8 @@ function criarClasseFicha(Base) {
         /** Dados de uma linha de item, comuns a todas as tabelas. */
         _linhaItem(item) {
             const sys = item.system;
+            // Com o Grimório do GMTools, o sol fica só nas magias de mago
+            const deMago = !!this._resumoGrimorio && ehMagiaDeMago(item);
             const labels = item.labels ?? {};
             const execucao = sys.ativacao?.execucao || "";
             const temQtd = Number.isNumeric(sys.qtd);
@@ -736,7 +741,9 @@ function criarClasseFicha(Base) {
                 origem: this._origemPoderes ? etiquetaDaOrigem(item) : "",
                 marcarEngenhoca: engenhoca && this._marcarEngenhoca,
                 marcarMagia: item.type === "magia" && !engenhoca && this._marcarEngenhoca,
-                preparavel: item.type === "magia" && !engenhoca && !!this.actor.getFlag("tormenta20", "mago"),
+                preparavel: item.type === "magia" && !engenhoca && !!this.actor.getFlag("tormenta20", "mago")
+                    && (!this._resumoGrimorio || deMago),
+                deMago,
                 preparada: !!sys.preparada,
                 expandido: this._expandidos.has(item.id),
                 descricao: this._expandidos.has(item.id) ? this._descricoes.get(item.id) ?? null : null,
@@ -1550,6 +1557,10 @@ function criarClasseFicha(Base) {
             ligar("[data-hf-acao='escriba']", "click", (ev) => {
                 ev.preventDefault();
                 abrirEscriba(this.actor);
+            });
+            ligar("[data-hf-acao='grimorio']", "click", (ev) => {
+                ev.preventDefault();
+                abrirGrimorio(this.actor);
             });
             ligar("[data-hf-acao='engenhocas-resetar']", "click", async (ev) => {
                 ev.preventDefault();

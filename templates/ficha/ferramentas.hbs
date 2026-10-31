@@ -38,6 +38,12 @@
 		data-tooltip="{{localize 'T20A.Ficha.EscribaDica'}}"><i class="fa-solid fa-feather-pointed"></i>
 		<span>{{localize 'T20A.Ficha.Escriba'}}</span></button>
 	{{/if}}
+	{{#if (and engenhocas @root.hf.gm.grimorio)}}
+	{{!-- Caminho do Arcanista: Mago (t20-hayd-gmtools): organizar as magias de mago --}}
+	<button type="button" class="hf-botao hf-gm-grimorio" data-hf-acao="grimorio"
+		data-tooltip="{{localize 'T20A.Ficha.GrimorioDica'}}"><i class="fa-solid fa-book-skull"></i>
+		<span>{{localize 'T20A.Ficha.Grimorio'}}</span></button>
+	{{/if}}
 	{{#if compendio}}
 		{{#if @root.hf.editavel}}
 		<a class="hf-botao" data-hf-acao="compendio" data-pack="{{compendio}}"><i class="fa-solid fa-book"></i> {{localize 'T20A.Ficha.Compendio'}}</a>

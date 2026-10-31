@@ -54,8 +54,31 @@ export function ferramentasGMTools(actor) {
     // Escriba Arcano: o botão "Aprender magias" na aba Magias (versões novas)
     const escriba = !!(actor.isOwner && a.escriba?.temEscriba?.(actor));
 
-    if (!engenhocas && !automacoes && !escriba) return null;
-    return { engenhocas, automacoes, escriba };
+    // Mago: o botão do Grimório, com preparadas / limite
+    const r = a.grimorio?.resumo?.(actor);
+    const grimorio = r
+        ? {
+            ...r,
+            excedeu: r.preparadas > r.limite,
+            // Barra de progresso: preparadas sobre o limite
+            progresso: r.limite ? Math.min(100, Math.round((r.preparadas / r.limite) * 100)) : (r.preparadas ? 100 : 0)
+        }
+        : null;
+
+    if (!engenhocas && !automacoes && !escriba && !grimorio) return null;
+    return { engenhocas, automacoes, escriba, grimorio };
+}
+
+/**
+ * A magia é de mago no grimório do GMTools? Preparar é o sol do sistema; isto
+ * só decide onde o sol aparece e a marca ao lado do nome.
+ */
+export function ehMagiaDeMago(item) {
+    return item.type === "magia" && !!api()?.grimorio?.estadoDaMagia?.(item)?.mago;
+}
+
+export function abrirGrimorio(actor) {
+    api()?.grimorio?.abrir?.(actor);
 }
 
 export function abrirEscriba(actor) {

@@ -1931,6 +1931,42 @@
 }
 .hayd-ficha .hf-marca-engenhoca { color: var(--hf-ouro); }
 .hayd-ficha .hf-marca-magia { color: var(--hf-pm-2); }
+.hayd-ficha .hf-marca-grimorio { color: var(--hf-ouro); }
+
+/* ---- Grimório (t20-hayd-gmtools) ------------------------------------------ */
+
+.hayd-ficha .hf-conjuracao-grimorio {
+    min-width: 120px;
+    margin: 0;
+    font: inherit;
+    text-align: left;
+    color: inherit;
+    border-top-color: var(--hf-ouro);
+    cursor: pointer;
+    transition: background-color 160ms ease, border-color 160ms ease;
+}
+.hayd-ficha .hf-conjuracao-grimorio:hover { background: rgba(216, 178, 106, 0.12); border-color: var(--hf-ouro); }
+.hayd-ficha .hf-conjuracao-grimorio .hf-conjuracao-rotulo i { color: var(--hf-ouro); margin-right: 2px; }
+.hayd-ficha .hf-conjuracao-grimorio.hf-excedeu { border-top-color: #c0453a; }
+.hayd-ficha .hf-conjuracao-grimorio.hf-excedeu .hf-conjuracao-valor { color: #e0645a; }
+.hayd-ficha .hf-gri-barra {
+    align-self: stretch;
+    width: 100%;
+    display: block;
+    height: 4px;
+    margin-top: 5px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+    overflow: hidden;
+}
+.hayd-ficha .hf-gri-barra > span {
+    display: block;
+    height: 100%;
+    background: var(--hf-ouro);
+    box-shadow: 0 0 6px rgba(216, 178, 106, 0.6);
+    transition: width 160ms ease;
+}
+.hayd-ficha .hf-conjuracao-grimorio.hf-excedeu .hf-gri-barra > span { background: #e0645a; box-shadow: none; }
 
 /* ---- Traços: texto livre --------------------------------------------------- */
 

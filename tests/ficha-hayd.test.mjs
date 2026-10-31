@@ -100,7 +100,7 @@ test("os acessos do GMTools entram na ficha com o visual dela", () => {
     for (const acao of ["engenhocas", "engenhocas-resetar", "automacoes"]) {
         assert.ok(ficha.includes(`data-hf-acao='${acao}'`), `falta listener de ${acao}`);
     }
-    assert.match(ficha, /hf\.gm = ferramentasGMTools\(actor\)/);
+    assert.match(ficha, /const gm = ferramentasGMTools\(actor\);[\s\S]*?hf\.gm = gm;/);
     // O painel que o GMTools injetaria sozinho fica escondido: um acesso só
     assert.match(css, /\.t20g-eng-painel,\s*\n\.hayd-ficha \.t20g-contadores-ficha \{\s*\n\s*display: none;/);
 });
