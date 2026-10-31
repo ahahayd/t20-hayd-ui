@@ -1,4 +1,4 @@
-<form class="ha-ficha {{#if ha.desbloqueada}}ha-desbloqueada{{/if}} {{#unless ha.editavel}}ha-somente-leitura{{/unless}}" autocomplete="off" style="--ha-arte: url('{{ha.arte}}');">
+<form class="ha-ficha ha-arte-{{ha.arteChave}} {{#if ha.desbloqueada}}ha-desbloqueada{{/if}} {{#unless ha.editavel}}ha-somente-leitura{{/unless}}" autocomplete="off" style="--ha-arte: url('{{ha.arte}}');">
 	{{!-- O panteão sombrio corre por trás do topo e some num degradê; no corpo fica só a textura --}}
 	<div class="ha-topo">
 		<div class="ha-topo-arte" aria-hidden="true"></div>

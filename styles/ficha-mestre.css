@@ -1,0 +1,626 @@
+/* ==========================================================================
+   Ficha Hayd do Personagem do Mestre (ator "simple"), no visual da Ficha de
+   Ameaça. O conteúdo é o da ficha do sistema: aqui só muda a aparência.
+   Tudo preso a .hayd-mestre.sheet (uma classe a mais que o CSS do sistema,
+   que é preso a .tormenta20): não vaza para nenhuma outra janela.
+   A cor de destaque vem de --t20a-cor-destaque (posta pelo main.mjs); a arte
+   dos Deuses fica sempre nas cores originais.
+   ========================================================================== */
+
+.hayd-mestre.sheet {
+    --hm-acento: var(--t20a-cor-destaque, #960505);
+    --hm-sobre-acento: var(--t20a-texto-sobre-destaque, #fff);
+    --hm-acento-claro: color-mix(in srgb, var(--hm-acento) 50%, #fff);
+    --hm-acento-escuro: color-mix(in srgb, var(--hm-acento) 55%, #000);
+    --hm-acento-bg: color-mix(in srgb, var(--hm-acento) 16%, transparent);
+    --hm-acento-bg-forte: color-mix(in srgb, var(--hm-acento) 36%, transparent);
+    --hm-acento-borda: color-mix(in srgb, var(--hm-acento) 70%, transparent);
+    --hm-acento-glow: color-mix(in srgb, var(--hm-acento) 60%, transparent);
+
+    --hm-fundo: #0c0b0e;
+    --hm-painel: rgba(20, 18, 23, 0.82);
+    --hm-linha: rgba(255, 255, 255, 0.07);
+    --hm-linha-forte: rgba(255, 255, 255, 0.14);
+    --hm-texto: #ece6dd;
+    --hm-texto-2: #b9b0a6;
+    --hm-texto-3: #847b72;
+    --hm-ouro: #d8b26a;
+    --hm-pv-escuro: #7a1418;
+    --hm-pv-claro: #d8353b;
+    --hm-pm-escuro: #1a3f86;
+    --hm-pm-claro: #3d7fe0;
+
+    --hm-fonte-display: "Modesto Condensed", "Palatino Linotype", serif;
+    --hm-fonte: "Signika", "Segoe UI", sans-serif;
+    --hm-corte-sm: 6px;
+    --hm-chanfro-sm: polygon(var(--hm-corte-sm) 0, 100% 0, 100% calc(100% - var(--hm-corte-sm)), calc(100% - var(--hm-corte-sm)) 100%, 0 100%, 0 var(--hm-corte-sm));
+
+    min-width: 520px;
+    min-height: 420px;
+    color: var(--hm-texto);
+    font-family: var(--hm-fonte);
+    background: var(--hm-fundo);
+    border: 1px solid var(--hm-acento-borda);
+    border-radius: 0;
+    box-shadow: 0 0 0 1px #000, 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 28px var(--hm-acento-bg-forte);
+}
+
+/* ---- Moldura da janela --------------------------------------------------- */
+
+.hayd-mestre.sheet .window-header {
+    background: linear-gradient(90deg, var(--hm-acento-escuro), #0d0b10 70%);
+    border-bottom: 1px solid var(--hm-acento-borda);
+    color: var(--hm-texto);
+    font-family: var(--hm-fonte-display);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+.hayd-mestre.sheet .window-header .header-button,
+.hayd-mestre.sheet .window-header a { color: var(--hm-texto-2); }
+.hayd-mestre.sheet .window-header a:hover { color: #fff; text-shadow: 0 0 8px var(--hm-acento-glow); }
+
+.hayd-mestre.sheet .window-content {
+    padding: 0;
+    overflow: hidden;
+    color: var(--hm-texto);
+    background:
+        radial-gradient(ellipse at 50% -10%, var(--hm-acento-bg) 0%, transparent 60%),
+        url("../assets/fundos/background-dark4.webp") center / cover,
+        var(--hm-fundo);
+}
+
+.hayd-mestre.sheet form.hm-ficha {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    padding: 0;
+    isolation: isolate;
+    color: var(--hm-texto);
+    background: transparent;
+}
+/* Textura do corpo: a mesma pintura, quase apagada, sem competir com o texto */
+.hayd-mestre.sheet form.hm-ficha::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--hm-arte) center 35% / cover no-repeat;
+    opacity: 0.07;
+    filter: saturate(0.6) blur(1.5px);
+    pointer-events: none;
+}
+.hayd-mestre.sheet form.hm-arte-sem-arte::before { content: none; }
+
+.hayd-mestre.sheet label,
+.hayd-mestre.sheet h1,
+.hayd-mestre.sheet h2,
+.hayd-mestre.sheet h3,
+.hayd-mestre.sheet h4,
+.hayd-mestre.sheet li,
+.hayd-mestre.sheet span,
+.hayd-mestre.sheet div {
+    color: inherit;
+    text-shadow: none;
+}
+.hayd-mestre.sheet a { color: var(--hm-texto); }
+.hayd-mestre.sheet a:hover { color: var(--hm-ouro); text-shadow: none; }
+
+/* ---- Campos -------------------------------------------------------------- */
+
+.hayd-mestre.sheet input[type="text"],
+.hayd-mestre.sheet input[type="number"],
+.hayd-mestre.sheet select {
+    color: var(--hm-texto);
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--hm-linha);
+    border-radius: 0;
+    box-shadow: none;
+    text-align: center;
+}
+.hayd-mestre.sheet select { text-align: left; }
+.hayd-mestre.sheet select option { color: #111; }
+.hayd-mestre.sheet input:hover,
+.hayd-mestre.sheet select:hover { border-color: var(--hm-linha-forte); }
+.hayd-mestre.sheet input:focus,
+.hayd-mestre.sheet select:focus {
+    border-color: var(--hm-acento);
+    outline: none;
+    box-shadow: 0 0 0 2px var(--hm-acento-bg);
+}
+
+/* ==========================================================================
+   Topo: arte, retrato, identidade, vitais e defesa
+   ========================================================================== */
+
+.hayd-mestre.sheet .hm-topo {
+    position: relative;
+    flex: 0 0 auto;
+    padding: 16px 16px 0;
+    overflow: hidden;
+}
+.hayd-mestre.sheet .hm-topo-arte {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--hm-arte) center 30% / cover no-repeat;
+    /* Escurecida e menos saturada: a pintura é ambiente, o foco fica no bloco */
+    filter: brightness(0.62) saturate(0.85) contrast(1.05);
+    -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+}
+.hayd-mestre.sheet .hm-arte-deuses-negativo .hm-topo-arte { filter: brightness(0.5) saturate(0.7) contrast(1.05); }
+.hayd-mestre.sheet .hm-arte-sem-arte .hm-topo-arte { display: none; }
+/* Escurece só onde há texto: atrás do retrato e do nome, e no rodapé do topo */
+.hayd-mestre.sheet .hm-topo-arte::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg, rgba(12, 11, 14, 0.85) 0%, rgba(12, 11, 14, 0.55) 22%, rgba(12, 11, 14, 0.15) 55%, rgba(12, 11, 14, 0.05) 78%, rgba(12, 11, 14, 0.4) 100%),
+        linear-gradient(to top, rgba(12, 11, 14, 0.85) 0%, rgba(12, 11, 14, 0.35) 38%, transparent 62%);
+}
+
+.hayd-mestre.sheet .hm-cabecalho {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr) 82px;
+    gap: 16px;
+    align-items: start;
+}
+
+/* Retrato retangular com cantos cortados, como o da Ameaça */
+.hayd-mestre.sheet .hm-retrato {
+    position: relative;
+    width: 112px;
+    height: 144px;
+    padding: 2px;
+    background: linear-gradient(135deg, var(--hm-acento-claro), var(--hm-acento) 40%, var(--hm-acento-escuro));
+    clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.7));
+}
+.hayd-mestre.sheet .hm-retrato img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    object-fit: cover;
+    object-position: top;
+    border: 0;
+    background: radial-gradient(circle at 50% 35%, #2a2430, #0b0a0d);
+    clip-path: polygon(13px 0, 100% 0, 100% calc(100% - 13px), calc(100% - 13px) 100%, 0 100%, 0 13px);
+    cursor: pointer;
+}
+.hayd-mestre.sheet .hm-retrato img:hover { filter: brightness(1.15); }
+/* Olho para ver a arte inteira: surge no canto quando o mouse chega ao retrato */
+.hayd-mestre.sheet .hm-retrato-ver {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+    line-height: 1;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    cursor: zoom-in;
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 0.18s, transform 0.25s cubic-bezier(0.3, 1.6, 0.5, 1), background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.hayd-mestre.sheet .hm-retrato-ver > i { margin: 0; width: 1em; text-align: center; }
+.hayd-mestre.sheet .hm-retrato:hover .hm-retrato-ver,
+.hayd-mestre.sheet .hm-retrato-ver:focus-visible { opacity: 1; transform: none; }
+.hayd-mestre.sheet .hm-retrato-ver:hover { background: var(--hm-acento); border-color: var(--hm-acento-claro); box-shadow: 0 0 10px var(--hm-acento-glow); }
+
+.hayd-mestre.sheet .hm-identidade {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+    padding-top: 4px;
+}
+.hayd-mestre.sheet h1.hm-nome {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    text-align: left;
+}
+.hayd-mestre.sheet h1.hm-nome input {
+    width: 100%;
+    height: 40px;
+    padding: 0 4px;
+    color: #fff;
+    text-align: left;
+    font-family: var(--hm-fonte-display);
+    font-size: 32px;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    text-shadow: 0 2px 10px #000, 0 0 2px #000;
+    background: transparent;
+    border: 1px solid transparent;
+    box-shadow: none;
+}
+.hayd-mestre.sheet h1.hm-nome input:hover { border-color: rgba(255, 255, 255, 0.25); }
+.hayd-mestre.sheet h1.hm-nome input:focus { background: rgba(0, 0, 0, 0.6); border-color: var(--hm-acento); }
+
+/* ---- Barras de PV e PM --------------------------------------------------- */
+
+.hayd-mestre.sheet .hm-vitais {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.hayd-mestre.sheet .hm-vitais > .hm-barra { flex: 1 1 0; min-width: max-content; }
+.hayd-mestre.sheet .hm-vitais > .hm-barra-pv { flex-grow: 1.4; }
+.hayd-mestre.sheet .hm-barra {
+    --cor-escura: var(--hm-pv-escuro);
+    --cor-clara: var(--hm-pv-claro);
+    position: relative;
+    display: block;
+    height: 36px;
+    margin: 0;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.65);
+    border: 1px solid var(--hm-linha-forte);
+    clip-path: var(--hm-chanfro-sm);
+    cursor: text;
+}
+.hayd-mestre.sheet .hm-barra-pm { --cor-escura: var(--hm-pm-escuro); --cor-clara: var(--hm-pm-claro); }
+.hayd-mestre.sheet .hm-barra-preenchimento {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--hm-pct);
+    background: linear-gradient(90deg, var(--cor-escura), var(--cor-clara));
+    transition: width 0.32s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.2s;
+}
+.hayd-mestre.sheet .hm-barra:hover .hm-barra-preenchimento { filter: brightness(1.12); }
+.hayd-mestre.sheet .hm-barra-preenchimento::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 50% 0;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.16), transparent);
+}
+.hayd-mestre.sheet .hm-barra-temp {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: var(--hm-temp-pct);
+    height: 4px;
+    background: var(--hm-ouro);
+    box-shadow: 0 0 6px var(--hm-ouro);
+}
+.hayd-mestre.sheet .hm-barra-conteudo {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 100%;
+    padding: 0 6px 0 10px;
+}
+.hayd-mestre.sheet .hm-barra-sigla {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.75);
+}
+.hayd-mestre.sheet .hm-barra-numeros {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: baseline;
+    gap: 3px;
+    white-space: nowrap;
+    font-family: var(--hm-fonte-display);
+    font-size: 22px;
+    line-height: 1;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+.hayd-mestre.sheet .hm-barra-sep { font-size: 16px; color: rgba(255, 255, 255, 0.55); }
+.hayd-mestre.sheet .hm-barra input {
+    height: 26px;
+    padding: 0 2px;
+    font-family: var(--hm-fonte-display);
+    color: #fff;
+    background: transparent;
+    border: 1px solid transparent;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+.hayd-mestre.sheet .hm-barra input::-webkit-inner-spin-button { display: none; }
+.hayd-mestre.sheet .hm-barra input:hover { border-color: rgba(255, 255, 255, 0.25); }
+.hayd-mestre.sheet .hm-barra input:focus { background: rgba(0, 0, 0, 0.6); }
+.hayd-mestre.sheet .hm-barra input.hm-barra-valor { width: calc(var(--hm-digitos, 3) * 0.62em + 8px); font-size: 22px; text-align: right; }
+.hayd-mestre.sheet .hm-barra input.hm-barra-max { width: calc(var(--hm-digitos, 3) * 0.62em + 10px); font-size: 16px; text-align: left; border-color: rgba(255, 255, 255, 0.25); }
+.hayd-mestre.sheet .hm-temp {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: auto;
+    padding: 0 4px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.45);
+    background: rgba(0, 0, 0, 0.45);
+    cursor: text;
+}
+.hayd-mestre.sheet .hm-temp.ativo { color: var(--hm-ouro); }
+.hayd-mestre.sheet .hm-temp input { width: 30px; min-width: 18px; height: 22px; font-family: var(--hm-fonte); font-size: 13px; text-align: center; }
+
+/* ---- Defesa: o escudo da Ficha Hayd -------------------------------------- */
+
+.hayd-mestre.sheet .hm-defesa {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 82px;
+    height: 92px;
+    background: var(--hm-escudo) center / contain no-repeat;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 8px var(--hm-acento-bg-forte));
+}
+.hayd-mestre.sheet .hm-defesa input.hm-defesa-valor {
+    width: 56px;
+    height: 36px;
+    margin-top: -4px;
+    padding: 0;
+    font-family: var(--hm-fonte-display);
+    font-size: 34px;
+    line-height: 1;
+    color: #fff;
+    background: transparent;
+    border: 1px solid transparent;
+    text-shadow: 0 0 10px var(--hm-acento-glow), 0 2px 3px #000;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+.hayd-mestre.sheet .hm-defesa input.hm-defesa-valor::-webkit-inner-spin-button { display: none; }
+.hayd-mestre.sheet .hm-defesa input.hm-defesa-valor:hover { border-color: rgba(255, 255, 255, 0.25); }
+.hayd-mestre.sheet .hm-defesa input.hm-defesa-valor:focus { background: rgba(0, 0, 0, 0.6); }
+.hayd-mestre.sheet .hm-defesa-rotulo {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--hm-texto-2);
+}
+
+/* ---- Abas ---------------------------------------------------------------- */
+
+.hayd-mestre.sheet nav.hm-abas {
+    display: flex;
+    gap: 2px;
+    margin: 12px -16px 0;
+    padding: 0 12px;
+    border: 0;
+    border-bottom: 1px solid var(--hm-linha-forte);
+    background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.45));
+}
+.hayd-mestre.sheet nav.hm-abas a.item {
+    position: relative;
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 7px;
+    height: 36px;
+    padding: 0 14px;
+    color: var(--hm-texto-3);
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    font-family: var(--hm-fonte-display);
+    font-size: 16px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.18s, text-shadow 0.18s;
+}
+.hayd-mestre.sheet nav.hm-abas a.item > i { font-size: 12px; transition: color 0.18s, transform 0.25s; }
+/* Sublinhado que cresce do centro */
+.hayd-mestre.sheet nav.hm-abas a.item::after {
+    content: "";
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: -1px;
+    height: 2px;
+    background: var(--hm-acento);
+    box-shadow: 0 0 8px var(--hm-acento-glow);
+    transform: scaleX(0);
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.hayd-mestre.sheet nav.hm-abas a.item:hover { color: var(--hm-texto); text-shadow: none; }
+.hayd-mestre.sheet nav.hm-abas a.item:hover::after { transform: scaleX(0.35); opacity: 0.6; }
+.hayd-mestre.sheet nav.hm-abas a.item:hover > i { transform: translateY(-1px); }
+.hayd-mestre.sheet nav.hm-abas a.item.active { color: #fff; text-shadow: 0 0 10px var(--hm-acento-glow); }
+.hayd-mestre.sheet nav.hm-abas a.item.active::after { transform: scaleX(1); opacity: 1; }
+.hayd-mestre.sheet nav.hm-abas a.item.active > i { color: var(--hm-acento-claro); }
+
+/* ==========================================================================
+   Corpo
+   ========================================================================== */
+
+.hayd-mestre.sheet .hm-corpo {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+    background: transparent;
+}
+.hayd-mestre.sheet .hm-corpo > .tab {
+    height: 100%;
+    padding: 14px 16px 22px;
+    overflow-y: auto;
+    scrollbar-color: var(--hm-acento-borda) transparent;
+}
+.hayd-mestre.sheet .hm-corpo > .tab:not(.active) { display: none; }
+
+/* ---- Atributos e traços -------------------------------------------------- */
+
+.hayd-mestre.sheet .hm-fichario {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: 10px;
+    margin-bottom: 12px;
+    align-items: start;
+}
+.hayd-mestre.sheet ul.ability-scores {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+}
+.hayd-mestre.sheet ul.ability-scores > li.ability {
+    min-width: 0;
+    padding: 0;
+    overflow: hidden;
+    background: var(--hm-painel);
+    border: 1px solid var(--hm-linha-forte);
+    clip-path: var(--hm-chanfro-sm);
+    text-align: center;
+}
+.hayd-mestre.sheet .ability-name {
+    margin: 0;
+    padding: 4px 0;
+    color: var(--hm-texto-2);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: var(--hm-acento-bg);
+    border: 0;
+}
+.hayd-mestre.sheet .ability-name:hover { color: var(--hm-ouro); }
+.hayd-mestre.sheet .atributo-value {
+    padding: 4px 0 2px;
+    color: #fff;
+    font-family: var(--hm-fonte-display);
+    font-size: 30px;
+    line-height: 1.1;
+}
+.hayd-mestre.sheet .ability .attribute-footer { padding: 0 8px 6px; border: 0; background: none; }
+.hayd-mestre.sheet .ability .attribute-footer input { width: 100%; height: 22px; }
+
+.hayd-mestre.sheet .hm-fichario > .traits {
+    margin: 0;
+    padding: 10px 12px;
+    background: var(--hm-painel);
+    border: 1px solid var(--hm-linha);
+    clip-path: var(--hm-chanfro-sm);
+}
+.hayd-mestre.sheet .traits label {
+    color: var(--hm-ouro);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+.hayd-mestre.sheet .traits a.config-button:hover label,
+.hayd-mestre.sheet .traits a.trait-selector:hover label { color: #fff; }
+.hayd-mestre.sheet .trait-list li {
+    color: var(--hm-texto);
+    background: var(--hm-acento-bg);
+    border: 1px solid var(--hm-acento-borda);
+}
+
+/* ---- Listas (poderes, magias, itens) ------------------------------------- */
+
+.hayd-mestre.sheet .inventory-list { margin: 0; padding: 0; }
+.hayd-mestre.sheet ul.item-list {
+    margin: 0 0 12px;
+    padding: 0;
+    overflow: hidden;
+    background: var(--hm-painel);
+    border: 1px solid var(--hm-linha);
+    clip-path: var(--hm-chanfro-sm);
+}
+.hayd-mestre.sheet ul.item-list > li.item {
+    padding: 4px 10px;
+    border: 0;
+    border-bottom: 1px solid var(--hm-linha);
+    background: transparent;
+}
+.hayd-mestre.sheet ul.item-list > li.item:last-child { border-bottom: 0; }
+.hayd-mestre.sheet ul.item-list > li.item:not(.item-header):hover { background: var(--hm-acento-bg); }
+.hayd-mestre.sheet ul.item-list > li.item.item-header {
+    padding: 7px 10px;
+    color: var(--hm-ouro);
+    font-family: var(--hm-fonte-display);
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, var(--hm-acento-bg-forte), var(--hm-acento-bg));
+    border-bottom: 1px solid var(--hm-acento-borda);
+}
+.hayd-mestre.sheet ul.item-list .item-header * { color: inherit; }
+.hayd-mestre.sheet ul.item-list img {
+    border: 1px solid var(--hm-linha-forte);
+    border-radius: 0;
+    background: #000;
+}
+.hayd-mestre.sheet .item-name.rollable:hover { color: var(--hm-ouro); text-shadow: none; }
+.hayd-mestre.sheet .item-controls { white-space: nowrap; }
+.hayd-mestre.sheet .item-header .item-controls { align-items: center; gap: 4px; }
+.hayd-mestre.sheet .item-controls a { color: var(--hm-texto-2); }
+.hayd-mestre.sheet .item-controls a:hover { color: var(--hm-ouro); }
+
+/* ---- Moedas e carga ------------------------------------------------------ */
+
+.hayd-mestre.sheet .inventory-currency { margin: 0; padding: 0; background: none; border: 0; }
+.hayd-mestre.sheet ul.currency { gap: 6px; margin: 0; padding: 0; align-items: stretch; }
+.hayd-mestre.sheet ul.currency > li {
+    padding: 4px 10px;
+    color: var(--hm-texto);
+    background: var(--hm-painel);
+    border: 1px solid var(--hm-linha);
+    clip-path: var(--hm-chanfro-sm);
+}
+.hayd-mestre.sheet ul.currency .currency-item { flex: 1; }
+.hayd-mestre.sheet ul.currency input { background: transparent; border-color: transparent; text-align: left; }
+.hayd-mestre.sheet ul.currency input:hover,
+.hayd-mestre.sheet ul.currency input:focus { border-color: var(--hm-acento-borda); }
+.hayd-mestre.sheet .encumbrance {
+    margin: 8px 0 0;
+    overflow: hidden;
+    background: var(--hm-painel);
+    border: 1px solid var(--hm-linha);
+}
+.hayd-mestre.sheet .encumbrance-bar { background: linear-gradient(90deg, var(--hm-acento-escuro), var(--hm-acento)); }
+
+/* ---- Diário e efeitos ----------------------------------------------------- */
+
+.hayd-mestre.sheet .editor,
+.hayd-mestre.sheet .editor-content { color: var(--hm-texto); background: transparent; }
+.hayd-mestre.sheet .tab.journal .editor {
+    min-height: 100%;
+    padding: 10px 14px;
+    background: var(--hm-painel);
+    border: 1px solid var(--hm-linha);
+}
+.hayd-mestre.sheet .effects-list {
+    margin: 0 0 10px;
+    padding: 0;
+    overflow: hidden;
+    background: var(--hm-painel);
+    border: 1px solid var(--hm-linha);
+}
+.hayd-mestre.sheet .effects-list .items-header {
+    padding: 6px 10px;
+    color: var(--hm-ouro);
+    background: linear-gradient(90deg, var(--hm-acento-bg-forte), var(--hm-acento-bg));
+    border: 0;
+}
+.hayd-mestre.sheet .effects-list .items-header * { color: inherit; }
+
+.hayd-mestre.sheet nav.hm-abas { justify-content: flex-start; }

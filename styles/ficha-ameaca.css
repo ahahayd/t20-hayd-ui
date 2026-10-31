@@ -1862,3 +1862,10 @@
     .hayd-ameaca .ha-colunas { grid-template-columns: minmax(0, 1fr) 48px 84px 40px; }
     .hayd-ameaca .ha-desbloqueada .ha-ataque .ha-controles { grid-column: 3 / -1; justify-content: flex-start; }
 }
+
+/* ---- Arte escolhida em "Configurar ficha" -------------------------------- */
+.hayd-ameaca .ha-arte-sem-arte .ha-topo-arte { display: none; }
+.hayd-ameaca form.ha-arte-sem-arte::before { content: none; }
+/* As pinturas claras (Positivo e Gravuras) pedem menos escurecimento que a noturna */
+.hayd-ameaca .ha-arte-deuses-positivo .ha-topo-arte,
+.hayd-ameaca .ha-arte-tormenta .ha-topo-arte { filter: brightness(0.62) saturate(0.85) contrast(1.05); }

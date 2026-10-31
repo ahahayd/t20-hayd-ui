@@ -257,6 +257,10 @@
             "BuscaPericiasNome": "Busca nas perícias",
             "BuscaPericiasHint": "Barra no topo da lista de perícias para filtrar pelo nome ou pela sigla do atributo (ex.: \"sab\"). Some no modo de edição. Só muda na sua tela."
         },
+        "Mestre": {
+            "Nome": "Ficha Hayd (Personagem do Mestre)",
+            "AbaFicha": "Ficha"
+        },
         "Ameaca": {
             "Nome": "Ficha Hayd (Ameaça)",
             "Tipo": "Tipo",

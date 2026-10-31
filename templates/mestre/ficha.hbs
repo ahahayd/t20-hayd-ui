@@ -1,0 +1,76 @@
+{{#*inline "barra"}}
+<label class="hm-barra hm-barra-{{id}}" style="--hm-pct: {{dados.pct}}%; --hm-temp-pct: {{dados.tempPct}}%; --hm-digitos: {{dados.digitos}};">
+	<span class="hm-barra-preenchimento"></span>
+	{{#if dados.temp}}<span class="hm-barra-temp"></span>{{/if}}
+	<span class="hm-barra-conteudo">
+		<span class="hm-barra-sigla">{{sigla}}</span>
+		<span class="hm-barra-numeros">
+			<input type="number" class="hm-barra-valor" data-dtype="Number" name="system.attributes.{{id}}.value" value="{{dados.value}}" max="{{dados.max}}" aria-label="{{rotulo}}">
+			<span class="hm-barra-sep">/</span>
+			<input type="number" class="hm-barra-max" data-dtype="Number" name="system.attributes.{{id}}.max" value="{{dados.max}}" {{#if @root.autoCalcResources}}disabled{{/if}} data-tooltip="{{localize 'T20A.Ameaca.Maximo'}}">
+		</span>
+		<span class="hm-temp {{#if dados.temp}}ativo{{/if}}" data-tooltip="{{localize 'T20A.Ficha.Temporarios'}}">
+			<i class="fa-solid fa-shield-heart"></i>
+			<input type="number" data-dtype="Number" name="system.attributes.{{id}}.temp" value="{{dados.temp}}" placeholder="0">
+		</span>
+	</span>
+</label>
+{{/inline}}
+
+<form class="tormenta20 simple hm-ficha hm-arte-{{hm.arte}}" autocomplete="off" style="--hm-arte: url('{{hm.arteUrl}}');">
+	<div class="hm-topo">
+		<div class="hm-topo-arte" aria-hidden="true"></div>
+		<header class="hm-cabecalho">
+			<div class="hm-retrato">
+				<img src="{{actor.img}}" alt="{{actor.name}}" data-edit="img" data-tooltip="{{localize 'T20A.Ficha.TrocarImagem'}}">
+				<button type="button" class="hm-retrato-ver" data-hm-acao="ver-arte" data-tooltip="{{localize 'T20A.Ameaca.VerArte'}}" aria-label="{{localize 'T20A.Ameaca.VerArte'}}"><i class="fa-solid fa-eye"></i></button>
+			</div>
+
+			<div class="hm-identidade">
+				<h1 class="charname hm-nome"><input name="name" type="text" value="{{actor.name}}" placeholder="{{localize 'T20.Name'}}"></h1>
+				<div class="hm-vitais">
+					{{> barra id="pv" dados=hm.pv sigla=(localize 'T20A.Ficha.PV') rotulo=(localize 'T20.HitPoints')}}
+					{{> barra id="pm" dados=hm.pm sigla=(localize 'T20A.Ficha.PM') rotulo=(localize 'T20.ManaPoints')}}
+				</div>
+			</div>
+
+			<div class="hm-defesa" style="--hm-escudo: url('{{hm.escudo}}');">
+				<input type="number" class="hm-defesa-valor" data-dtype="Number" name="system.attributes.defesa.base" value="{{system.attributes.defesa.base}}" aria-label="{{localize 'T20.Defense'}}">
+				<span class="hm-defesa-rotulo">{{localize 'T20.Defense'}}</span>
+			</div>
+		</header>
+
+		{{!-- O mesmo nav do sistema (a.item[data-tab]): é ele quem troca as abas --}}
+		<nav class="sheet-tabs tabs primary flexrow hm-abas" data-group="primary">
+			<a class="item" data-tab="attributes"><i class="fa-solid fa-file-invoice"></i><span>{{localize 'T20A.Mestre.AbaFicha'}}</span></a>
+			<a class="item" data-tab="journal"><i class="fas fa-book"></i><span>{{localize 'T20A.Ficha.Abas.Diario'}}</span></a>
+			<a class="item" data-tab="effects"><i class="fas fa-wand-magic-sparkles"></i><span>{{localize 'T20A.Ficha.Abas.Efeitos'}}</span></a>
+		</nav>
+	</div>
+
+	<section class="sheet-body hm-corpo">
+		<div class="tab attributes active" data-group="primary" data-tab="attributes">
+			<div class="hm-fichario">
+				{{> "tormenta20.abilities"}}
+				<div class="traits">
+					{{> "tormenta20.traits"}}
+				</div>
+			</div>
+			<div class="inventory-list">
+				{{> "tormenta20.list-powers"}}
+				{{#if actor.maiorCirculo }}
+				{{> "tormenta20.list-spells"}}
+				{{/if}}
+				{{> "tormenta20.list-general"}}
+				{{> "tormenta20.currency"}}
+				{{> "tormenta20.encumbrance"}}
+			</div>
+		</div>
+		<div class="tab journal flexcol" data-group="primary" data-tab="journal">
+			{{editor htmlFields.biography target="system.detalhes.biography.value" button=true owner=owner editable=editable}}
+		</div>
+		<div class="tab effects flexcol" data-group="primary" data-tab="effects">
+			{{> "tormenta20.active-effects"}}
+		</div>
+	</section>
+</form>

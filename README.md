@@ -50,6 +50,10 @@ A arte em si se escolhe em **Configurar ficha** (botão "Sheet" no cabeçalho), 
 
 No mesmo diálogo, **"Cor no chat"** define a cor do cartão de chat do personagem: igual à da ficha (padrão) ou outra cor, só para o chat.
 
+### Ficha Hayd (Personagem do Mestre)
+
+Os atores do tipo **Personagem do Mestre** ganham uma ficha com o visual Hayd (arte no topo, atributos, vida, mana e defesa em cartões, listas e abas escuras). Como esses personagens não entram em combate, o conteúdo é exatamente o da ficha do sistema: nada foi escondido. Para usar, clique em **Configurar ficha** no cabeçalho e escolha **Ficha Hayd (Personagem do Mestre)**. Ela funciona mesmo com o tema desligado.
+
 ### Chat
 
 As mensagens viram cards temáticos: fundo claro para mensagens enviadas por jogadores e por atores pertencentes a eles; fundo escuro para NPCs, mensagens do Mestre sem ator e mensagens de sistema. O card também mostra o retrato do ator no cabeçalho, o nome do jogador abaixo do personagem e botões de ação (Aplicar Dano, Gastar Mana…) na cor de destaque.

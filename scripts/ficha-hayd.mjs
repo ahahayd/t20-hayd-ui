@@ -45,6 +45,18 @@ export function lerArteCabecalho(actor) {
     const arte = actor?.getFlag?.(MODULE_ID, FLAG_ARTE_CABECALHO);
     return ARTES_CABECALHO.includes(arte) ? arte : "tormenta";
 }
+/** Artes oferecidas às fichas do mestre (Personagem do Mestre e Ameaça). */
+const OPCOES_ARTE_MESTRE = ["deuses-positivo", "deuses-negativo", "tormenta-original", "sem-arte"];
+/**
+ * Arte das fichas do mestre: "deuses-positivo", "deuses-negativo", "tormenta" ou
+ * null (sem arte). Sem escolha, vale o padrão da ficha (Positivo no Personagem
+ * do Mestre, Negativo na Ameaça).
+ */
+export function lerArteMestre(actor, padrao = "deuses-positivo") {
+    if (actor?.getFlag?.(MODULE_ID, "semArte") === true) return null;
+    const arte = actor?.getFlag?.(MODULE_ID, FLAG_ARTE_CABECALHO);
+    return arte === "deuses-negativo" || arte === "deuses-positivo" || arte === "tormenta" ? arte : padrao;
+}
 /** Opção da lista que corresponde às flags atuais do personagem. */
 function opcaoArteAtual(actor) {
     if (actor.getFlag(MODULE_ID, "semArte") === true) return "sem-arte";
@@ -217,10 +229,11 @@ export function registrarConfiguracoesFicha() {
  */
 Hooks.on("renderDocumentSheetConfig", (app, html) => {
     const doc = app.document;
-    if (doc?.documentName !== "Actor" || doc.type !== "character") return;
+    if (doc?.documentName !== "Actor" || !["character", "simple", "npc"].includes(doc.type)) return;
+    const mestre = doc.type !== "character";
     const root = html instanceof HTMLElement ? html : html?.[0];
     const seletor = root?.querySelector('select[name="sheetClass"]');
-    if (!seletor || root.querySelector(".hf-config-slim")) return;
+    if (!seletor || root.querySelector(".hf-config-slim, .hf-config-arte")) return;
     const grupo = document.createElement("div");
     grupo.className = "form-group hf-config-slim";
     grupo.innerHTML = `
@@ -230,12 +243,13 @@ Hooks.on("renderDocumentSheetConfig", (app, html) => {
     grupo.querySelector("input").addEventListener("change", (ev) => {
         doc.setFlag(MODULE_ID, FLAG_SLIM, ev.currentTarget.checked);
     });
-    seletor.closest(".form-group").after(grupo);
+    if (!mestre) seletor.closest(".form-group").after(grupo);
     // Arte do cabeçalho: flags do ator (todos veem a mesma), gravadas ao escolher
     const grupoArte = document.createElement("div");
     grupoArte.className = "form-group hf-config-arte";
-    const atual = opcaoArteAtual(doc);
-    const opcoesArte = Object.entries(OPCOES_ARTE).map(([chave, { rotulo }]) =>
+    const arteMestre = lerArteMestre(doc, doc.type === "npc" ? "deuses-negativo" : "deuses-positivo");
+    const atual = !mestre ? opcaoArteAtual(doc) : arteMestre === null ? "sem-arte" : arteMestre === "tormenta" ? "tormenta-original" : arteMestre;
+    const opcoesArte = Object.entries(OPCOES_ARTE).filter(([chave]) => !mestre || OPCOES_ARTE_MESTRE.includes(chave)).map(([chave, { rotulo }]) =>
         `<option value="${chave}" ${chave === atual ? "selected" : ""}>${game.i18n.localize(rotulo)}</option>`).join("");
     grupoArte.innerHTML = `
         <label>${game.i18n.localize("T20A.Ficha.ArteCabecalho")}</label>
@@ -247,6 +261,7 @@ Hooks.on("renderDocumentSheetConfig", (app, html) => {
         doc.update(Object.fromEntries(Object.entries(flags).map(([k, v]) => [`flags.${MODULE_ID}.${k}`, v])));
     });
     seletor.closest(".form-group").after(grupoArte);
+    if (mestre) { app.setPosition?.({ height: "auto" }); return; }
     // Mostrar o logo do Tormenta 20 (vale para todas as fichas de personagem, só para você)
     const grupoLogo = document.createElement("div");
     grupoLogo.className = "form-group hf-config-logo";

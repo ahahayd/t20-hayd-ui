@@ -17,6 +17,7 @@ import {
     CLASSE_FICHA
 } from "./ficha-hayd.mjs";
 import { registrarFichaAmeaca, ehFichaAmeaca, CLASSE_AMEACA } from "./ficha-ameaca.mjs";
+import { registrarFichaMestre, ehFichaMestre, CLASSE_MESTRE } from "./ficha-mestre.mjs";
 import { aplicarTomDaMensagem, agendarCorrecaoContrasteChat } from "./chat-contraste.mjs";
 
 const MODULE_ID = "t20-hayd-ui";
@@ -280,10 +281,11 @@ function aplicarClasseCorpo() {
 
 Hooks.once("setup", () => {
     aplicarClasseCorpo();
-    // A Ficha Hayd e a de Ameaça são fichas à parte: valem mesmo com o tema desligado.
+    // A Ficha Hayd, a de Ameaça e a do Mestre são fichas à parte: valem mesmo com o tema desligado.
     if (game.system.id === SYSTEM_ID) {
         registrarFichaHayd();
         registrarFichaAmeaca();
+        registrarFichaMestre();
     }
 
     const CM = foundry.applications?.ux?.ContextMenu?.implementation
@@ -294,7 +296,7 @@ Hooks.once("setup", () => {
     const original = CM.prototype._setPosition;
     CM.prototype._setPosition = function(menu, target, options = {}) {
         try {
-            const janelaTema = target?.closest?.(`.${CLASSE_FICHA}, .${CLASSE_AMEACA}`)
+            const janelaTema = target?.closest?.(`.${CLASSE_FICHA}, .${CLASSE_AMEACA}, .${CLASSE_MESTRE}`)
                 ?? (estiloInterfaceAtivo() ? target?.closest?.(".t20a-any") : null);
             // Marca o menu para o CSS: só menus abertos das janelas com tema
             // são estilizados; os do core e de outros módulos ficam intactos.
@@ -498,7 +500,7 @@ function aplicarTema(app, html) {
     const doc = documentoDoApp(app);
 
     // A Ficha Hayd e a de Ameaça têm visual próprio: do tema só recebem a cor de destaque.
-    if (ehFichaHayd(app) || ehFichaAmeaca(app)) {
+    if (ehFichaHayd(app) || ehFichaAmeaca(app) || ehFichaMestre(app)) {
         aplicarCorDeDestaque(app, root.closest?.(".window-app") ?? root);
         return;
     }

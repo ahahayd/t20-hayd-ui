@@ -27,6 +27,7 @@
     "styles/theme-lightmode.css",
     "styles/ficha-hayd.css",
     "styles/ficha-ameaca.css",
+    "styles/ficha-mestre.css",
     "styles/journal-layout.css"
   ],
   "languages": [

@@ -11,11 +11,16 @@
  * e acrescenta as interações de interface.
  */
 
-import { aplicarDelta, listarCondicoes } from "./ficha-hayd.mjs";
+import { aplicarDelta, listarCondicoes, lerArteMestre } from "./ficha-hayd.mjs";
 
 const MODULE_ID = "t20-hayd-ui";
 const TEMPLATES = `modules/${MODULE_ID}/templates/ameaca`;
-const ARTE = `modules/${MODULE_ID}/assets/fundos/header-deuses-negativo.webp`;
+/** Arte do topo, por escolha em "Configurar ficha" (Deuses: Negativo é a padrão). */
+const ARTES = {
+    "deuses-positivo": "header-deuses-positivo.webp",
+    "deuses-negativo": "header-deuses-negativo.webp",
+    tormenta: "header-tormenta-horizontal.webp"
+};
 const ESCUDO = `modules/${MODULE_ID}/assets/icones/escudo-defesa.webp`;
 
 /** Classe CSS da janela (o tema usa para reconhecer a ficha). */
@@ -311,11 +316,13 @@ function criarClasseFicha(Base) {
             const ataques = (data.actor.inventario?.arma?.items ?? []).map((i) => this._ataque(i));
             const poderes = (data.actor.poderes ?? []).map((i) => this._poder(i));
 
+            const arteEscolhida = lerArteMestre(actor, "deuses-negativo");
             const ha = {
                 aba: ABAS.includes(this._aba) ? this._aba : "ameaca",
                 desbloqueada,
                 editavel: this.isEditable,
-                arte: foundry.utils.getRoute(ARTE),
+                arteChave: arteEscolhida ?? "sem-arte",
+                arte: arteEscolhida ? foundry.utils.getRoute(`modules/${MODULE_ID}/assets/fundos/${ARTES[arteEscolhida]}`) : "",
                 escudo: foundry.utils.getRoute(ESCUDO),
                 nd: sys.attributes.nd || "—",
                 patamar: (() => {
