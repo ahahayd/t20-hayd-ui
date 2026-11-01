@@ -1299,6 +1299,33 @@
 
 /* ---- Condições (aba Efeitos), como na Ficha Hayd -------------------------- */
 
+/* "Gerenciar automações" (t20-hayd-gmtools), à direita como na ficha do jogador */
+.hayd-ameaca .ha-barra-automacoes {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+}
+/* O .ha-ficha é necessário: sem ele a regra base de botões do hayd-ui vence a fonte. */
+.hayd-ameaca .ha-ficha .ha-botao-automacoes {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: auto;
+    height: 30px;
+    padding: 0 12px;
+    font-family: var(--ha-fonte-display);
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ha-texto);
+    background: linear-gradient(180deg, var(--ha-acento-bg-forte), var(--ha-acento-bg));
+    border: 1px solid var(--ha-acento-borda);
+    clip-path: var(--ha-chanfro-sm);
+    cursor: pointer;
+    white-space: nowrap;
+}
+.hayd-ameaca .ha-ficha .ha-botao-automacoes:hover { background: var(--ha-acento); color: var(--ha-sobre-acento); }
+
 .hayd-ameaca .ha-condicoes-grade {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));

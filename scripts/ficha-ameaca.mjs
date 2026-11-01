@@ -12,6 +12,7 @@
  */
 
 import { aplicarDelta, listarCondicoes, lerArteMestre } from "./ficha-hayd.mjs";
+import { ferramentasGMTools, abrirPainelAutomacoes } from "./integracao-gmtools.mjs";
 
 const MODULE_ID = "t20-hayd-ui";
 const TEMPLATES = `modules/${MODULE_ID}/templates/ameaca`;
@@ -385,6 +386,7 @@ function criarClasseFicha(Base) {
                 tesouroLongo: String(sys.detalhes.tesouro ?? "").length > 180,
                 tesouroAberto: this._abertas.has("tesouro"),
                 efeitos: actor.effects.size,
+                automacoes: !!ferramentasGMTools(actor)?.automacoes,
                 condicoes: listarCondicoes(actor),
                 recolhidas: game.settings.get(MODULE_ID, SETTING_RECOLHIDAS) ?? {},
                 busca: this._busca
@@ -710,6 +712,10 @@ function criarClasseFicha(Base) {
                 const botao = ev.currentTarget;
                 botao.classList.toggle("ativa");
                 this.actor.toggleStatusEffect(botao.dataset.condicao);
+            });
+            ligar("[data-ha-acao='automacoes']", "click", (ev) => {
+                ev.preventDefault();
+                abrirPainelAutomacoes(this.actor);
             });
             ligar("[data-ha-acao='editar-item']", "click", (ev) => this._itemDoEvento(ev)?.sheet.render(true));
             ligar("[data-ha-acao='apagar-item']", "click", (ev) => this._apagarItem(ev));
