@@ -167,3 +167,21 @@ test("o ícone dos botões só-de-ícone fica centrado apesar da margem do core"
         assert.equal((sel.match(/\./g) ?? []).length, 3, `${sel.trim()} precisa de 3 classes`);
     }
 });
+
+test("chave do retrato alterna a arte sem redesenhar e grava no lugar certo", () => {
+    const cabecalho = templates["cabecalho.hbs"];
+    assert.match(cabecalho, /role="switch"[^>]*data-hf-acao="alternar-retrato"/);
+    assert.match(cabecalho, /class="hf-arte-token"/);
+    // Chave dentro do retrato: sem isso o clique abriria o seletor de imagem
+    const ligacao = ficha.slice(ficha.indexOf("[data-hf-acao='alternar-retrato']"));
+    assert.match(ligacao.slice(0, 200), /stopPropagation/);
+    const metodo = ficha.slice(ficha.indexOf("_alternarRetrato(retrato) {"), ficha.indexOf("async _trocarArteToken"));
+    assert.doesNotMatch(metodo, /\.render\(/);
+    assert.match(ficha, /"prototypeToken\.texture\.src": src/);
+    assert.match(ficha, /getDependentTokens\(\{ linked: true \}\)/);
+    for (const lang of Object.values(idiomas)) {
+        for (const chave of ["TrocarArteToken", "VerArteToken", "MostrarArteToken", "MostrarArtePersonagem"]) {
+            assert.ok(lang.T20A.Ficha[chave], `falta T20A.Ficha.${chave}`);
+        }
+    }
+});

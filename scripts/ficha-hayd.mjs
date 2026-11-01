@@ -371,7 +371,8 @@ const ESTADO_PADRAO = {
     lateralAba: "pericias",
     recolhidas: {},
     diario: "biography",
-    organizacao: { inventario: "categorias", poderes: "categorias" }
+    organizacao: { inventario: "categorias", poderes: "categorias" },
+    retratoToken: false
 };
 
 function lerEstado(actor) {
@@ -384,6 +385,15 @@ async function gravarEstado(actor, estado) {
     const todos = foundry.utils.deepClone(game.settings.get(MODULE_ID, SETTING_ESTADO) ?? {});
     todos[actor.id] = estado;
     await game.settings.set(MODULE_ID, SETTING_ESTADO, todos);
+}
+
+/** Dicas do retrato conforme a arte exibida (token ou personagem). */
+function dicasRetrato(token) {
+    return {
+        trocar: game.i18n.localize(token ? "T20A.Ficha.TrocarArteToken" : "T20A.Ficha.TrocarImagem"),
+        ver: game.i18n.localize(token ? "T20A.Ficha.VerArteToken" : "T20A.Ficha.VerArte"),
+        alternar: game.i18n.localize(token ? "T20A.Ficha.MostrarArtePersonagem" : "T20A.Ficha.MostrarArteToken")
+    };
 }
 
 async function salvarEstado(actor, mudancas) {
@@ -552,6 +562,7 @@ function criarClasseFicha(Base) {
                 buscaPericias: game.settings.get(MODULE_ID, "fichaBuscaPericias") !== false,
                 logo: !modoSlim(actor) && game.settings.get(MODULE_ID, "mostrarLogo")
                     ? foundry.utils.getRoute(`modules/${MODULE_ID}/assets/icones/logo-tormenta20.webp`) : null,
+                retrato: await this._dadosRetrato(estado.retratoToken === true),
                 // Opções do diálogo "Cor da Ficha" (as mesmas marcações que o tema antigo lê)
                 semArte: actor.getFlag(MODULE_ID, "semArte") === true,
                 arteOriginal: actor.getFlag(MODULE_ID, "arteOriginal") === true,
@@ -1429,14 +1440,20 @@ function criarClasseFicha(Base) {
                 this._abrirAbaAprimoramentos(link.dataset.hfAprimAbrir);
             });
             // Olho sobre o retrato: abre a arte em tamanho cheio (qualquer um que veja a ficha)
-            ligar("[data-hf-acao='ver-arte']", "click", (ev) => {
+            ligar("[data-hf-acao='ver-arte']", "click", async (ev) => {
                 ev.preventDefault();
                 ev.stopPropagation(); // não abre o seletor de imagem do retrato
+                const mostraToken = ev.currentTarget.closest(".hf-retrato").classList.contains("mostra-token");
                 new foundry.applications.apps.ImagePopout({
-                    src: this.actor.img,
+                    src: mostraToken ? await this._arteDoToken() : this.actor.img,
                     uuid: this.actor.uuid,
                     window: { title: this.actor.name }
                 }).render({ force: true });
+            });
+            ligar("[data-hf-acao='alternar-retrato']", "click", (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation(); // não abre o seletor de imagem do retrato
+                this._alternarRetrato(ev.currentTarget.closest(".hf-retrato"));
             });
             ligar("[data-hf-acao='copiar-nome']", "click", () => {
                 game.clipboard.copyPlainText(this.actor.name);
@@ -2064,14 +2081,80 @@ function criarClasseFicha(Base) {
 
         _onEditarImagem() {
             if (!this.isEditable) return;
+            // Sem essa permissão o seletor simplesmente não abre
+            if (!game.user.can("FILES_BROWSE")) return ui.notifications.warn(game.i18n.localize("T20A.Ficha.SemPermissaoArquivos"));
+            const token = lerEstado(this.actor).retratoToken === true;
+            const atual = token ? this._fonteDoToken().texture.src : this.actor.img;
             const fp = new foundry.applications.apps.FilePicker.implementation({
-                type: "image",
-                current: this.actor.img,
-                callback: (path) => this.actor.update({ img: path }),
+                type: token ? "imagevideo" : "image",
+                current: atual,
+                callback: (path) => (token ? this._trocarArteToken(path) : this.actor.update({ img: path })),
                 top: this.position.top + 40,
                 left: this.position.left + 10
             });
+            // Arte padrão, do Foundry ou do sistema abriria onde não dá para enviar arquivo
+            if (token && !fp.canUpload && game.user.can("FILES_UPLOAD") && fp.sources.data) {
+                fp.activeSource = "data";
+                return fp.browse(`worlds/${game.world.id}`);
+            }
             return fp.browse();
+        }
+
+        /* ---- Retrato: arte do personagem ou do token ---------------------- */
+
+        /** Só ver a arte não altera nada: segue valendo para quem apenas observa a ficha. */
+        _disableFields(form) {
+            super._disableFields(form);
+            for (const botao of form.querySelectorAll(".hf-retrato-ver, .hf-retrato-chave")) botao.disabled = false;
+        }
+
+        /** Token solto aberto da cena: a arte é a dele; senão, a do protótipo. */
+        _fonteDoToken() {
+            return this.actor.token ?? this.actor.prototypeToken;
+        }
+
+        /** Arte do token pronta para exibir; curinga (imagens aleatórias) mostra a primeira. */
+        async _arteDoToken() {
+            const src = this._fonteDoToken().texture.src;
+            if (!src?.includes("*")) return src;
+            const [primeira] = await this.actor.getTokenImages();
+            return primeira && !primeira.includes("*") ? primeira : this.actor.img;
+        }
+
+        async _dadosRetrato(token) {
+            const arte = await this._arteDoToken();
+            return {
+                token,
+                arte,
+                video: foundry.helpers.media.VideoHelper.hasVideoExtension(arte),
+                dicas: dicasRetrato(token)
+            };
+        }
+
+        /** Só muda o DOM: trocar a arte exibida não redesenha a ficha. */
+        _alternarRetrato(retrato) {
+            const token = retrato.classList.toggle("mostra-token");
+            const dicas = dicasRetrato(token);
+            if (retrato.dataset.tooltip) retrato.dataset.tooltip = dicas.trocar;
+            retrato.querySelector(".hf-retrato-ver").dataset.tooltip = dicas.ver;
+            const chave = retrato.querySelector(".hf-retrato-chave");
+            chave.dataset.tooltip = dicas.alternar;
+            chave.setAttribute("aria-checked", String(token));
+            chave.setAttribute("aria-label", dicas.alternar);
+            game.tooltip.deactivate();
+            salvarEstado(this.actor, { retratoToken: token });
+        }
+
+        /** Grava a nova arte e leva junto os tokens ligados já colocados nas cenas. */
+        async _trocarArteToken(src) {
+            const { actor } = this;
+            if (actor.token) {
+                await actor.token.update({ "texture.src": src });
+                return this.render();
+            }
+            await actor.update({ "prototypeToken.texture.src": src, "prototypeToken.randomImg": false });
+            const colocados = actor.getDependentTokens({ linked: true }).filter((t) => t.canUserModify(game.user, "update"));
+            await Promise.all(colocados.map((t) => t.update({ "texture.src": src })));
         }
 
         /* ---- Favoritos: soltar na lateral e reordenar -------------------- */

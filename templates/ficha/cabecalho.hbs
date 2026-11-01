@@ -38,9 +38,15 @@
 <header class="hf-cabecalho">
 
 	<div class="hf-retrato-coluna">
-		<div class="hf-retrato {{#if hf.editavel}}editavel{{/if}}" {{#if hf.editavel}}data-hf-acao="imagem" data-tooltip="{{localize 'T20A.Ficha.TrocarImagem'}}"{{/if}}>
-			<img src="{{actor.img}}" alt="{{actor.name}}">
-			<button type="button" class="hf-retrato-ver" data-hf-acao="ver-arte" data-tooltip="{{localize 'T20A.Ficha.VerArte'}}" aria-label="{{localize 'T20A.Ficha.VerArte'}}"><i class="fa-solid fa-eye"></i></button>
+		<div class="hf-retrato {{#if hf.editavel}}editavel{{/if}} {{#if hf.retrato.token}}mostra-token{{/if}}" {{#if hf.editavel}}data-hf-acao="imagem" data-tooltip="{{hf.retrato.dicas.trocar}}"{{/if}}>
+			<img class="hf-arte-personagem" src="{{actor.img}}" alt="{{actor.name}}">
+			{{#if hf.retrato.video}}
+				<video class="hf-arte-token" src="{{hf.retrato.arte}}" autoplay loop muted playsinline></video>
+			{{else}}
+				<img class="hf-arte-token" src="{{hf.retrato.arte}}" alt="{{actor.name}}">
+			{{/if}}
+			<button type="button" class="hf-retrato-ver" data-hf-acao="ver-arte" data-tooltip="{{hf.retrato.dicas.ver}}" aria-label="{{hf.retrato.dicas.ver}}"><i class="fa-solid fa-eye"></i></button>
+			<button type="button" class="hf-retrato-chave" role="switch" aria-checked="{{#if hf.retrato.token}}true{{else}}false{{/if}}" data-hf-acao="alternar-retrato" data-tooltip="{{hf.retrato.dicas.alternar}}" aria-label="{{hf.retrato.dicas.alternar}}"><span></span></button>
 		</div>
 		<div class="hf-nivel" data-tooltip="{{localize 'T20.Level'}}">
 			<span class="hf-nivel-rotulo">{{localize 'T20A.Ficha.NivelAbbr'}}</span>
