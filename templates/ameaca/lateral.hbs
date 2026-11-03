@@ -1,0 +1,19 @@
+{{!-- Menu lateral de perícias ("Configurar ficha"): os testes do topo vêm primeiro, destacados; depois todas as perícias --}}
+<aside class="ha-lateral {{#if ha.desbloqueada}}editando{{/if}}">
+	<h3 class="ha-lateral-titulo"><i class="fa-solid fa-shield-halved"></i><span>{{localize 'T20A.Ameaca.Testes'}}</span></h3>
+	<ul class="ha-pericias ha-lateral-testes {{#if ha.desbloqueada}}editando{{/if}}">
+		{{#each ha.lateralTestes as |p|}}{{> "modules/t20-hayd-ui/templates/ameaca/pericia.hbs" p=p}}{{/each}}
+	</ul>
+	<div class="ha-lateral-cd" data-tooltip="{{localize 'T20A.Ameaca.CDDica'}}">
+		<span class="ha-lateral-cd-rotulo">{{localize 'T20.AbbreviationDC'}}</span>
+		{{#if ha.desbloqueada}}
+			<input type="number" class="ha-lateral-cd-valor" name="system.attributes.cd" value="{{system.attributes.cd}}">
+		{{else}}
+			<span class="ha-lateral-cd-valor" data-ha-valor="cd">{{ha.cd}}</span>
+		{{/if}}
+	</div>
+	<h3 class="ha-lateral-titulo"><i class="fa-solid fa-list-check"></i><span>{{localize 'T20.Skills'}}</span></h3>
+	<ul class="ha-pericias {{#if ha.desbloqueada}}editando{{/if}}">
+		{{#each ha.lateralPericias as |p|}}{{> "modules/t20-hayd-ui/templates/ameaca/pericia.hbs" p=p}}{{/each}}
+	</ul>
+</aside>

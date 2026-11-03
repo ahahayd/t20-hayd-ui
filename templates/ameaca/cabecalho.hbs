@@ -34,10 +34,16 @@
 
 <header class="ha-cabecalho">
 	<div class="ha-retrato-coluna">
-		<div class="ha-retrato">
-			<img src="{{actor.img}}" alt="{{actor.name}}" {{#if ha.editavel}}data-edit="img" data-tooltip="{{localize 'T20A.Ficha.TrocarImagem'}}"{{/if}}>
+		<div class="ha-retrato {{#if ha.retrato.token}}mostra-token{{/if}}">
+			<img class="ha-arte-personagem" src="{{actor.img}}" alt="{{actor.name}}" {{#if ha.editavel}}data-edit="img" data-tooltip="{{localize 'T20A.Ficha.TrocarImagem'}}"{{/if}}>
+			{{#if ha.retrato.video}}
+				<video class="ha-arte-token" src="{{ha.retrato.arte}}" autoplay loop muted playsinline></video>
+			{{else}}
+				<img class="ha-arte-token" src="{{ha.retrato.arte}}" alt="{{actor.name}}">
+			{{/if}}
 			{{!-- Olho no canto: abre a arte inteira (aparece ao passar o mouse, como na Ficha Hayd) --}}
 			<button type="button" class="ha-retrato-ver" data-ha-acao="ver-arte" data-tooltip="{{localize 'T20A.Ameaca.VerArte'}}" aria-label="{{localize 'T20A.Ameaca.VerArte'}}"><i class="fa-solid fa-eye"></i></button>
+			<button type="button" class="ha-retrato-chave" role="switch" aria-checked="{{#if ha.retrato.token}}true{{else}}false{{/if}}" data-ha-acao="alternar-retrato" data-tooltip="{{ha.retrato.dicas.alternar}}" aria-label="{{ha.retrato.dicas.alternar}}"><span></span></button>
 		</div>
 		{{!-- Brasão do patamar (Iniciante, Veterano, Campeão, Lenda, Lenda+), com o ND no círculo --}}
 		<div class="ha-nd ha-nd-{{ha.patamar.chave}}" style="--ha-brasao: url('{{ha.patamar.brasao}}');" data-tooltip="{{localize 'T20A.Ameaca.NDLongo'}} · {{ha.patamar.rotulo}}">
@@ -100,7 +106,9 @@
 	</div>
 </header>
 
-{{!-- Iniciativa e percepção | os testes de resistência, um pouco mais marcados | a CD da ameaça --}}
+{{!-- Iniciativa e percepção | os testes de resistência, um pouco mais marcados | a CD da ameaça.
+     Com o menu lateral de perícias, tudo isso vai para o topo do menu. --}}
+{{#unless ha.lateral}}
 <section class="ha-testes">
 	{{#each ha.testesMenores as |t|}}
 	<button type="button" class="ha-teste ha-teste-menor rollable pericia-rollable ha-teste-{{t.key}}" data-item-id="{{t.key}}" data-tooltip="{{localize 'T20A.Ameaca.Rolar'}} {{t.rotulo}}">
@@ -126,3 +134,4 @@
 		{{/if}}
 	</div>
 </section>
+{{/unless}}

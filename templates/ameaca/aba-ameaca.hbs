@@ -163,7 +163,9 @@
 	{{/if}}
 
 	{{!-- Perícias treinadas (fora as do topo); a lista completa fica na aba Perícias.
-	     As demais vêm escondidas (ha-so-busca) e só aparecem quando a busca as acha. --}}
+	     As demais vêm escondidas (ha-so-busca) e só aparecem quando a busca as acha.
+	     Com o menu lateral, as perícias já estão todas à vista ali. --}}
+	{{#unless ha.lateral}}
 	{{#> secao chave="pericias" icone="fa-solid fa-list-check" titulo=(localize 'T20A.Ameaca.PericiasTreinadas') tituloBusca=(localize 'T20.Skills') contagem=ha.pericias.length soBusca=(not ha.pericias.length)}}
 		<div class="ha-chips-rolaveis">
 			{{#each ha.periciasBusca as |s|}}
@@ -173,6 +175,7 @@
 			<button type="button" class="ha-ver-todas" data-ha-aba="pericias">{{localize 'T20A.Ameaca.VerTodas'}} <i class="fa-solid fa-arrow-right"></i></button>
 		</div>
 	{{/secao}}
+	{{/unless}}
 
 	{{!-- Equipamento e tesouro --}}
 	{{#if (or ha.equipamento.itens.length ha.equipamento.texto ha.tesouro ha.desbloqueada)}}

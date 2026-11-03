@@ -2780,3 +2780,12 @@ a.t20a-pn-badge.t20a-pn-bonus:hover {
 }
 .t20a-cfg-titulo:first-child { margin-top: 4px; }
 .t20a-cfg-titulo i { opacity: 0.7; }
+
+/* ---- Janela "Configurar ficha" ------------------------------------------- */
+
+/* Com as opções do módulo ela pode passar da altura da tela: as opções rolam e o Salvar fica sempre à vista */
+.application.sheet-config:has(.hf-config-arte) .window-content > .standard-form {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+}

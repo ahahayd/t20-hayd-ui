@@ -21,9 +21,15 @@
 	<div class="hm-topo">
 		<div class="hm-topo-arte" aria-hidden="true"></div>
 		<header class="hm-cabecalho">
-			<div class="hm-retrato">
-				<img src="{{actor.img}}" alt="{{actor.name}}" data-edit="img" data-tooltip="{{localize 'T20A.Ficha.TrocarImagem'}}">
+			<div class="hm-retrato {{#if hm.retrato.token}}mostra-token{{/if}}">
+				{{#if hm.retrato.video}}
+					<video class="hm-arte-token" src="{{hm.retrato.arte}}" autoplay loop muted playsinline></video>
+				{{else}}
+					<img class="hm-arte-token" src="{{hm.retrato.arte}}" alt="{{actor.name}}">
+				{{/if}}
+				<img class="hm-arte-personagem" src="{{actor.img}}" alt="{{actor.name}}" data-edit="img" data-tooltip="{{localize 'T20A.Ficha.TrocarImagem'}}">
 				<button type="button" class="hm-retrato-ver" data-hm-acao="ver-arte" data-tooltip="{{localize 'T20A.Ameaca.VerArte'}}" aria-label="{{localize 'T20A.Ameaca.VerArte'}}"><i class="fa-solid fa-eye"></i></button>
+				<button type="button" class="hm-retrato-chave" role="switch" aria-checked="{{#if hm.retrato.token}}true{{else}}false{{/if}}" data-hm-acao="alternar-retrato" data-tooltip="{{hm.retrato.dicas.alternar}}" aria-label="{{hm.retrato.dicas.alternar}}"><span></span></button>
 			</div>
 
 			<div class="hm-identidade">

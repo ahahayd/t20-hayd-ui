@@ -25,6 +25,16 @@
 				<span class="hf-item-sub">{{item.detalhe}}</span>
 			{{/if}}
 		</div>
+		{{!-- Consumíveis no Combate: quantidade à vista e ajustável, sem coluna própria --}}
+		{{#if (and (eq item.tipo "consumivel") (ne item.qtd null) (ne colunas "inventario"))}}
+			<div class="hf-qtd-combate" data-tooltip="{{localize 'T20.Quantity'}}">
+				{{#if @root.hf.editavel}}
+					<button type="button" class="hf-passo-mini" data-hf-passo="system.qtd" data-hf-doc="item" data-hf-valor="-1" data-hf-min="0"><i class="fa-solid fa-minus"></i></button>
+					<input type="text" class="hf-qtd" data-hf-delta="system.qtd" data-hf-doc="item" data-hf-min="0" value="{{item.qtd}}">
+					<button type="button" class="hf-passo-mini" data-hf-passo="system.qtd" data-hf-doc="item" data-hf-valor="1"><i class="fa-solid fa-plus"></i></button>
+				{{else}}<span class="hf-qtd-leitura">×{{item.qtd}}</span>{{/if}}
+			</div>
+		{{/if}}
 
 		{{#if (eq colunas "armas")}}
 			{{> hf-aprim-col}}

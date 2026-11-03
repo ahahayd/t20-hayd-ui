@@ -10,7 +10,7 @@
  * template e prepara os dados do cabeçalho.
  */
 
-import { lerArteMestre } from "./ficha-hayd.mjs";
+import { lerArteMestre, dadosRetratoToken, alternarRetratoToken, arteDoRetrato } from "./ficha-hayd.mjs";
 
 const MODULE_ID = "t20-hayd-ui";
 const TEMPLATE = `modules/${MODULE_ID}/templates/mestre/ficha.hbs`;
@@ -81,6 +81,7 @@ function criarClasseFicha(Base) {
             const attrs = this.actor.system.attributes;
             const arte = lerArteMestre(this.actor);
             data.hm = {
+                retrato: await dadosRetratoToken(this.actor),
                 arte: arte ?? "sem-arte",
                 arteUrl: arte ? foundry.utils.getRoute(`modules/${MODULE_ID}/assets/fundos/${ARTES[arte]}`) : "",
                 escudo: foundry.utils.getRoute(ESCUDO),
@@ -94,14 +95,19 @@ function criarClasseFicha(Base) {
             super.activateListeners(html);
             const root = html instanceof HTMLElement ? html : html[0];
             // Olho sobre o retrato: abre a arte em tamanho cheio
-            root.querySelector("[data-hm-acao='ver-arte']")?.addEventListener("click", (ev) => {
+            root.querySelector("[data-hm-acao='ver-arte']")?.addEventListener("click", async (ev) => {
                 ev.preventDefault();
                 ev.stopPropagation(); // não abre o seletor de imagem do retrato
                 new foundry.applications.apps.ImagePopout({
-                    src: this.actor.img,
+                    src: await arteDoRetrato(this.actor, ev.currentTarget.closest(".hm-retrato")),
                     uuid: this.actor.uuid,
                     window: { title: this.actor.name }
                 }).render({ force: true });
+            });
+            root.querySelector("[data-hm-acao='alternar-retrato']")?.addEventListener("click", (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                alternarRetratoToken(this.actor, ev.currentTarget.closest(".hm-retrato"), { chave: ".hm-retrato-chave", ver: ".hm-retrato-ver" });
             });
         }
     };

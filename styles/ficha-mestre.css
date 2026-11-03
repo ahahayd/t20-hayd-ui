@@ -192,6 +192,43 @@
     cursor: pointer;
 }
 .hayd-mestre.sheet .hm-retrato img:hover { filter: brightness(1.15); }
+/* Chave arte do token / do personagem (como na Ficha Hayd) */
+.hayd-mestre.sheet .hm-retrato video { display: block; width: 100%; height: 100%; background: #000; }
+.hayd-mestre.sheet .hm-retrato .hm-arte-token { display: none; object-fit: contain; object-position: center; }
+.hayd-mestre.sheet .hm-retrato.mostra-token .hm-arte-token { display: block; }
+.hayd-mestre.sheet .hm-retrato.mostra-token .hm-arte-personagem { display: none; }
+.hayd-mestre.sheet .hm-retrato-chave {
+    position: absolute;
+    left: 8px;
+    bottom: 8px;
+    z-index: 2;
+    width: 24px;
+    height: 12px;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    background: rgba(0, 0, 0, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    cursor: pointer;
+    opacity: 0.4;
+    transition: opacity 0.15s, background 0.15s;
+}
+.hayd-mestre.sheet .hm-retrato:hover .hm-retrato-chave,
+.hayd-mestre.sheet .hm-retrato-chave:focus-visible { opacity: 1; }
+.hayd-mestre.sheet .hm-retrato-chave span {
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.15s;
+}
+.hayd-mestre.sheet .hm-retrato-chave[aria-checked="true"] { background: var(--hm-acento); border-color: var(--hm-acento-claro); }
+.hayd-mestre.sheet .hm-retrato-chave[aria-checked="true"] span { transform: translateX(12px); }
+
 /* Olho para ver a arte inteira: surge no canto quando o mouse chega ao retrato */
 .hayd-mestre.sheet .hm-retrato-ver {
     position: absolute;

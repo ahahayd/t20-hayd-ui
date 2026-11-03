@@ -6,6 +6,13 @@
 	</label>
 	<p class="ha-sem-resultado" hidden><i class="fa-solid fa-ghost"></i> {{localize 'T20A.Ameaca.SemResultado'}} “<b></b>”</p>
 
+	{{!-- Duas subabas: Poderes e Magias (a busca vale para as duas) --}}
+	<nav class="ha-subabas" role="tablist">
+		<button type="button" role="tab" class="ha-subaba-botao {{#if (eq ha.subaba 'poderes')}}ativa{{/if}}" data-ha-subaba="poderes"><i class="fa-solid fa-fire-flame-curved"></i>{{localize 'T20A.Ameaca.Abas.Poderes'}}</button>
+		<button type="button" role="tab" class="ha-subaba-botao {{#if (eq ha.subaba 'magias')}}ativa{{/if}}" data-ha-subaba="magias"><i class="fa-solid fa-wand-sparkles"></i>{{localize 'T20.Spells'}}{{#if ha.totalMagias}}<span class="ha-aba-contagem">{{ha.totalMagias}}</span>{{/if}}</button>
+	</nav>
+
+	<div class="ha-subpainel {{#if (eq ha.subaba 'poderes')}}ativa{{/if}}" data-subpainel="poderes">
 	{{#each ha.poderesPorTipo as |grupo|}}
 	<section class="ha-secao {{#if (lookup @root.ha.recolhidas grupo.chave)}}recolhida{{/if}} {{#unless grupo.itens.length}}vazia{{/unless}}" data-ha-secao="{{grupo.chave}}">
 		<header class="ha-secao-cabecalho" data-ha-recolher>
@@ -28,4 +35,29 @@
 	{{else}}
 	<p class="ha-dica-vazia"><i class="fa-solid fa-fire-flame-curved"></i> {{localize 'T20A.Ficha.PoderesVazio'}}</p>
 	{{/each}}
+	</div>
+
+	<div class="ha-subpainel {{#if (eq ha.subaba 'magias')}}ativa{{/if}}" data-subpainel="magias">
+		<section class="ha-secao {{#if (lookup @root.ha.recolhidas 'poderes-magias')}}recolhida{{/if}} {{#unless ha.temMagias}}vazia{{/unless}}" data-ha-secao="poderes-magias">
+			<header class="ha-secao-cabecalho" data-ha-recolher>
+				<i class="ha-secao-seta fa-solid fa-chevron-down"></i>
+				<i class="ha-secao-icone fa-solid fa-wand-sparkles"></i>
+				<h3>{{localize 'T20.Spells'}}</h3>
+				<span class="ha-secao-contagem">{{ha.totalMagias}}</span>
+				{{#if @root.ha.desbloqueada}}
+				<a class="ha-secao-criar" data-ha-acao="nova-magia" data-tooltip="{{localize 'T20.Add'}}"><i class="fa-solid fa-plus"></i></a>
+				{{/if}}
+			</header>
+			<div class="ha-secao-corpo"><div class="ha-secao-interno">
+				{{#each ha.magias as |c|}}
+				<h4 class="ha-grupo"><span class="ha-circulo">{{c.circulo}}º</span>{{localize 'T20A.Ameaca.Circulo'}}<span class="ha-grupo-custo">{{c.custo}} {{localize 'T20A.Ficha.PM'}}</span></h4>
+				<ol class="item-list ha-lista">
+					{{#each c.itens as |m|}}{{> "modules/t20-hayd-ui/templates/ameaca/linha-item.hbs" tipo="magia" item=m}}{{/each}}
+				</ol>
+				{{else}}
+				<ol class="item-list ha-lista"><li class="ha-lista-vazia">{{localize 'T20A.Ficha.MagiasVazio'}}</li></ol>
+				{{/each}}
+			</div></div>
+		</section>
+	</div>
 </div>

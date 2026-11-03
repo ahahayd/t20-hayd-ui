@@ -11,7 +11,7 @@
  * e acrescenta as interações de interface.
  */
 
-import { aplicarDelta, listarCondicoes, lerArteMestre } from "./ficha-hayd.mjs";
+import { aplicarDelta, listarCondicoes, lerArteMestre, dadosRetratoToken, alternarRetratoToken, arteDoRetrato } from "./ficha-hayd.mjs";
 import { ferramentasGMTools, abrirPainelAutomacoes } from "./integracao-gmtools.mjs";
 
 const MODULE_ID = "t20-hayd-ui";
@@ -98,6 +98,15 @@ export function patamarDoND(nd) {
 
 /** Seções recolhidas: vale para todas as ameaças (é preferência de quem mestra, não do NPC). */
 const SETTING_RECOLHIDAS = "fichaAmeacaRecolhidas";
+
+/**
+ * Perícias num menu lateral (flag do ator, escolhida em "Configurar ficha"):
+ * a coluna entra à esquerda do corpo e leva junto os testes do topo.
+ */
+const FLAG_LATERAL = "periciasLateral";
+const LARGURA = 640;
+const LARGURA_LATERAL = 900;
+const comLateral = (actor) => actor?.getFlag?.(MODULE_ID, FLAG_LATERAL) === true;
 
 const localizar = (chave) => game.i18n.localize(chave);
 const menosMovimento = () => globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
@@ -200,12 +209,42 @@ export async function registrarFichaAmeaca() {
         `${TEMPLATES}/cabecalho.hbs`,
         `${TEMPLATES}/aba-ameaca.hbs`,
         `${TEMPLATES}/aba-pericias.hbs`,
+        `${TEMPLATES}/pericia.hbs`,
+        `${TEMPLATES}/lateral.hbs`,
         `${TEMPLATES}/aba-inventario.hbs`,
         `${TEMPLATES}/aba-poderes.hbs`,
         `${TEMPLATES}/aba-efeitos.hbs`,
         `${TEMPLATES}/linha-item.hbs`
     ]);
 }
+
+/**
+ * "Exibir perícias em um menu lateral" na janela "Configurar ficha" da ameaça,
+ * logo abaixo da arte do topo. Só aparece com a Ficha Hayd de Ameaça
+ * escolhida (ou em uso como padrão) e grava a flag do ator ao marcar.
+ */
+Hooks.on("renderDocumentSheetConfig", (app, html) => {
+    const doc = app.document;
+    if (doc?.documentName !== "Actor" || doc.type !== "npc") return;
+    const root = html instanceof HTMLElement ? html : html?.[0];
+    const seletor = root?.querySelector('select[name="sheetClass"]');
+    if (!seletor || root.querySelector(".ha-config-lateral")) return;
+    const grupo = document.createElement("div");
+    grupo.className = "form-group ha-config-lateral";
+    grupo.innerHTML = `
+        <label>${localizar("T20A.Ameaca.PericiasLateralNome")}</label>
+        <div class="form-fields"><input type="checkbox" ${comLateral(doc) ? "checked" : ""} ${doc.isOwner ? "" : "disabled"}></div>
+        <p class="hint">${localizar("T20A.Ameaca.PericiasLateralDica")}</p>`;
+    grupo.querySelector("input").addEventListener("change", (ev) => doc.setFlag(MODULE_ID, FLAG_LATERAL, ev.currentTarget.checked));
+    (root.querySelector(".hf-config-arte") ?? seletor.closest(".form-group")).after(grupo);
+    const atualizar = () => {
+        const valor = seletor.value || (ehFichaAmeaca(doc.sheet) ? `${MODULE_ID}.FichaHaydAmeaca` : "");
+        grupo.hidden = valor !== `${MODULE_ID}.FichaHaydAmeaca`;
+        app.setPosition?.({ height: "auto" });
+    };
+    seletor.addEventListener("change", atualizar);
+    atualizar();
+});
 
 /* -------------------------------------------------------------------------- */
 /*  Janelas de configuração do sistema abertas pela ficha de ameaça            */
@@ -271,6 +310,8 @@ function criarClasseFicha(Base) {
 
         /** Aba aberta (só na memória da janela: reabrir a ficha volta ao bloco). */
         _aba = "ameaca";
+        /** Subaba da aba Poderes: "poderes" ou "magias". */
+        _subaba = "poderes";
         /** Habilidades e magias com a descrição aberta, mantidas entre renders. */
         _abertas = new Set();
         /** Busca digitada na aba Ameaça (só na memória da janela, como na Ficha Hayd). */
@@ -278,10 +319,10 @@ function criarClasseFicha(Base) {
 
         static get defaultOptions() {
             const opcoes = foundry.utils.mergeObject(super.defaultOptions, {
-                width: 640,
+                width: LARGURA,
                 height: 820,
                 tabs: [],
-                scrollY: [".ha-aba"],
+                scrollY: [".ha-aba", ".ha-lateral"],
                 dragDrop: [{ dragSelector: ".item-list .item" }]
             });
             // Sem "tormenta20": o CSS do sistema é todo preso a essa classe
@@ -318,8 +359,14 @@ function criarClasseFicha(Base) {
             const poderes = (data.actor.poderes ?? []).map((i) => this._poder(i));
 
             const arteEscolhida = lerArteMestre(actor, "deuses-negativo");
+            const retrato = await dadosRetratoToken(actor);
+            const lateral = comLateral(actor);
             const ha = {
-                aba: ABAS.includes(this._aba) ? this._aba : "ameaca",
+                retrato,
+                lateral,
+                // Com o menu lateral a aba Perícias não existe
+                aba: ABAS.includes(this._aba) && !(lateral && this._aba === "pericias") ? this._aba : "ameaca",
+                subaba: this._subaba === "magias" ? "magias" : "poderes",
                 desbloqueada,
                 editavel: this.isEditable,
                 arteChave: arteEscolhida ?? "sem-arte",
@@ -394,8 +441,18 @@ function criarClasseFicha(Base) {
             ha.pericias = ha.listaPericias.filter((p) => p.treinado && !PERICIAS_DESTACADAS.has(p.key));
             // A busca da aba Ameaça acha qualquer perícia: as que não aparecem ficam prontas, escondidas
             ha.periciasBusca = ha.listaPericias.map((p) => ({ ...p, soBusca: !p.treinado || PERICIAS_DESTACADAS.has(p.key) }));
+            if (lateral) {
+                // Resistências primeiro (as mais marcadas), depois Iniciativa e Percepção; o resto em ordem alfabética
+                const porChave = new Map(ha.listaPericias.map((p) => [p.key, p]));
+                const icones = Object.fromEntries(RESISTENCIAS.map((r) => [r.key, r.icone]));
+                ha.lateralTestes = [...RESISTENCIAS, ...TESTES_MENORES]
+                    .map(({ key }) => porChave.get(key) && { ...porChave.get(key), icone: icones[key], resistencia: !!icones[key] })
+                    .filter(Boolean);
+                ha.lateralPericias = ha.listaPericias.filter((p) => !PERICIAS_DESTACADAS.has(p.key));
+            }
             ha.temAtaques = ataques.length > 0 || !!(sys.detalhes.ataquescac || sys.detalhes.ataquesad);
             ha.temMagias = ha.magias.length > 0;
+            ha.totalMagias = ha.magias.reduce((n, c) => n + c.itens.length, 0);
             ha.abas = [
                 { id: "ameaca", rotulo: localizar("T20A.Ameaca.Abas.Ameaca"), icone: "fa-solid fa-dragon" },
                 { id: "pericias", rotulo: localizar("T20.Skills"), icone: "fa-solid fa-list-check" },
@@ -403,7 +460,8 @@ function criarClasseFicha(Base) {
                 { id: "poderes", rotulo: localizar("T20A.Ameaca.Abas.Poderes"), icone: "fa-solid fa-fire-flame-curved" },
                 { id: "efeitos", rotulo: localizar("T20A.Ameaca.Abas.Efeitos"), icone: "fa-solid fa-bolt", contagem: ha.efeitos || null },
                 { id: "diario", rotulo: localizar("T20A.Ameaca.Abas.Diario"), icone: "fa-solid fa-book-open" }
-            ].map((a) => ({ ...a, ativa: a.id === ha.aba }));
+            ].filter((a) => !(lateral && a.id === "pericias")).map((a) => ({ ...a, ativa: a.id === ha.aba }));
+            this._aba = ha.aba;
             data.ha = ha;
             data.editMode = desbloqueada;
             return data;
@@ -661,6 +719,7 @@ function criarClasseFicha(Base) {
 
             // Só interface (abas, seções, descrições): troca classes, sem redesenhar a janela
             ligar("[data-ha-aba]", "click", (ev) => this._trocarAba(root, ev.currentTarget.dataset.haAba));
+            ligar("[data-ha-subaba]", "click", (ev) => this._trocarSubaba(root, ev.currentTarget.dataset.haSubaba));
             ligar("[data-ha-recolher]", "click", (ev) => this._alternarSecao(ev));
             ligar("[data-ha-alternar]", "click", (ev) => this._alternarDescricao(ev));
             // Texto longo (tesouro de chefão): três linhas; clique ou Enter mostra tudo e recolhe de novo
@@ -676,14 +735,19 @@ function criarClasseFicha(Base) {
                 alternarLongo(ev.currentTarget);
             });
             // Olho sobre o retrato: abre a arte em tamanho cheio (qualquer um que veja a ficha)
-            ligar("[data-ha-acao='ver-arte']", "click", (ev) => {
+            ligar("[data-ha-acao='ver-arte']", "click", async (ev) => {
                 ev.preventDefault();
                 ev.stopPropagation(); // não abre o seletor de imagem do retrato
                 new foundry.applications.apps.ImagePopout({
-                    src: this.actor.img,
+                    src: await arteDoRetrato(this.actor, ev.currentTarget.closest(".ha-retrato")),
                     uuid: this.actor.uuid,
                     window: { title: this.actor.name }
                 }).render({ force: true });
+            });
+            ligar("[data-ha-acao='alternar-retrato']", "click", (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                alternarRetratoToken(this.actor, ev.currentTarget.closest(".ha-retrato"), { chave: ".ha-retrato-chave", ver: ".ha-retrato-ver" });
             });
             // Busca: filtra enquanto digita; Esc limpa; não passa pelo submit do formulário
             const busca = root.querySelector("input[data-ha-busca]");
@@ -759,6 +823,18 @@ function criarClasseFicha(Base) {
                 a.classList.toggle("ativa", ativa);
                 // Só a troca de aba anima; os redesenhos da ficha não
                 if (ativa && !menosMovimento()) animarClasse(a, "ha-anim-entrar", 400);
+            });
+        }
+
+        /** Alterna Poderes/Magias dentro da aba Poderes, só com classes (sem redesenhar). */
+        _trocarSubaba(root, subaba) {
+            if (!["poderes", "magias"].includes(subaba) || subaba === this._subaba) return;
+            this._subaba = subaba;
+            root.querySelectorAll(".ha-subaba-botao").forEach((b) => b.classList.toggle("ativa", b.dataset.haSubaba === subaba));
+            root.querySelectorAll(".ha-subpainel").forEach((p) => {
+                const ativa = p.dataset.subpainel === subaba;
+                p.classList.toggle("ativa", ativa);
+                if (ativa && !menosMovimento()) animarClasse(p, "ha-anim-entrar", 400);
             });
         }
 
@@ -852,7 +928,13 @@ function criarClasseFicha(Base) {
          */
         async _render(force, options = {}) {
             const antes = this._fotografar();
+            // Ligar ou desligar o menu lateral alarga ou estreita a janela (também com ela aberta)
+            const lateral = comLateral(this.actor);
+            const mudouLateral = this._haLateral !== undefined && this._haLateral !== lateral;
+            if (this._haLateral === undefined && lateral) this.position.width = LARGURA_LATERAL;
+            this._haLateral = lateral;
             await super._render(force, options);
+            if (mudouLateral && this.rendered) this.setPosition({ width: lateral ? LARGURA_LATERAL : LARGURA });
             if (antes) this._animarMudancas(antes);
         }
 

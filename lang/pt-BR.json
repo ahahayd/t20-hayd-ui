@@ -306,6 +306,9 @@
             "VerTodas": "Todas",
             "PericiasDica": "Clique no nome para rolar.",
             "PericiasEdicao": "Treino, atributo e outros bônus.",
+            "PericiasLateralNome": "Exibir perícias em um menu lateral",
+            "PericiasLateralDica": "Todas as perícias numa coluna ao lado da ficha, com os testes de resistência, a Iniciativa e a Percepção no topo. A janela fica mais larga. Vale para todos que abrirem esta ameaça.",
+            "Testes": "Testes",
             "PorDado": "+1 por dado",
             "Patamar": {
                 "iniciante": "Iniciante",

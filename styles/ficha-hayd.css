@@ -1439,6 +1439,9 @@
 }
 .hayd-ficha .hf-passo-mini { width: 18px; height: 18px; font-size: 8px; }
 .hayd-ficha .hf-item:hover .hf-passo-mini { opacity: 1; }
+/* Quantidade dos consumíveis no Combate: fica entre o nome e as colunas */
+.hayd-ficha .hf-qtd-combate { flex: 0 0 auto; display: flex; align-items: center; gap: 2px; margin: 0 6px; }
+.hayd-ficha .hf-qtd-leitura { font-family: var(--hf-fonte-display); font-size: 16px; color: var(--hf-ouro); }
 
 .hayd-ficha .hf-item-controles {
     flex: 0 0 var(--hf-controles, 150px);

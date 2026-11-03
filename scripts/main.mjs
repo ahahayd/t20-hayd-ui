@@ -309,6 +309,10 @@ Hooks.once("setup", () => {
                     .trim();
                 if (corDestaque) menu.style.setProperty("--t20a-context-accent", corDestaque);
                 else menu.style.removeProperty("--t20a-context-accent");
+                // No v13 o modo fixo só conhece o document principal (no v14 o core já resolve)
+                if (target.ownerDocument !== document && game.release.generation < 14) {
+                    return posicionarMenuNaJanela(menu, target, options);
+                }
                 return this._setFixedPosition(menu, target, options);
             }
         } catch (err) {
@@ -316,6 +320,52 @@ Hooks.once("setup", () => {
         }
         return original.call(this, menu, target, options);
     };
+});
+
+/**
+ * Modo fixo do core (popover), na janela em que a ficha está (PopOut!). Sem a
+ * classe "context" no alvo: o core só a limpa no document principal, e ela
+ * impediria o menu de abrir de novo na mesma linha.
+ */
+function posicionarMenuNaJanela(menu, target, { event } = {}) {
+    const doc = target.ownerDocument;
+    menu.setAttribute("popover", "manual");
+    doc.body.appendChild(menu);
+    menu.showPopover();
+    const { clientWidth, clientHeight } = doc.documentElement;
+    const { width, height } = menu.getBoundingClientRect();
+    const alvo = target.getBoundingClientRect();
+    const x = event?.clientX || alvo.left;
+    const y = event?.clientY || alvo.bottom;
+    const paraCima = (y + height) > clientHeight;
+    menu.style.left = `${Math.min(x, clientWidth - width)}px`;
+    if (paraCima) menu.style.bottom = `${clientHeight - y}px`;
+    else menu.style.top = `${y}px`;
+    menu.classList.toggle("expand-up", paraCima);
+    menu.classList.toggle("expand-down", !paraCima);
+    const tema = (target.closest(".themed") ?? doc.body).className.match(/(?:^|\s)(theme-\w+)/)?.[1];
+    if (tema) menu.classList.add("themed", tema);
+}
+
+/**
+ * Janela separada do PopOut!: o core escuta o clique que fecha menus e o hover
+ * dos tooltips só no document principal, então eles são repassados daqui.
+ */
+Hooks.on("PopOut:loaded", (_app, node) => {
+    if (!node.matches?.(`.${CLASSE_FICHA}, .${CLASSE_AMEACA}, .${CLASSE_MESTRE}`)) return;
+    const doc = node.ownerDocument;
+    doc.addEventListener("click", () => ui.context?.close(), { passive: true });
+    let espera = null;
+    doc.body.addEventListener("pointerenter", (ev) => {
+        if (!ev.target.dataset?.tooltip) return;
+        clearTimeout(espera);
+        espera = setTimeout(() => game.tooltip.activate(ev.target), game.tooltip.constructor.TOOLTIP_ACTIVATION_MS);
+    }, true);
+    doc.body.addEventListener("pointerleave", (ev) => {
+        if (!ev.target.dataset?.tooltip) return;
+        clearTimeout(espera);
+        game.tooltip.deactivate();
+    }, true);
 });
 
 /* -------------------------------------------------------------------------- */

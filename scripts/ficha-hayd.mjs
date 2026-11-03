@@ -301,6 +301,18 @@ Hooks.on("renderDocumentSheetConfig", (app, html) => {
     app.setPosition?.({ height: "auto" });
 });
 
+/**
+ * A janela é refeita a cada update do ator, e o restauro de rolagem do core roda
+ * antes das opções acima voltarem, quando a área ainda é curta. Refaz depois delas.
+ */
+Hooks.on("renderDocumentSheetConfig", (app, html) => {
+    const root = html instanceof HTMLElement ? html : html?.[0];
+    const area = root?.querySelector(".window-content > .standard-form");
+    if (!area?.querySelector(".hf-config-arte")) return;
+    area.scrollTop = app._hfRolagem ?? 0;
+    area.addEventListener("scroll", () => { app._hfRolagem = area.scrollTop; }, { passive: true });
+});
+
 /** Mesma condição do main.mjs para o tema antigo (fichas do sistema) pintar a arte do cabeçalho. */
 const estiloInterfaceLigado = () => {
     try { return game.settings.get(MODULE_ID, "enabled") && game.settings.get(MODULE_ID, "estiloInterface"); }
@@ -398,6 +410,45 @@ function dicasRetrato(token) {
 
 async function salvarEstado(actor, mudancas) {
     await gravarEstado(actor, foundry.utils.mergeObject(lerEstado(actor), mudancas, { inplace: false }));
+}
+
+/**
+ * Retrato com chave "arte do token / arte do personagem" para as fichas de ameaça e do mestre.
+ * A escolha é a mesma da Ficha Hayd (guardada por ator), então as três fichas concordam.
+ */
+export async function dadosRetratoToken(actor) {
+    const token = lerEstado(actor).retratoToken === true;
+    let arte = (actor.token ?? actor.prototypeToken).texture.src;
+    if (arte?.includes("*")) {
+        const [primeira] = await actor.getTokenImages();
+        arte = primeira && !primeira.includes("*") ? primeira : actor.img;
+    }
+    return {
+        token,
+        arte,
+        video: foundry.helpers.media.VideoHelper.hasVideoExtension(arte),
+        dicas: dicasRetrato(token)
+    };
+}
+
+/** Só muda o DOM (classe, dicas, chave) e grava a escolha; devolve se agora mostra o token. */
+export function alternarRetratoToken(actor, retrato, { chave, ver }) {
+    const token = retrato.classList.toggle("mostra-token");
+    const dicas = dicasRetrato(token);
+    const botaoVer = retrato.querySelector(ver);
+    if (botaoVer) botaoVer.dataset.tooltip = dicas.ver;
+    const botao = retrato.querySelector(chave);
+    botao.dataset.tooltip = dicas.alternar;
+    botao.setAttribute("aria-checked", String(token));
+    botao.setAttribute("aria-label", dicas.alternar);
+    game.tooltip.deactivate();
+    salvarEstado(actor, { retratoToken: token });
+    return token;
+}
+
+/** Arte que o olho abre: a do token ou a do personagem, conforme o que o retrato mostra. */
+export async function arteDoRetrato(actor, retrato) {
+    return retrato.classList.contains("mostra-token") ? (await dadosRetratoToken(actor)).arte : actor.img;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -979,6 +1030,8 @@ function criarClasseFicha(Base) {
                         if (ev.button !== 0) return;
                         const x0 = ev.clientX;
                         const y0 = ev.clientY;
+                        // A janela da ficha, que pode não ser a principal (PopOut!)
+                        const janela = chip.ownerDocument.defaultView;
                         let arrastando = false;
                         let inicio = null;
                         // Depois de uma troca, o alvo só vale de novo quando o ponteiro sair dele
@@ -1022,9 +1075,9 @@ function criarClasseFicha(Base) {
                             chip.style.transform = `translate(${e.clientX - x0 - (agora.x - inicio.x)}px, ${e.clientY - y0 - (agora.y - inicio.y)}px)`;
                         };
                         const soltar = () => {
-                            window.removeEventListener("pointermove", mover);
-                            window.removeEventListener("pointerup", soltar);
-                            window.removeEventListener("pointercancel", soltar);
+                            janela.removeEventListener("pointermove", mover);
+                            janela.removeEventListener("pointerup", soltar);
+                            janela.removeEventListener("pointercancel", soltar);
                             if (!arrastando) return;
                             // O chip volta deslizando para o lugar novo
                             const r = chip.getBoundingClientRect();
@@ -1041,9 +1094,9 @@ function criarClasseFicha(Base) {
                             setTimeout(() => this._ordenarCategoriasCombate(ids), reduzido ? 0 : 170);
                         };
                         // Na janela, não no chip: mover o chip no DOM perderia a captura do ponteiro
-                        window.addEventListener("pointermove", mover);
-                        window.addEventListener("pointerup", soltar);
-                        window.addEventListener("pointercancel", soltar);
+                        janela.addEventListener("pointermove", mover);
+                        janela.addEventListener("pointerup", soltar);
+                        janela.addEventListener("pointercancel", soltar);
                     });
                 });
             });
@@ -1477,7 +1530,8 @@ function criarClasseFicha(Base) {
             // Descrições abertas que ainda não estavam no cache (primeira abertura)
             for (const id of this._expandidos) {
                 if (this._descricoes.has(id)) continue;
-                root.querySelectorAll(`li.item[data-item-id="${id}"]`).forEach((li) => this._mostrarDescricao(li, false));
+                // Só as linhas das abas: o cartão da lateral (.hf-fav) também é li.item com o mesmo id
+                root.querySelectorAll(`li.hf-item[data-item-id="${id}"]`).forEach((li) => this._mostrarDescricao(li, false));
             }
 
             this._ligarArrasteFavoritos(root);

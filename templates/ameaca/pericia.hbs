@@ -1,0 +1,21 @@
+{{!-- Uma perícia: na aba Perícias e no menu lateral. Destravada, treino, atributo e outros ficam editáveis --}}
+<li class="ha-pericia {{#if p.treinado}}treinada{{/if}} {{#if p.resistencia}}ha-pericia-res{{/if}}" data-pericia="{{p.key}}">
+	{{#if @root.ha.desbloqueada}}
+		{{!-- O próprio losango é a caixa de treino --}}
+		<label class="ha-treino" data-tooltip="{{localize 'T20.Trained'}}"><input type="checkbox" data-ha-campo="treinado" {{checked p.treinado}}><i class="ha-marca"></i></label>
+	{{else}}
+		<i class="ha-marca"></i>
+	{{/if}}
+	{{#if p.salva}}
+		<a class="ha-pericia-nome rollable pericia-rollable" data-item-id="{{p.key}}">{{#if p.icone}}<i class="ha-pericia-icone fa-solid {{p.icone}}"></i>{{/if}}{{p.label}}</a>
+	{{else}}
+		<a class="ha-pericia-nome" data-ha-acao="rolar-pericia">{{#if p.icone}}<i class="ha-pericia-icone fa-solid {{p.icone}}"></i>{{/if}}{{p.label}}</a>
+	{{/if}}
+	{{#if @root.ha.desbloqueada}}
+		<select data-ha-campo="atributo">{{selectOptions @root.config.atributosAbr selected=p.atributo localize=true}}</select>
+		<input type="number" data-ha-campo="outros" value="{{p.outros}}" data-tooltip="{{localize 'T20.Other'}}">
+	{{else}}
+		<span class="ha-pericia-atributo">{{p.abbr}}</span>
+	{{/if}}
+	<span class="ha-pericia-total {{#if p.negativo}}negativo{{/if}}" data-ha-valor="pericia-{{p.key}}"><small>{{p.sinal}}</small>{{p.valor}}</span>
+</li>
