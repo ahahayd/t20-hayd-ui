@@ -622,7 +622,14 @@ function criarClasseFicha(Base) {
             }
             // Imunidade a condições tem linha própria: misturada às de dano, "Atordoado" parecia um tipo de dano.
             // Vem já preparada (inclui as de efeitos ativos, como as "Imunidades Dracônicas", e a personalizada).
-            const condicoes = Object.values(sys.tracos.ic?.selected ?? {}).map((v) => localizar(v));
+            // Lê de ic.value, e não de ic.selected: o _prepareTraits do sistema só trata Array,
+            // e ic.value é um SetField (Set), então o "selected" sai com chave/rótulo inválidos.
+            const ic = sys.tracos.ic ?? {};
+            const chavesIc = ic.value instanceof Set || Array.isArray(ic.value) ? [...ic.value]
+                : typeof ic.value === "string" && ic.value ? [ic.value] : Object.keys(ic.value ?? {});
+            const tiposCond = CONFIG.T20?.conditionTypes ?? {};
+            const condicoes = chavesIc.map((k) => localizar(tiposCond[k] ?? k)).filter(Boolean);
+            for (const c of String(ic.custom ?? "").split(";")) if (c.trim()) condicoes.push(c.trim());
             const deslocamento = Object.values(data.movement ?? {});
             if (sys.detalhes.movimento) deslocamento.push(sys.detalhes.movimento);
             const idiomas = data.enableLanguages ? Object.values(sys.tracos.idiomas?.selected ?? {}) : [];
