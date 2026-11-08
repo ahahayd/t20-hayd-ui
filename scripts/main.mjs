@@ -19,6 +19,8 @@ import {
 import { registrarFichaAmeaca, ehFichaAmeaca, CLASSE_AMEACA } from "./ficha-ameaca.mjs";
 import { registrarFichaMestre, ehFichaMestre, CLASSE_MESTRE } from "./ficha-mestre.mjs";
 import { aplicarTomDaMensagem, agendarCorrecaoContrasteChat } from "./chat-contraste.mjs";
+import { variacoesDaCor, estruturarCartoes, organizarEfeitosDeUso } from "./chat-cartoes.mjs";
+import { registrarTokenizer } from "./tokenizer.mjs";
 
 const MODULE_ID = "t20-hayd-ui";
 const SYSTEM_ID = "tormenta20";
@@ -42,6 +44,7 @@ const TEMA_PADRAO = "darkMode";
 /* -------------------------------------------------------------------------- */
 
 Hooks.once("init", () => {
+    registrarTokenizer();
     game.settings.register(MODULE_ID, "enabled", {
         name: "T20A.Settings.EnabledName",
         hint: "T20A.Settings.EnabledHint",
@@ -187,6 +190,20 @@ Hooks.once("init", () => {
         config: true,
         type: new foundry.data.fields.ColorField({ nullable: false, initial: COR_PADRAO }),
         default: COR_PADRAO,
+        onChange: redesenharChat
+    });
+
+    game.settings.register(MODULE_ID, "chatEstilo", {
+        name: "T20A.Settings.ChatEstiloName",
+        hint: "T20A.Settings.ChatEstiloHint",
+        scope: "client",
+        config: true,
+        type: String,
+        choices: {
+            novo: "T20A.Settings.ChatEstiloNovo",
+            legado: "T20A.Settings.ChatEstiloLegado"
+        },
+        default: "novo",
         onChange: redesenharChat
     });
 
@@ -720,15 +737,46 @@ function aplicarTemaChatMsg(message, html) {
     root.classList.toggle("t20a-chat-player", fundoClaro);
     root.classList.toggle("t20a-chat-npc", !fundoClaro);
     aplicarTomDaMensagem(root, fundoClaro);
-    root.style.setProperty("--t20a-chat-cor", cor);
+    const estiloNovo = game.settings.get(MODULE_ID, "chatEstilo") !== "legado";
+    root.classList.toggle("t20a-chat-novo", estiloNovo);
+    root.classList.toggle("t20a-chat-legado", !estiloNovo);
 
-    /* Texto do header sempre legível: preto ou branco conforme a
-     * luminância da cor de fundo (whispers com cores claras ficavam
-     * ilegíveis com o branco fixo). */
-    const contraste = textoContrastante(cor);
-    root.style.setProperty("--t20a-chat-texto", contraste.texto);
-    root.style.setProperty("--t20a-chat-texto-suave", contraste.suave);
-    root.style.setProperty("--t20a-chat-sombra", contraste.sombra);
+    if (estiloNovo) {
+        /* A cor do jogador não pinta o cabeçalho inteiro (amarelos e tons
+         * claros ficavam ilegíveis e berrantes): vira faixa lateral e
+         * detalhes, e --t20a-chat-cor passa a ser a mesma matiz ajustada para
+         * ser legível como texto sobre o fundo da mensagem — o que também
+         * corrige os cartões do gmtools e da loja que a usam como texto. */
+        const variacoes = variacoesDaCor(normalizarHex(cor) ?? cor, fundoClaro);
+        root.style.setProperty("--t20a-chat-cor", variacoes.texto);
+        root.style.setProperty("--t20a-chat-cor-marca", variacoes.marca);
+        root.style.setProperty("--t20a-chat-cor-original", variacoes.original);
+        root.style.setProperty("--t20a-chat-sobre-cor", variacoes.sobre);
+        // Cabeçalho neutro: o texto dele é o do corpo da mensagem.
+        root.style.setProperty("--t20a-chat-texto", fundoClaro ? "#18192b" : "#eceaf2");
+        root.style.setProperty("--t20a-chat-texto-suave", fundoClaro ? "rgba(24,25,43,0.68)" : "rgba(236,234,242,0.68)");
+        root.style.setProperty("--t20a-chat-sombra", "none");
+        try { estruturarCartoes(message, root, actor); }
+        catch (err) { console.warn(`${MODULE_ID} | falha ao estruturar o cartão de chat:`, err); }
+    } else {
+        // Legado: cabeçalho preenchido com a cor do jogador, como antes.
+        root.style.setProperty("--t20a-chat-cor", cor);
+        root.style.removeProperty("--t20a-chat-cor-marca");
+        root.style.removeProperty("--t20a-chat-cor-original");
+        /* Texto do header sempre legível: preto ou branco conforme a
+         * luminância da cor de fundo (whispers com cores claras ficavam
+         * ilegíveis com o branco fixo). */
+        const contraste = textoContrastante(cor);
+        root.style.setProperty("--t20a-chat-sobre-cor", contraste.texto);
+        root.style.setProperty("--t20a-chat-texto", contraste.texto);
+        root.style.setProperty("--t20a-chat-texto-suave", contraste.suave);
+        root.style.setProperty("--t20a-chat-sombra", contraste.sombra);
+    }
+
+    // Nos dois estilos: magias separam Aprimoramentos e Outros bônus; armas e
+    // demais itens resumem os encantos e melhorias numa linha.
+    try { organizarEfeitosDeUso(message, root, actor); }
+    catch (err) { console.warn(`${MODULE_ID} | falha ao organizar os efeitos de uso:`, err); }
 
     // Retrato no cabeçalho: arte do personagem ou do token (opção por usuário);
     // sem ator, opcionalmente o avatar do jogador que enviou
@@ -1442,7 +1490,7 @@ Hooks.on("renderSettingsConfig", (_app, element) => {
 const CATEGORIAS_CONFIG = [
     { rotulo: "CatAparencia", icone: "fa-palette",  chaves: ["enabled", "estiloInterface", "corPadrao"] },
     { rotulo: "CatFicha",     icone: "fa-scroll",   chaves: ["origemPoderesMundo", "origemPoderes"] },
-    { rotulo: "CatChat",      icone: "fa-comments", chaves: ["chatRetrato", "chatFundo", "chatCorUnica", "chatCorJogadores", "chatCorMestre", "chatRetratoSemAtor"] },
+    { rotulo: "CatChat",      icone: "fa-comments", chaves: ["chatRetrato", "chatFundo", "chatCorUnica", "chatCorJogadores", "chatCorMestre", "chatEstilo", "chatRetratoSemAtor"] },
     { rotulo: "CatPausa",     icone: "fa-pause",    chaves: ["pausaTexto", "pausaIcone", "pausaGirar"] }
 ];
 

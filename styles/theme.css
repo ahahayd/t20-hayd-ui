@@ -1995,6 +1995,475 @@ body.t20a-ui #context-menu.t20a-context-menu[popover] {
 }
 
 /* ==========================================================================
+   CHAT – estilo novo (opção "Estilo do chat: Novo"; scripts/chat-cartoes.mjs)
+   Tudo aqui exige .t20a-chat-novo na mensagem: o estilo legado (as regras
+   acima) continua intacto quando o usuário escolhe "Legado".
+   Cores: --t20a-chat-cor (texto/contorno, >= 4.5:1 sobre o fundo),
+   --t20a-chat-cor-marca (detalhes gráficos, >= 3:1), --t20a-chat-sobre-cor
+   (texto sobre um preenchimento --t20a-chat-cor) e --t20a-chat-texto(-suave)
+   (tom do corpo da mensagem).
+   ========================================================================== */
+
+/* ── Cor do jogador: faixa lateral, não o cabeçalho inteiro ────────────── */
+.t20a-chat-msg.t20a-chat-novo {
+    border-left: 4px solid var(--t20a-chat-cor-marca, var(--t20a-chat-cor)) !important;
+    overflow: hidden;
+}
+
+.t20a-chat-msg.t20a-chat-novo .message-header {
+    border-radius: 0 !important;
+    background: rgba(0, 0, 0, 0.32) !important;
+    border-bottom: 1px solid color-mix(in srgb, var(--t20a-chat-cor-marca, var(--t20a-chat-cor)) 70%, transparent) !important;
+}
+
+.t20a-chat-msg.t20a-chat-novo.t20a-chat-player .message-header {
+    background: rgba(110, 80, 40, 0.12) !important;
+}
+
+.t20a-chat-msg.t20a-chat-novo .message-delete:hover {
+    color: var(--t20a-chat-cor) !important;
+}
+
+/* ── Botões: contorno na cor do jogador; preenchido só no hover ────────── */
+.t20a-chat-msg.t20a-chat-novo .message-content button,
+.t20a-chat-msg.t20a-chat-novo .card-buttons button,
+.t20a-chat-msg.t20a-chat-novo footer button {
+    background: color-mix(in srgb, var(--t20a-chat-cor) 12%, transparent) !important;
+    color: var(--t20a-chat-texto) !important;
+    border: 1px solid color-mix(in srgb, var(--t20a-chat-cor) 75%, transparent) !important;
+    border-radius: 4px !important;
+    transition: background 120ms ease, color 120ms ease;
+}
+
+.t20a-chat-msg.t20a-chat-novo .message-content button:hover:not(:disabled),
+.t20a-chat-msg.t20a-chat-novo .card-buttons button:hover:not(:disabled),
+.t20a-chat-msg.t20a-chat-novo footer button:hover:not(:disabled) {
+    background: var(--t20a-chat-cor) !important;
+    color: var(--t20a-chat-sobre-cor) !important;
+}
+
+.t20a-chat-msg.t20a-chat-novo .message-content button:focus-visible {
+    outline: 2px solid var(--t20a-chat-cor) !important;
+    outline-offset: 1px;
+}
+
+.t20a-chat-msg.t20a-chat-novo .dice-tooltip {
+    border-color: var(--t20a-chat-cor-marca, var(--t20a-chat-cor)) !important;
+}
+
+.t20a-chat-novo .t20a-oculto {
+    display: none !important;
+}
+
+/* ── Cabeçalho do cartão: arte, nome, tipo e custo ─────────────────────── */
+.t20a-chat-msg.t20a-chat-novo .t20a-cartao > header.card-header {
+    flex-wrap: nowrap !important;
+    margin: 0 0 6px !important;
+    padding: 0 !important;
+    align-items: center !important;
+}
+
+.t20a-chat-msg.t20a-chat-novo .t20a-cartao > header.card-header > img {
+    border-radius: 4px !important;
+    border: 1px solid var(--t20a-chat-cor-marca, var(--t20a-chat-cor)) !important;
+}
+
+.t20a-chat-novo .t20a-cartao .item-name {
+    flex: 1 1 auto !important;
+    display: flex !important;
+    flex-direction: column;
+    gap: 1px;
+    margin: 0 !important;
+    min-width: 0;
+    font-size: 1.05em !important;
+    line-height: 1.15 !important;
+    border: none !important;
+}
+
+.t20a-chat-novo .t20a-cartao-tipo {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--t20a-chat-texto-suave) !important;
+}
+
+.t20a-chat-novo .t20a-cartao-tipo > i {
+    color: var(--t20a-chat-cor);
+    font-size: 0.95em;
+}
+
+/* Custo em PM: botão simples à direita, só com o texto. Continua sendo o
+   button.chat-spend-mana do sistema (mesmo handler, mesmo value). */
+.t20a-chat-msg.t20a-chat-novo .t20a-cartao > header .chat-spend-mana {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 24px !important;
+    margin: 0 !important;
+    padding: 2px 10px !important;
+    border-radius: 4px !important;
+    font-size: 0.8rem !important;
+    line-height: 1.3 !important;
+    white-space: nowrap;
+}
+
+.t20a-chat-msg.t20a-chat-novo .t20a-cartao > header .chat-spend-mana.truque {
+    border-style: dashed !important;
+    background: transparent !important;
+}
+
+/* Botões de aplicar efeito/aprimoramento: arte à esquerda, texto ao lado,
+   nunca por cima (o legado põe a arte em order 2 com margem própria). */
+.t20a-chat-msg.t20a-chat-novo .message-content button.chat-apply-ae {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 34px;
+    margin: 0 0 4px !important;
+    padding: 3px 8px 3px 3px !important;
+    text-align: left !important;
+    line-height: 1.25 !important;
+    white-space: normal !important;
+}
+
+.t20a-chat-msg.t20a-chat-novo .message-content button.chat-apply-ae > img {
+    position: static !important;
+    order: 0 !important;
+    flex: 0 0 26px !important;
+    width: 26px !important;
+    height: 26px !important;
+    margin: 0 !important;
+    border-radius: 3px !important;
+    object-fit: cover !important;
+}
+
+/* ── Ficha da magia (execução, alcance, alvo…) em grade ────────────────── */
+.t20a-chat-novo .t20a-cartao > .card-item-header {
+    margin: 0 0 6px !important;
+    padding: 0 !important;
+    border: none !important;
+}
+
+.t20a-chat-novo .t20a-cartao-ficha {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    margin: 0;
+}
+
+/* Número ímpar de campos: o último ocupa a linha inteira. */
+.t20a-chat-novo .t20a-cartao-ficha-par:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+}
+
+.t20a-chat-novo .t20a-cartao-ficha-par {
+    padding: 3px 6px;
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--t20a-chat-texto) 7%, transparent);
+    border-left: 2px solid var(--t20a-chat-cor-marca, var(--t20a-chat-cor));
+    min-width: 0;
+}
+
+.t20a-chat-novo .t20a-cartao-ficha dt {
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--t20a-chat-texto-suave) !important;
+}
+
+.t20a-chat-novo .t20a-cartao-ficha dd {
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+/* ── Descrição: o nome do item mostra/oculta; clicar no início revela tudo ──
+   As classes vencem o display inline que o sistema põe na descrição
+   (opção "recolher cartões" dele). */
+.t20a-chat-msg.t20a-chat-novo .t20a-descricao {
+    display: block !important;
+    margin-bottom: 6px;
+}
+
+.t20a-chat-msg.t20a-chat-novo .t20a-descricao.t20a-descricao--oculta {
+    display: none !important;
+}
+
+.t20a-chat-novo .t20a-descricao.t20a-recolhida {
+    max-height: 5.4em;
+    overflow: hidden;
+    cursor: pointer;
+    -webkit-mask-image: linear-gradient(#000 50%, transparent);
+    mask-image: linear-gradient(#000 50%, transparent);
+}
+
+.t20a-chat-novo .t20a-cartao--com-descricao > header .item-name {
+    cursor: pointer;
+}
+
+.t20a-chat-novo .t20a-cartao--com-descricao > header .item-name > div:first-child {
+    text-decoration: underline transparent;
+    text-underline-offset: 3px;
+    transition: text-decoration-color 120ms ease;
+}
+
+.t20a-chat-novo .t20a-cartao--com-descricao > header .item-name:hover > div:first-child,
+.t20a-chat-novo .t20a-cartao--com-descricao > header .item-name:focus-visible > div:first-child {
+    text-decoration-color: currentColor;
+}
+
+.t20a-chat-novo .t20a-cartao--com-descricao > header .item-name:focus-visible {
+    outline: none;
+}
+
+/* ── Efeitos de uso (novo E legado): "X PM: Encantos e melhorias de …" e,
+   nas magias, as listas Aprimoramentos / Outros bônus ─────────────────── */
+.t20a-chat-msg .card-upgrades .t20a-oculto,
+.t20a-chat-msg .t20a-oculto.card-upgrades,
+.t20a-chat-msg .card-upgrades .t20a-excedente {
+    display: none !important;
+}
+
+/* Efeito sem custo: sem o "0 PM:" na frente */
+.t20a-chat-msg .card-upgrades .t20a-sem-custo .row > b:first-child {
+    display: none;
+}
+
+/* "Mostrar mais N" / "Mostrar menos" no fim da lista de efeitos de uso.
+   Cor do texto (no legado --t20a-chat-cor pode ser ilegível sobre o fundo);
+   no estilo novo, a cor do jogador já ajustada. */
+.t20a-chat-msg .t20a-efeitos-mais {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin: 0 0 6px;
+    font-size: 0.85em;
+    font-weight: 700;
+    color: inherit !important;
+    cursor: pointer;
+    text-decoration: underline dotted !important;
+    text-underline-offset: 3px;
+}
+
+.t20a-chat-msg.t20a-chat-novo .t20a-efeitos-mais {
+    color: var(--t20a-chat-cor) !important;
+    text-decoration: none !important;
+}
+
+.t20a-chat-msg .t20a-efeitos-mais:hover,
+.t20a-chat-msg .t20a-efeitos-mais:focus-visible,
+.t20a-chat-msg.t20a-chat-novo .t20a-efeitos-mais:hover,
+.t20a-chat-msg.t20a-chat-novo .t20a-efeitos-mais:focus-visible {
+    text-decoration: underline solid !important;
+    outline: none;
+}
+
+.t20a-chat-msg .t20a-efeitos-resumo {
+    margin: 0 0 6px;
+    /* Mesmo tamanho da lista de efeitos que continua no cartão. */
+    font-size: inherit;
+}
+
+.t20a-chat-msg .t20a-efeitos-custo {
+    font-weight: 700;
+}
+
+/* Legado: --t20a-chat-cor é a cor crua do jogador (pode ser ilegível sobre
+   o fundo), então o gatilho usa a cor do texto, sublinhado pontilhado. */
+.t20a-chat-msg .t20a-efeitos-gatilho {
+    color: inherit !important;
+    cursor: pointer;
+    text-decoration: underline dotted !important;
+    text-underline-offset: 3px;
+}
+
+.t20a-chat-msg.t20a-chat-novo .t20a-efeitos-gatilho {
+    color: var(--t20a-chat-cor) !important;
+    text-decoration: none !important;
+}
+
+.t20a-chat-msg .t20a-efeitos-gatilho:hover,
+.t20a-chat-msg .t20a-efeitos-gatilho:focus-visible,
+.t20a-chat-msg.t20a-chat-novo .t20a-efeitos-gatilho:hover,
+.t20a-chat-msg.t20a-chat-novo .t20a-efeitos-gatilho:focus-visible {
+    text-decoration: underline solid !important;
+    outline: none;
+}
+
+.t20a-chat-msg .t20a-efeitos-gatilho strong {
+    font-weight: 800;
+}
+
+.t20a-chat-msg .t20a-efeitos-qtd {
+    margin-left: 3px;
+    font-size: 0.85em;
+    opacity: 0.75;
+}
+
+.t20a-chat-msg .t20a-efeitos-grupo + .t20a-efeitos-grupo {
+    margin-top: 6px;
+}
+
+.t20a-chat-msg .t20a-efeitos-grupo-titulo {
+    margin: 0 0 2px;
+    font-size: 0.72em;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.75;
+}
+
+.t20a-chat-msg.t20a-chat-novo .t20a-efeitos-grupo-titulo {
+    opacity: 1;
+    color: var(--t20a-chat-texto-suave) !important;
+}
+
+.t20a-chat-msg .t20a-efeitos-grupo > ul {
+    margin-top: 0 !important;
+}
+
+/* ── Dados no detalhamento da rolagem, em tooltip escuro ────────────────
+   O Foundry desenha cada dado com o ícone PRETO (d20black.svg…) e número
+   escuro: some no fundo escuro. Cada dado ganha um quadrinho claro atrás,
+   com o mesmo contraste das mensagens claras (máximo/mínimo continuam
+   verde/vermelho do core). Vale nos dois estilos. */
+.t20a-chat-npc .dice-tooltip .dice-rolls .roll {
+    color: #f4f1ea;
+    font-weight: 700;
+    text-shadow: 0 0 2px #000, 0 0 2px #000, 0 0 1px #000;
+    opacity: 1 !important;
+}
+
+.t20a-chat-npc .dice-tooltip .dice-rolls .roll.max,
+.t20a-chat-npc .dice-tooltip .dice-rolls .roll.success {
+    color: #9be38a;
+}
+
+.t20a-chat-npc .dice-tooltip .dice-rolls .roll.min,
+.t20a-chat-npc .dice-tooltip .dice-rolls .roll.failure {
+    color: #ff9a96;
+}
+
+/* Popover: fica no <body> (fora do chat), com fundo próprio no tom da
+   mensagem de origem e as variáveis de cor copiadas dela. */
+.t20a-efeitos-popover {
+    position: fixed;
+    z-index: 10000;
+    max-height: min(60vh, 420px);
+    overflow-y: auto;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border-left: 4px solid var(--t20a-chat-cor-marca, var(--t20a-chat-cor, #960505));
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+.t20a-efeitos-popover--claro {
+    background: #ece9df url("../assets/fundos/background-light.webp") center / cover;
+    color: #18192b;
+}
+
+.t20a-efeitos-popover--escuro {
+    background: #2b2622 url("../assets/fundos/background-dark4.webp") center / cover;
+    color: #eceaf2;
+}
+
+.t20a-efeitos-popover-titulo {
+    margin: 0 0 6px;
+    padding-bottom: 4px;
+    font-weight: 800;
+    border-bottom: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+}
+
+.t20a-efeitos-popover ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.t20a-efeitos-popover li {
+    margin: 0 0 4px;
+}
+
+.t20a-efeitos-popover li .row > b:first-child {
+    color: var(--t20a-chat-cor, inherit);
+    white-space: nowrap;
+}
+
+/* ── Rolagens: um bloco por teste/dano; lado a lado quando cabe ─────────── */
+.t20a-chat-novo .t20a-cartao-rolagens {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 6px;
+    margin: 6px 0;
+}
+
+.t20a-chat-novo .t20a-rolagem {
+    min-width: 0;
+    padding: 4px 6px 6px;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--t20a-chat-texto) 6%, transparent);
+    border: 1px solid color-mix(in srgb, var(--t20a-chat-texto) 18%, transparent);
+}
+
+.t20a-chat-novo .t20a-rolagem-titulo {
+    display: flex !important;
+    align-items: center;
+    gap: 5px;
+    margin: 0 0 3px !important;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--t20a-chat-texto-suave) !important;
+}
+
+.t20a-chat-novo .t20a-rolagem-titulo::before {
+    font-family: var(--font-awesome, "Font Awesome 6 Pro");
+    font-weight: 900;
+    color: var(--t20a-chat-cor);
+    font-size: 1.05em;
+}
+
+.t20a-chat-novo .t20a-rolagem--teste .t20a-rolagem-titulo::before { content: "\f6cf"; } /* fa-dice-d20 */
+.t20a-chat-novo .t20a-rolagem--dano .t20a-rolagem-titulo::before { content: "\e4dc"; }  /* fa-burst */
+
+.t20a-chat-novo .t20a-rolagem .roll {
+    margin: 0 !important;
+}
+
+.t20a-chat-novo .t20a-rolagem .dice-total,
+.t20a-chat-novo .t20a-teste-avulso .dice-total {
+    font-size: 1.45em !important;
+    font-weight: 800 !important;
+}
+
+/* Crítico e falha: cor fixa (não depende da cor do jogador), com o tom
+   escolhido pelo fundo para manter contraste. */
+.t20a-chat-novo.t20a-chat-player .t20a-rolagem--critico { border-color: #1e7a2a; box-shadow: inset 0 0 0 1px #1e7a2a; }
+.t20a-chat-novo.t20a-chat-npc .t20a-rolagem--critico { border-color: #6fdc7d; box-shadow: inset 0 0 0 1px #6fdc7d; }
+.t20a-chat-novo.t20a-chat-player .t20a-rolagem--falha { border-color: #b3261e; box-shadow: inset 0 0 0 1px #b3261e; }
+.t20a-chat-novo.t20a-chat-npc .t20a-rolagem--falha { border-color: #ff7a6e; box-shadow: inset 0 0 0 1px #ff7a6e; }
+
+/* ── Efeitos e gabarito no rodapé ──────────────────────────────────────── */
+.t20a-chat-novo .t20a-cartao > footer {
+    margin-top: 4px !important;
+    gap: 4px;
+}
+
+/* ==========================================================================
    DIALOGS do sistema Tormenta20 — tema darkNeon (ability-use, item-use, etc.)
    Escopo: .tormenta20.window-app.dialog.t20a — a classe .t20a é posta pelo JS
    diretamente na janela quando o tema darkNeon está selecionado, o que serve

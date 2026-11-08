@@ -52,7 +52,11 @@
             "PausaIconeName": "Ícone da tela de pausa",
             "PausaIconeHint": "Imagem no lugar do ícone padrão da pausa. Vazio mantém o padrão da Foundry.",
             "PausaGirarName": "Girar o ícone da pausa",
-            "PausaGirarHint": "O ícone da pausa fica girando, como no padrão da Foundry."
+            "PausaGirarHint": "O ícone da pausa fica girando, como no padrão da Foundry.",
+            "ChatEstiloName": "Estilo do chat",
+            "ChatEstiloHint": "Legado é o estilo do chat da v2.4.0 e anteriores. Novo é focado na organização e na compatibilidade com os outros módulos T20 Hayd.",
+            "ChatEstiloNovo": "Novo",
+            "ChatEstiloLegado": "Legado"
         },
         "HeaderButton": "Cor da Ficha",
         "Dialog": {
@@ -328,6 +332,21 @@
             "SemEfeitos": "Nenhum efeito ativo. Destrave a ficha (lápis) para criar.",
             "DiarioVazio": "Nada escrito sobre esta ameaça ainda. Clique no ícone de edição no canto para escrever.",
             "LerTudo": "Clique para ler tudo / recolher"
+        },
+        "Chat": {
+            "Tipo": {
+                "ataque": "Ataque",
+                "magia": "Magia",
+                "poder": "Poder",
+                "consumivel": "Consumível",
+                "item": "Item"
+            },
+            "EfeitosDeUsoDe": "de {item}",
+            "EncantosMelhorias": "Encantos e melhorias",
+            "Aprimoramentos": "Aprimoramentos",
+            "OutrosBonus": "Outros bônus",
+            "MostrarMais": "Mostrar mais {n}",
+            "MostrarMenos": "Mostrar menos"
         }
     }
 }
