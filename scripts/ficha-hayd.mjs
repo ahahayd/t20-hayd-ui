@@ -110,7 +110,11 @@ const SELOS_CD = {
     inventor: { arquivo: "selo-cd-inventor.webp", nome: "Inventor" },
     necromante: { arquivo: "selo-cd-necromante.webp", nome: "Necromante" },
     ventanista: { arquivo: "selo-cd-ventanista.webp", nome: "Ventanista" },
-    veneno: { arquivo: "selo-cd-veneno.webp", nome: "Veneno" }
+    veneno: { arquivo: "selo-cd-veneno.webp", nome: "Veneno" },
+    barbaro: { arquivo: "selo-cd-barbaro.webp", nome: "Bárbaro" },
+    elementalista: { arquivo: "selo-cd-elementalista.webp", nome: "Elementalista" },
+    guerreiro: { arquivo: "selo-cd-guerreiro.webp", nome: "Guerreiro" },
+    nobre: { arquivo: "selo-cd-nobre.webp", nome: "Nobre" }
 };
 const rotaSelo = (chave) => foundry.utils.getRoute(`modules/${MODULE_ID}/assets/selos/${(SELOS_CD[chave] ?? SELOS_CD.arcano).arquivo}`);
 
