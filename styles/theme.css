@@ -3492,3 +3492,13 @@ body.t20a-dice-tray:has(#interface.theme-light) .dice-tray {
 body.t20a-dice-tray:has(#interface.theme-light) .dice-tray input[type=text] {
     background: rgba(255, 255, 255, 0.6) !important;
 }
+
+/* Bônus digitado à mão na janela de uso: ícone discreto ao lado da fórmula. */
+.chat-message .t20a-bonus-manual {
+    font-size: 0.7em;
+    margin-left: 0.4em;
+    opacity: 0.55;
+    vertical-align: middle;
+    cursor: help;
+}
+.chat-message .t20a-bonus-manual:hover { opacity: 1; }

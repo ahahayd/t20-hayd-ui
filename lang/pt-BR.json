@@ -55,6 +55,11 @@
             "PausaGirarHint": "O ícone da pausa fica girando, como no padrão da Foundry.",
             "ChatEstiloName": "Estilo do chat",
             "ChatEstiloHint": "Legado é o estilo do chat da v2.4.0 e anteriores. Novo é focado na organização e na compatibilidade com os outros módulos T20 Hayd.",
+            "ChatBonusManualName": "Marca de bônus manual",
+            "ChatBonusManualHint": "Mostra um ícone discreto ao lado da fórmula quando o jogador digita um bônus à mão na janela de uso.",
+            "ChatBonusManualGm": "Só o mestre",
+            "ChatBonusManualTodos": "Todos",
+            "ChatBonusManualNinguem": "Ninguém",
             "ChatEstiloNovo": "Novo",
             "ChatEstiloLegado": "Legado"
         },
@@ -337,6 +342,7 @@
             "LerTudo": "Clique para ler tudo / recolher"
         },
         "Chat": {
+            "BonusManual": { "ataque": "Bônus de acerto adicionado manualmente", "dano": "Bônus de dano adicionado manualmente", "teste": "Bônus adicionado manualmente" },
             "Tipo": {
                 "ataque": "Ataque",
                 "magia": "Magia",

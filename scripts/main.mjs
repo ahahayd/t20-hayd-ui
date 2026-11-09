@@ -21,6 +21,7 @@ import { registrarFichaMestre, ehFichaMestre, CLASSE_MESTRE } from "./ficha-mest
 import { aplicarTomDaMensagem, agendarCorrecaoContrasteChat } from "./chat-contraste.mjs";
 import { variacoesDaCor, estruturarCartoes, organizarEfeitosDeUso, marcarPrivacidade } from "./chat-cartoes.mjs";
 import { registrarTokenizer } from "./tokenizer.mjs";
+import { registrarBonusManual } from "./bonus-manual.mjs";
 
 const MODULE_ID = "t20-hayd-ui";
 const SYSTEM_ID = "tormenta20";
@@ -218,6 +219,21 @@ Hooks.once("init", () => {
             avatar: "T20A.Settings.ChatRetratoSemAtorAvatar"
         },
         default: "nada",
+        onChange: redesenharChat
+    });
+
+    game.settings.register(MODULE_ID, "chatBonusManual", {
+        name: "T20A.Settings.ChatBonusManualName",
+        hint: "T20A.Settings.ChatBonusManualHint",
+        scope: "world",
+        config: true,
+        type: String,
+        choices: {
+            gm: "T20A.Settings.ChatBonusManualGm",
+            todos: "T20A.Settings.ChatBonusManualTodos",
+            ninguem: "T20A.Settings.ChatBonusManualNinguem"
+        },
+        default: "gm",
         onChange: redesenharChat
     });
 });
@@ -1519,7 +1535,7 @@ Hooks.on("renderSettingsConfig", (_app, element) => {
 const CATEGORIAS_CONFIG = [
     { rotulo: "CatAparencia", icone: "fa-palette",  chaves: ["enabled", "estiloInterface", "corPadrao"] },
     { rotulo: "CatFicha",     icone: "fa-scroll",   chaves: ["origemPoderesMundo", "origemPoderes"] },
-    { rotulo: "CatChat",      icone: "fa-comments", chaves: ["chatRetrato", "chatFundo", "chatCorUnica", "chatCorJogadores", "chatCorMestre", "chatEstilo", "chatRetratoSemAtor"] },
+    { rotulo: "CatChat",      icone: "fa-comments", chaves: ["chatRetrato", "chatFundo", "chatCorUnica", "chatCorJogadores", "chatCorMestre", "chatEstilo", "chatRetratoSemAtor", "chatBonusManual"] },
     { rotulo: "CatPausa",     icone: "fa-pause",    chaves: ["pausaTexto", "pausaIcone", "pausaGirar"] }
 ];
 
@@ -1563,3 +1579,5 @@ Hooks.on("renderSettingsConfig", (_app, element) => {
     const root = elementoRaiz(element);
     if (root) organizarConfiguracoes(root);
 });
+
+registrarBonusManual();
