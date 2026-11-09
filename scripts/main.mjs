@@ -19,7 +19,7 @@ import {
 import { registrarFichaAmeaca, ehFichaAmeaca, CLASSE_AMEACA } from "./ficha-ameaca.mjs";
 import { registrarFichaMestre, ehFichaMestre, CLASSE_MESTRE } from "./ficha-mestre.mjs";
 import { aplicarTomDaMensagem, agendarCorrecaoContrasteChat } from "./chat-contraste.mjs";
-import { variacoesDaCor, estruturarCartoes, organizarEfeitosDeUso } from "./chat-cartoes.mjs";
+import { variacoesDaCor, estruturarCartoes, organizarEfeitosDeUso, marcarPrivacidade } from "./chat-cartoes.mjs";
 import { registrarTokenizer } from "./tokenizer.mjs";
 
 const MODULE_ID = "t20-hayd-ui";
@@ -204,7 +204,7 @@ Hooks.once("init", () => {
             legado: "T20A.Settings.ChatEstiloLegado"
         },
         default: "novo",
-        onChange: redesenharChat
+        onChange: () => { redesenharChat(); aplicarTemaDiceTray(); }
     });
 
     game.settings.register(MODULE_ID, "chatRetratoSemAtor", {
@@ -777,6 +777,10 @@ function aplicarTemaChatMsg(message, html) {
     // demais itens resumem os encantos e melhorias numa linha.
     try { organizarEfeitosDeUso(message, root, actor); }
     catch (err) { console.warn(`${MODULE_ID} | falha ao organizar os efeitos de uso:`, err); }
+
+    // Nos dois estilos: selo de privada / cega / particular / sussurro.
+    try { marcarPrivacidade(message, root); }
+    catch (err) { console.warn(`${MODULE_ID} | falha ao marcar a privacidade da mensagem:`, err); }
 
     // Retrato no cabeçalho: arte do personagem ou do token (opção por usuário);
     // sem ator, opcionalmente o avatar do jogador que enviou
@@ -1430,6 +1434,31 @@ function corCSSDoUsuario(user) {
     }
     return null;
 }
+
+/**
+ * Integração com o Dice Tray (dice-calculator): com o chat no estilo novo, a
+ * bandeja abaixo da caixa de texto segue a linguagem dos botões das mensagens,
+ * na cor do jogador. Aqui só se marca o body e se definem as cores; o visual
+ * fica em styles/theme.css ("Dice Tray").
+ */
+function aplicarTemaDiceTray() {
+    const ativo = !!game.modules.get("dice-calculator")?.active
+        && game.settings.get(MODULE_ID, "chatEstilo") !== "legado";
+    const body = document.body;
+    body.classList.toggle("t20a-dice-tray", ativo);
+    if (!ativo) return;
+    const claro = !!document.getElementById("interface")?.classList.contains("theme-light");
+    const cor = corCSSDoUsuario(game.user) ?? corPadraoConfigurada();
+    const v = variacoesDaCor(normalizarHex(cor) ?? cor, claro);
+    body.style.setProperty("--t20a-tray-cor", v.texto);
+    body.style.setProperty("--t20a-tray-marca", v.marca);
+    body.style.setProperty("--t20a-tray-sobre", v.sobre);
+}
+
+Hooks.once("ready", aplicarTemaDiceTray);
+Hooks.on("updateUser", (user, mudancas) => {
+    if (user.isSelf && "color" in mudancas) aplicarTemaDiceTray();
+});
 
 function corPadraoConfigurada() {
     try {

@@ -1688,3 +1688,108 @@ body.t20a-theme-darkmode #context-menu.t20a-context-menu .context-group:first-ch
     scrollbar-width: thin !important;
     scrollbar-color: var(--t20a-cor-destaque, #888) transparent !important;
 }
+
+/* ── Janela de uso: colunas e linhas da lista de aprimoramentos ─────────
+   Nome e Fonte ficavam colados (ex.: Fúria Natural). A coluna Fonte ganha
+   um filete vertical discreto, texto mais apagado e largura fixa; as linhas
+   ganham zebra leve e hover, como as tabelas das fichas. */
+.tormenta20.window-app.dialog.t20a-dm .aprimoramentos-list > li {
+    align-items: center !important;
+    gap: 0 !important;
+}
+.tormenta20.window-app.dialog.t20a-dm .aprimoramentos-list > li > :is(h3, h4, small) {
+    margin: 0 !important;
+    padding: 2px 10px !important;
+}
+.tormenta20.window-app.dialog.t20a-dm .aprimoramentos-list > li > .item-cost {
+    flex: 0 0 108px !important;
+    align-items: center !important;
+}
+.tormenta20.window-app.dialog.t20a-dm .aprimoramentos-list > li > :is(h3, small):last-child:not(:nth-child(2)) {
+    flex: 0 0 34% !important;
+    align-self: stretch !important;
+    display: flex !important;
+    align-items: center !important;
+    border-left: 1px solid var(--t20dm-border-soft) !important;
+}
+.tormenta20.window-app.dialog.t20a-dm .aprimoramentos-list > li.items-header > h3:first-child {
+    flex: 0 0 108px !important;
+    padding-left: 0 !important;
+}
+.tormenta20.window-app.dialog.t20a-dm .aprimoramentos-list > li > small {
+    color: var(--t20dm-text-muted) !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+}
+.tormenta20.window-app.dialog.t20a-dm .aprimoramentos-list > li.item:not(.items-header):nth-child(odd) {
+    background: color-mix(in oklab, var(--t20dm-bg-elevated) 92%, currentColor 3%) !important;
+}
+.tormenta20.window-app.dialog.t20a-dm .aprimoramentos-list > li.item:not(.items-header):hover {
+    background: var(--t20dm-acento-suave) !important;
+}
+.tormenta20.window-app.dialog.t20a-dm .aprimoramentos-list > li.item:not(.items-header):has(input[type=checkbox]:checked) > .item-name {
+    color: var(--t20dm-text-primary) !important;
+}
+.tormenta20.window-app.dialog.t20a-dm .aprimoramentos-list > li.item:not(.items-header):has(input[type=checkbox]:checked) {
+    box-shadow: inset 2px 0 0 var(--t20dm-acento) !important;
+}
+/* Passo de PM (− 0 + 1 PM): não quebra nem espreme. */
+.tormenta20.window-app.dialog.t20a-dm .aprimoramentos-list > li > .item-cost {
+    flex-wrap: nowrap !important;
+    gap: 2px !important;
+}
+.tormenta20.window-app.dialog.t20a-dm .aprimoramentos-list > li > .item-cost > :is(.numCtrl, .numInp) {
+    flex: 0 0 auto !important;
+}
+.tormenta20.window-app.dialog.t20a-dm .aprimoramentos-list > li > .item-cost > label {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+    margin-left: 2px !important;
+}
+.tormenta20.window-app.dialog.t20a-dm .aprimoramentos-list > li > .item-name {
+    min-width: 0 !important;
+}
+
+/* Melhor/Pior de 2d20 e Roll Mode lado a lado, rótulo em cima do select:
+   duas linhas viram uma. O resto do formulário segue ocupando a largura toda. */
+.tormenta20.window-app.dialog.t20a-dm #ability-use-form {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    column-gap: 8px !important;
+}
+.tormenta20.window-app.dialog.t20a-dm #ability-use-form > * {
+    flex: 1 0 100% !important;
+    min-width: 0 !important;
+}
+.tormenta20.window-app.dialog.t20a-dm #ability-use-form > .form-group:has(> select:is([name=rollKeep], [name=rollMode])) {
+    flex: 1 1 calc(50% - 4px) !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 3px !important;
+    border-bottom: none !important;
+}
+.tormenta20.window-app.dialog.t20a-dm #ability-use-form > .form-group:has(> select:is([name=rollKeep], [name=rollMode])) > :is(label, select) {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+/* ── Links de referência (@UUID, rolagens inline) em fichas e itens ─────
+   O core pinta o fundo claro (--color-bg-link) e o texto ficava na cor de
+   destaque: com destaques claros (dourado) ficava ilegível. Aqui o chip usa
+   o fundo e o texto do tema; o destaque só aparece na borda e no ícone. */
+.t20a-dm :is(.content-link, .inline-roll, .document-link):not(.header-button) {
+    background: var(--t20dm-bg-elevated) !important;
+    color: var(--t20dm-text-primary) !important;
+    border: 1px solid var(--t20dm-border) !important;
+    border-radius: 3px !important;
+    padding: 0 4px !important;
+    text-shadow: none !important;
+}
+.t20a-dm :is(.content-link, .inline-roll, .document-link):not(.header-button) > i {
+    color: var(--t20dm-acento-claro) !important;
+    opacity: 0.9;
+}
+.t20a-dm :is(.content-link, .inline-roll, .document-link):not(.header-button):hover {
+    border-color: var(--t20dm-acento-claro) !important;
+}

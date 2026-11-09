@@ -454,7 +454,7 @@ function separarAprimoramentos(card, item) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Efeitos sem custo primeiro, sem o "0 PM"                                   */
+/*  Efeitos sem custo por último, sem o "0 PM"                                 */
 /* -------------------------------------------------------------------------- */
 
 /** A linha não custa PM ("0 PM:" ou custo vazio)? "Truque:" não conta. */
@@ -466,9 +466,9 @@ function semCusto(li) {
 }
 
 /**
- * Em cada lista de efeitos de uso, os que não custam PM sobem para o topo
- * (na ordem em que vieram) e perdem o "0 PM:" na frente. As linhas são os
- * mesmos <li>, só mudam de posição.
+ * Em cada lista de efeitos de uso, os que gastam PM vêm primeiro e os que
+ * não custam vão para o fim (na ordem em que vieram), sem o "0 PM:" na
+ * frente. As linhas são os mesmos <li>, só mudam de posição.
  */
 function ordenarSemCusto(card) {
     const bloco = card.querySelector(":scope > .card-upgrades");
@@ -476,7 +476,7 @@ function ordenarSemCusto(card) {
     for (const ul of bloco.querySelectorAll("ul")) {
         const gratis = [...ul.children].filter(li => li.tagName === "LI" && semCusto(li));
         for (const li of gratis) li.classList.add("t20a-sem-custo");
-        ul.prepend(...gratis);
+        ul.append(...gratis);
     }
 }
 
@@ -556,6 +556,62 @@ export function organizarEfeitosDeUso(message, root, actor) {
         ordenarSemCusto(card);
         limitarEfeitos(card, message);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Privacidade: pública, privada, cega, particular, sussurro                  */
+/* -------------------------------------------------------------------------- */
+
+/** Mesmos ícones dos botões de modo de rolagem do Foundry. */
+const ICONES_PRIVACIDADE = {
+    mestre: "fa-solid fa-user-secret",
+    cega: "fa-solid fa-eye-slash",
+    particular: "fa-solid fa-user",
+    sussurro: "fa-solid fa-comment-dots"
+};
+
+/**
+ * Modo de privacidade da mensagem, deduzido de quem a recebe (o Foundry não
+ * guarda o modo de rolagem): sem destinatários → pública; `blind` → cega;
+ * só o próprio autor → particular; só Mestres → privada; senão, sussurro.
+ * Um Mestre sozinho que rola "privada" cai em particular: para ele, dá no mesmo.
+ */
+export function modoDePrivacidade(message) {
+    const destinos = [...(message.whisper ?? [])];
+    if (!destinos.length) return "publica";
+    if (message.blind) return "cega";
+    const autor = message.author?.id;
+    if (destinos.length === 1 && destinos[0] === autor) return "particular";
+    if (destinos.every(id => game.users.get(id)?.isGM)) return "mestre";
+    return "sussurro";
+}
+
+/**
+ * Marca a mensagem com o modo de privacidade (nos dois estilos): classe
+ * t20a-priv--<modo> no <li> e, se não for pública, um selo com ícone e
+ * rótulo logo depois do nome. Nos modos de rolagem o "Para: Mestre" do Foundry
+ * vira redundante e some; no sussurro ele fica (diz para quem).
+ */
+export function marcarPrivacidade(message, root) {
+    const modo = modoDePrivacidade(message);
+    for (const c of [...root.classList]) if (c.startsWith("t20a-priv--")) root.classList.remove(c);
+    root.classList.add(`t20a-priv--${modo}`);
+    root.querySelector(":scope > .message-header .t20a-privacidade")?.remove();
+    if (modo === "publica") return;
+
+    // Fora de .message-metadata: o sistema esconde a hora até o hover.
+    const header = root.querySelector(":scope > .message-header");
+    const sender = header?.querySelector(":scope > .message-sender");
+    if (!sender) return;
+    const nomes = [...(message.whisper ?? [])].map(id => game.users.get(id)?.name).filter(Boolean).join(", ");
+    const dica = modo === "sussurro"
+        ? game.i18n.format("T20A.Chat.Privacidade.sussurroDica", { nomes })
+        : game.i18n.localize(`T20A.Chat.Privacidade.${modo}Dica`);
+    const selo = el("span", `t20a-privacidade t20a-privacidade--${modo}`);
+    selo.dataset.tooltipText = dica; // texto puro: nomes de usuário não viram HTML
+    selo.setAttribute("aria-label", dica);
+    selo.append(el("i", ICONES_PRIVACIDADE[modo]), el("span", null, game.i18n.localize(`T20A.Chat.Privacidade.${modo}`)));
+    sender.after(selo);
 }
 
 /**

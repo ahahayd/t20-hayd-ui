@@ -36,6 +36,24 @@ test("estilo novo: cabeçalho neutro e faixa lateral; o legado continua com o ca
     assert.match(legado.slice(0, legado.indexOf("}")), /background: color-mix\(in srgb, var\(--t20a-chat-cor\) 95%/);
 });
 
+test("estilo novo: a mensagem não corta o overflow (o menu do botão direito mora dentro dela)", () => {
+    const bloco = css.slice(css.indexOf(".t20a-chat-msg.t20a-chat-novo {"));
+    assert.doesNotMatch(bloco.slice(0, bloco.indexOf("}")), /overflow:\s*(hidden|clip)/);
+});
+
+test("privacidade: selo e borda tracejada nos dois estilos; modo deduzido dos destinatários", async () => {
+    const js = await readFile(new URL("scripts/chat-cartoes.mjs", raiz), "utf8");
+    assert.match(js, /if \(!destinos\.length\) return "publica";\s*if \(message\.blind\) return "cega";/);
+    assert.match(js, /destinos\[0\] === autor\) return "particular";/);
+    assert.match(js, /isGM\)\) return "mestre";\s*return "sussurro";/);
+    assert.match(js, /selo\.dataset\.tooltipText = dica;/); // texto puro, sem HTML
+    // Fora do if/else do estilo: vale no novo e no legado
+    assert.ok(main.indexOf("marcarPrivacidade(message, root)") > main.indexOf("organizarEfeitosDeUso(message, root, actor)"));
+    // Selo no canto de baixo à direita (linha do nome do usuário); sem borda tracejada
+    assert.match(css, /\.message-header > \.t20a-privacidade \{\s*grid-column: 3;\s*grid-row: 2;/);
+    assert.doesNotMatch(css, /t20a-priv--[^{]*\{\s*(border-left-style|outline): [^;]*dashed/);
+});
+
 test("estilo novo: botões com contorno, preenchidos só no hover com o texto calculado", () => {
     assert.match(css, /\.t20a-chat-novo footer button:hover:not\(:disabled\) \{\s*background: var\(--t20a-chat-cor\) !important;\s*color: var\(--t20a-chat-sobre-cor\)/);
 });
@@ -86,10 +104,10 @@ test("efeitos de uso: só os 5 primeiros à vista, o resto atrás de Mostrar mai
     assert.match(css, /\.t20a-chat-msg \.card-upgrades \.t20a-excedente \{\s*display: none !important;/);
 });
 
-test("efeitos sem custo vão para o topo da lista, sem o 0 PM, antes do limite de 5", async () => {
+test("efeitos sem custo vão para o fim da lista (os que gastam PM primeiro), sem o 0 PM", async () => {
     const js = await readFile(new URL("scripts/chat-cartoes.mjs", raiz), "utf8");
     assert.match(js, /\/\^\[\+-\]\?0\\s\*PM\\b\/i/);
-    assert.match(js, /ul\.prepend\(\.\.\.gratis\)/);
+    assert.match(js, /ul\.append\(\.\.\.gratis\)/);
     assert.match(js, /ordenarSemCusto\(card\);\s*limitarEfeitos\(card, message\);/);
     assert.match(css, /\.t20a-sem-custo \.row > b:first-child \{\s*display: none;/);
 });

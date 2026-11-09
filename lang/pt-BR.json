@@ -346,7 +346,17 @@
             "Aprimoramentos": "Aprimoramentos",
             "OutrosBonus": "Outros bônus",
             "MostrarMais": "Mostrar mais {n}",
-            "MostrarMenos": "Mostrar menos"
+            "MostrarMenos": "Mostrar menos",
+            "Privacidade": {
+                "mestre": "Privada",
+                "cega": "Cega",
+                "particular": "Particular",
+                "sussurro": "Sussurro",
+                "mestreDica": "Rolagem privada: só quem enviou e o Mestre veem",
+                "cegaDica": "Rolagem cega: só o Mestre vê o resultado",
+                "particularDica": "Rolagem particular: só quem enviou vê",
+                "sussurroDica": "Sussurro para {nomes}"
+            }
         }
     }
 }
