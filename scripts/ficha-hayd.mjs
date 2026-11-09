@@ -76,12 +76,19 @@ const FLAG_FIXADO = "fixado";
  *   ordem: { padrao: [ids], conjurador: [ids] } }.
  */
 const FLAG_LAYOUT_COMBATE = "layoutCombate";
-const MODELOS_COMBATE = ["padrao", "conjurador"];
+const MODELOS_COMBATE = ["padrao", "conjurador", "especialista"];
 /** Categorias que começam ocultas em cada modelo (enquanto o usuário não mexer). */
 const OCULTAS_PADRAO = {
     padrao: [],
-    conjurador: ["passive", "outros", "special", "minute", "hour", "day"]
+    conjurador: ["passive", "outros", "special", "minute", "hour", "day"],
+    especialista: ["reaction", "special", "minute", "hour", "day", "passive", "outros"]
 };
+/**
+ * Modelo Especialista: os itens ficam nas categorias deles e as execuções
+ * mostram só poderes. Ordem de fábrica das seções.
+ */
+const ORDEM_ESPECIALISTA = ["armas", "consumivel", "magias", "action", "full", "move", "free",
+    "reaction", "special", "minute", "hour", "day", "passive", "outros", "equipamento"];
 
 /**
  * Badges de material, melhorias e encantos: o cálculo é do t20-hayd-itens
@@ -862,6 +869,11 @@ function criarClasseFicha(Base) {
             const escolha = item.getFlag(MODULE_ID, FLAG_COMBATE);
             if (typeof escolha === "boolean") return escolha;
             if (item.type === "arma") return true;
+            // No Especialista todo consumível entra, e o equipamento vestido
+            if (this._modeloCombate() === "especialista") {
+                if (item.type === "consumivel") return true;
+                if (item.type === "equipamento") return !!item.system.equipado;
+            }
             if (item.type === "poder") return true; // sem execução vai para Passivo
             return ["magia", "consumivel"].includes(item.type) && !!execucao && execucao !== "passive";
         }
@@ -894,12 +906,17 @@ function criarClasseFicha(Base) {
             };
         }
 
+        _modeloCombate() {
+            const modelo = this.actor.getFlag(MODULE_ID, FLAG_LAYOUT_COMBATE)?.modelo;
+            return MODELOS_COMBATE.includes(modelo) ? modelo : "padrao";
+        }
+
         /** Modelo e categorias ocultas da aba Combate, já resolvidos (ver FLAG_LAYOUT_COMBATE). */
         _lerLayoutCombate() {
             const salvo = this.actor.getFlag(MODULE_ID, FLAG_LAYOUT_COMBATE) ?? {};
-            const modelo = MODELOS_COMBATE.includes(salvo.modelo) ? salvo.modelo : "padrao";
+            const modelo = this._modeloCombate();
             const ocultas = new Set(salvo.ocultas?.[modelo] ?? OCULTAS_PADRAO[modelo]);
-            const ordem = salvo.ordem?.[modelo] ?? [];
+            const ordem = salvo.ordem?.[modelo] ?? (modelo === "especialista" ? ORDEM_ESPECIALISTA : []);
             // Os ids fora da ordem salva (ou sem ordem nenhuma) ficam onde já estavam, no fim
             const pos = (id) => {
                 const i = ordem.indexOf(id);
@@ -922,7 +939,14 @@ function criarClasseFicha(Base) {
                 .map((e) => ({ id: e.id, icone: e.icone, rotulo: localizar(rotuloExec[e.id] ?? e.id) }));
             const ataques = { id: "armas", icone: "fa-solid fa-crosshairs", rotulo: localizar("T20A.Ficha.Ataques") };
             const outros = { id: "outros", icone: "fa-solid fa-box-open", rotulo: localizar("T20A.Ficha.Outros") };
-            const grupos = modelo === "conjurador"
+            const especialista = [ataques,
+                { id: "consumivel", icone: "fa-solid fa-flask", rotulo: localizar("T20A.Ficha.Consumiveis") },
+                { id: "magias", icone: "fa-solid fa-hat-wizard", rotulo: localizar("T20A.Ficha.Abas.Magias") },
+                ...execs, outros,
+                { id: "equipamento", icone: "fa-solid fa-shield-halved", rotulo: localizar("T20A.Ficha.Equipamento") }];
+            const grupos = modelo === "especialista"
+                ? [{ rotulo: localizar("T20A.Ficha.LayoutCategorias"), categorias: especialista }]
+                : modelo === "conjurador"
                 ? [
                     { rotulo: localizar("T20A.Ficha.LayoutCategorias"), categorias: [ataques,
                         { id: "magias", icone: "fa-solid fa-hat-wizard", rotulo: localizar("T20A.Ficha.Abas.Magias") },
@@ -939,7 +963,8 @@ function criarClasseFicha(Base) {
                 mexido,
                 modelos: [
                     { id: "padrao", rotulo: localizar("T20A.Ficha.ModeloPadrao"), dica: localizar("T20A.Ficha.ModeloPadraoDica") },
-                    { id: "conjurador", rotulo: localizar("T20A.Ficha.ModeloConjurador"), dica: localizar("T20A.Ficha.ModeloConjuradorDica") }
+                    { id: "conjurador", rotulo: localizar("T20A.Ficha.ModeloConjurador"), dica: localizar("T20A.Ficha.ModeloConjuradorDica") },
+                    { id: "especialista", rotulo: localizar("T20A.Ficha.ModeloEspecialista"), dica: localizar("T20A.Ficha.ModeloEspecialistaDica") }
                 ].map((m) => ({ ...m, ativo: m.id === modelo })),
                 grupos
             };
@@ -1109,6 +1134,7 @@ function criarClasseFicha(Base) {
         _secoesCombate(linhas, estado, desbloqueada) {
             const { modelo, ocultas, ordenar } = this._lerLayoutCombate();
             if (modelo === "conjurador") return this._secoesCombateConjurador(linhas, estado, desbloqueada, ocultas, ordenar);
+            if (modelo === "especialista") return this._secoesCombateEspecialista(linhas, estado, desbloqueada, ocultas, ordenar);
             const rotuloExec = CONFIG.T20.abilityActivationTypes ?? {};
             const noCombate = linhas.filter((l) => l.emCombate);
             const ativo = (l) => l.execucao && l.execucao !== "passive";
@@ -1172,6 +1198,47 @@ function criarClasseFicha(Base) {
             // Magias conta como um bloco só (todos os círculos juntos)
             const bloco = (s) => (/^c\d$/.test(s.id) ? "magias" : s.id);
             return ordenar(secoes, bloco).filter((s) => s.itens.length || (desbloqueada && s.criar));
+        }
+
+        /**
+         * Modelo Especialista: Ataques, Consumíveis, Magias por círculo, as
+         * execuções só com poderes e Equipamento no fim. Itens nunca entram
+         * nas execuções; ficam na categoria do tipo deles.
+         */
+        _secoesCombateEspecialista(linhas, estado, desbloqueada, ocultas, ordenar) {
+            const rotuloExec = CONFIG.T20.abilityActivationTypes ?? {};
+            const noCombate = linhas.filter((l) => l.emCombate);
+            const equipadosPrimeiro = (a, b) => b.equipado - a.equipado;
+            const secoes = [];
+            secoes.push(this._secao("armas", localizar("T20A.Ficha.Ataques"), "fa-solid fa-crosshairs",
+                noCombate.filter((l) => l.tipo === "arma").sort(equipadosPrimeiro), estado, {
+                    aba: "combate", colunas: "armas", criar: "arma"
+                }));
+            secoes.push(this._secao("consumivel", localizar("T20A.Ficha.Consumiveis"), "fa-solid fa-flask",
+                noCombate.filter((l) => l.tipo === "consumivel"), estado, { aba: "combate", colunas: "acoes" }));
+            const magias = linhas.filter((l) => l.tipo === "magia");
+            for (const c of CIRCULOS) secoes.push(this._secao(`c${c}`,
+                game.i18n.format("T20A.Ficha.Circulo", { circulo: c }), "fa-solid fa-hat-wizard",
+                magias.filter((l) => Number(l.circulo) === c), estado, {
+                    aba: "combate", colunas: "magias", escolas: true, custo: CUSTO_CIRCULO[c]
+                }));
+            const poderes = noCombate.filter((l) => l.tipo === "poder");
+            const ativo = (l) => l.execucao && l.execucao !== "passive";
+            for (const exec of EXECUCOES) {
+                secoes.push(this._secao(exec.id, localizar(rotuloExec[exec.id] ?? exec.id), exec.icone,
+                    poderes.filter((l) => l.execucao === exec.id), estado, { aba: "combate", colunas: "acoes" }));
+            }
+            secoes.push(this._secao("passive", localizar(rotuloExec.passive ?? "Passivo"), "fa-solid fa-infinity",
+                poderes.filter((l) => !ativo(l)), estado, { aba: "combate", colunas: "acoes" }));
+            // Tesouros e afins que o usuário pôs no Combate
+            const tipos = ["arma", "consumivel", "magia", "poder", "equipamento"];
+            secoes.push(this._secao("outros", localizar("T20A.Ficha.Outros"), "fa-solid fa-box-open",
+                noCombate.filter((l) => !tipos.includes(l.tipo)), estado, { aba: "combate", colunas: "acoes" }));
+            secoes.push(this._secao("equipamento", localizar("T20A.Ficha.Equipamento"), "fa-solid fa-shield-halved",
+                noCombate.filter((l) => l.tipo === "equipamento").sort(equipadosPrimeiro), estado, { aba: "combate", colunas: "acoes" }));
+            // Magias conta como um bloco só (todos os círculos juntos)
+            const bloco = (s) => (/^c\d$/.test(s.id) ? "magias" : s.id);
+            return ordenar(secoes, bloco).filter((s) => !ocultas.has(bloco(s)) && (s.itens.length || (desbloqueada && s.criar)));
         }
 
         _secoesInventario(linhas, estado, desbloqueada) {
